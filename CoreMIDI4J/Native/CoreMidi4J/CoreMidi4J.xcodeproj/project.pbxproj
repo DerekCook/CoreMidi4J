@@ -1,0 +1,300 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		65E46C271B89DBAF00CC6075 /* CoreMidi4J.h in Headers */ = {isa = PBXBuildFile; fileRef = 65E46C251B89DBAF00CC6075 /* CoreMidi4J.h */; };
+		65E46C291B89DC6700CC6075 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65E46C281B89DC6700CC6075 /* Cocoa.framework */; };
+		65E46C2B1B89DC7200CC6075 /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65E46C2A1B89DC7200CC6075 /* CoreMIDI.framework */; };
+		65E46C2D1B89DD8400CC6075 /* libCoreMidi4J.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 65E46C1D1B89DB8200CC6075 /* libCoreMidi4J.dylib */; };
+		65EE98281C240C66000DDF1A /* CoreMidiDeviceProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65EE98261C240C66000DDF1A /* CoreMidiDeviceProvider.cpp */; };
+		65EE982C1C2412C4000DDF1A /* CoreMidi4JUtilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65EE982B1C2412C4000DDF1A /* CoreMidi4JUtilities.cpp */; };
+		65EE982F1C2414BE000DDF1A /* CoreMidiClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65EE982D1C2414BE000DDF1A /* CoreMidiClient.cpp */; };
+		65EE98301C2414BE000DDF1A /* CoreMidiClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 65EE982E1C2414BE000DDF1A /* CoreMidiClient.h */; };
+		65EE98341C2415B1000DDF1A /* CoreMidiOutputPort.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65EE98321C2415B1000DDF1A /* CoreMidiOutputPort.cpp */; };
+		65EE98351C2415B1000DDF1A /* CoreMidiOutputPort.h in Headers */ = {isa = PBXBuildFile; fileRef = 65EE98331C2415B1000DDF1A /* CoreMidiOutputPort.h */; };
+		65EE98381C241615000DDF1A /* CoreMidiInputPort.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65EE98361C241615000DDF1A /* CoreMidiInputPort.cpp */; };
+		65EE98391C241615000DDF1A /* CoreMidiInputPort.h in Headers */ = {isa = PBXBuildFile; fileRef = 65EE98371C241615000DDF1A /* CoreMidiInputPort.h */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		65E46C2C1B89DD2C00CC6075 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /Development/CoreMIDI4J/Build/Release;
+			dstSubfolderSpec = 0;
+			files = (
+				65E46C2D1B89DD8400CC6075 /* libCoreMidi4J.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		65E46C1D1B89DB8200CC6075 /* libCoreMidi4J.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libCoreMidi4J.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		65E46C251B89DBAF00CC6075 /* CoreMidi4J.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreMidi4J.h; sourceTree = "<group>"; };
+		65E46C281B89DC6700CC6075 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		65E46C2A1B89DC7200CC6075 /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = System/Library/Frameworks/CoreMIDI.framework; sourceTree = SDKROOT; };
+		65EE98261C240C66000DDF1A /* CoreMidiDeviceProvider.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CoreMidiDeviceProvider.cpp; sourceTree = "<group>"; };
+		65EE982A1C240D37000DDF1A /* CoreMidi4JUtilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CoreMidi4JUtilities.h; sourceTree = "<group>"; };
+		65EE982B1C2412C4000DDF1A /* CoreMidi4JUtilities.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CoreMidi4JUtilities.cpp; sourceTree = "<group>"; };
+		65EE982D1C2414BE000DDF1A /* CoreMidiClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CoreMidiClient.cpp; sourceTree = "<group>"; };
+		65EE982E1C2414BE000DDF1A /* CoreMidiClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreMidiClient.h; sourceTree = "<group>"; };
+		65EE98311C241529000DDF1A /* CoreMidiDeviceProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CoreMidiDeviceProvider.h; sourceTree = "<group>"; };
+		65EE98321C2415B1000DDF1A /* CoreMidiOutputPort.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CoreMidiOutputPort.cpp; sourceTree = "<group>"; };
+		65EE98331C2415B1000DDF1A /* CoreMidiOutputPort.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreMidiOutputPort.h; sourceTree = "<group>"; };
+		65EE98361C241615000DDF1A /* CoreMidiInputPort.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CoreMidiInputPort.cpp; sourceTree = "<group>"; };
+		65EE98371C241615000DDF1A /* CoreMidiInputPort.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreMidiInputPort.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		65E46C1A1B89DB8200CC6075 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				65E46C2B1B89DC7200CC6075 /* CoreMIDI.framework in Frameworks */,
+				65E46C291B89DC6700CC6075 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		65E46C141B89DB8200CC6075 = {
+			isa = PBXGroup;
+			children = (
+				65E46C2A1B89DC7200CC6075 /* CoreMIDI.framework */,
+				65E46C281B89DC6700CC6075 /* Cocoa.framework */,
+				65E46C251B89DBAF00CC6075 /* CoreMidi4J.h */,
+				65EE982D1C2414BE000DDF1A /* CoreMidiClient.cpp */,
+				65EE982E1C2414BE000DDF1A /* CoreMidiClient.h */,
+				65EE98261C240C66000DDF1A /* CoreMidiDeviceProvider.cpp */,
+				65EE98311C241529000DDF1A /* CoreMidiDeviceProvider.h */,
+				65EE98361C241615000DDF1A /* CoreMidiInputPort.cpp */,
+				65EE98371C241615000DDF1A /* CoreMidiInputPort.h */,
+				65EE98321C2415B1000DDF1A /* CoreMidiOutputPort.cpp */,
+				65EE98331C2415B1000DDF1A /* CoreMidiOutputPort.h */,
+				65EE982B1C2412C4000DDF1A /* CoreMidi4JUtilities.cpp */,
+				65EE982A1C240D37000DDF1A /* CoreMidi4JUtilities.h */,
+				65E46C1E1B89DB8200CC6075 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		65E46C1E1B89DB8200CC6075 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				65E46C1D1B89DB8200CC6075 /* libCoreMidi4J.dylib */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		65E46C1B1B89DB8200CC6075 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				65EE98351C2415B1000DDF1A /* CoreMidiOutputPort.h in Headers */,
+				65E46C271B89DBAF00CC6075 /* CoreMidi4J.h in Headers */,
+				65EE98391C241615000DDF1A /* CoreMidiInputPort.h in Headers */,
+				65EE98301C2414BE000DDF1A /* CoreMidiClient.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		65E46C1C1B89DB8200CC6075 /* CoreMidi4J */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 65E46C211B89DB8200CC6075 /* Build configuration list for PBXNativeTarget "CoreMidi4J" */;
+			buildPhases = (
+				65E46C191B89DB8200CC6075 /* Sources */,
+				65E46C1A1B89DB8200CC6075 /* Frameworks */,
+				65E46C1B1B89DB8200CC6075 /* Headers */,
+				65E46C2C1B89DD2C00CC6075 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CoreMidi4J;
+			productName = CoreMidi4J;
+			productReference = 65E46C1D1B89DB8200CC6075 /* libCoreMidi4J.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		65E46C151B89DB8200CC6075 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0630;
+				ORGANIZATIONNAME = Derek;
+				TargetAttributes = {
+					65E46C1C1B89DB8200CC6075 = {
+						CreatedOnToolsVersion = 6.3.2;
+					};
+				};
+			};
+			buildConfigurationList = 65E46C181B89DB8200CC6075 /* Build configuration list for PBXProject "CoreMidi4J" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 65E46C141B89DB8200CC6075;
+			productRefGroup = 65E46C1E1B89DB8200CC6075 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				65E46C1C1B89DB8200CC6075 /* CoreMidi4J */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		65E46C191B89DB8200CC6075 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				65EE98281C240C66000DDF1A /* CoreMidiDeviceProvider.cpp in Sources */,
+				65EE982C1C2412C4000DDF1A /* CoreMidi4JUtilities.cpp in Sources */,
+				65EE982F1C2414BE000DDF1A /* CoreMidiClient.cpp in Sources */,
+				65EE98341C2415B1000DDF1A /* CoreMidiOutputPort.cpp in Sources */,
+				65EE98381C241615000DDF1A /* CoreMidiInputPort.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		65E46C1F1B89DB8200CC6075 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		65E46C201B89DB8200CC6075 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		65E46C221B89DB8200CC6075 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				EXECUTABLE_PREFIX = lib;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				"USER_HEADER_SEARCH_PATHS[arch=*]" = /Developer/SDKs/MacOSX10.7.sdk/System/Library/Frameworks/JavaVM.framework/Versions/A/Headers/;
+			};
+			name = Debug;
+		};
+		65E46C231B89DB8200CC6075 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				EXECUTABLE_PREFIX = lib;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				"USER_HEADER_SEARCH_PATHS[arch=*]" = /Developer/SDKs/MacOSX10.7.sdk/System/Library/Frameworks/JavaVM.framework/Versions/A/Headers/;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		65E46C181B89DB8200CC6075 /* Build configuration list for PBXProject "CoreMidi4J" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				65E46C1F1B89DB8200CC6075 /* Debug */,
+				65E46C201B89DB8200CC6075 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		65E46C211B89DB8200CC6075 /* Build configuration list for PBXNativeTarget "CoreMidi4J" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				65E46C221B89DB8200CC6075 /* Debug */,
+				65E46C231B89DB8200CC6075 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 65E46C151B89DB8200CC6075 /* Project object */;
+}

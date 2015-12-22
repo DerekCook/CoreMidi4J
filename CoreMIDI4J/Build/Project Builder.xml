@@ -1,0 +1,25 @@
+<project name="CoreMIDI4J Project Builder" basedir="/Development/CoreMIDI4J/bin">
+	<!-- edit the following lines to your needs -->
+	<target name="Initialise">
+		<echo> "Setting Properties" </echo>
+		<property name="project_name" value="exFactory"/>
+		<property name="srcDir" value="."/>
+		<property name="classDir" value="classes"/>
+		<property name="jar" value="${project_name}.jar"/>
+		<property name="izPackDir" value="/Applications/IzPack/"/>
+		<property name="obfjar" value="${project_name}.jar"/>
+		<property name="renamelog" value="${project_name}_renamelog.xml"/>
+		<property name="shrinklog" value="${project_name}_shrinklog.xml"/>
+		<property name="launch4j.dir" location="/Development/Java/launch4j" />
+	</target>
+
+	<target name="MakeJar">
+		<echo> "Creating Jar File" </echo>
+		<delete file="/Development/CoreMIDI4J/Build/Release/CoreMIDI4J.jar"/>
+		<jar destfile="/Development/CoreMIDI4J/Build/Release/CoreMIDI4J.jar" 
+			basedir="/Development/CoreMIDI4J/bin">
+			<service type="javax.sound.midi.spi.MidiDeviceProvider" provider="com.xfactoryLibrarians.CoreMidiDeviceProvider"/>
+		</jar>
+	</target>
+
+</project>
