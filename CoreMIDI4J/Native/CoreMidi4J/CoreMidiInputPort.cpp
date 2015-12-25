@@ -83,9 +83,12 @@ void javaMidiMessageCallback(const MIDIPacket *packet, void *readProcRefCon, MID
 
 void MIDIInput (const MIDIPacketList *packets, void *readProcRefCon, void *srcConnRefCon) {
     
-    // Call the Java callback function
-    javaMidiMessageCallback(&packets->packet[0],readProcRefCon, (MIDI_CALLBACK_PARAMETERS *) srcConnRefCon);
-    
+    // Call the Java callback function for each packet received
+    const MIDIPacket *packet = &packets->packet[0];
+    for (int i = 0; i < packets->numPackets; ++i) {
+        javaMidiMessageCallback(packet, readProcRefCon, (MIDI_CALLBACK_PARAMETERS *) srcConnRefCon);
+        packet = MIDIPacketNext(packet);
+    }
 }
 
 /*
