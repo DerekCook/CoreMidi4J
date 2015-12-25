@@ -24,7 +24,7 @@
  *
  */
 
-void javaMidiMessageCallback(const MIDIPacket *packet, void *readProcRefCon, MIDI_CALLBACK_PARAMETERS *callbackParameters) {
+void javaMidiMessageCallback(const MIDIPacketList *packets, void *readProcRefCon, MIDI_CALLBACK_PARAMETERS *callbackParameters) {
     
     JNIEnv *env;
     
@@ -49,22 +49,29 @@ void javaMidiMessageCallback(const MIDIPacket *packet, void *readProcRefCon, MID
         std::cout << "GetEnv: version not supported" << std::endl;
         
     }
+
+    // Loop over all the packets we have received, calling the Java callback for each one.
+    const MIDIPacket *packet = &packets->packet[0];
     
-    // Create a java array from the MIDIPacket
-    jbyteArray array = env->NewByteArray(packet->length);
-    env->SetByteArrayRegion(array, 0, packet->length, (jbyte*) packet->data);
-    
-    // Call the Java callback to pass the MIDI data to Java
-    env->CallVoidMethod(callbackParameters->midiMessage_object, callbackParameters->midiMessage_methodID,packet->length,array);
-    
-    // Release the array once we are finished with it
-    env->ReleaseByteArrayElements(array, NULL, JNI_ABORT);
-    
-    // Check for and describe any exceptions
-    if ( env->ExceptionCheck() ) {
+    for (int i = 0; i < packets->numPackets; ++i) {
+        // Create a java array from the MIDIPacket
+        jbyteArray array = env->NewByteArray(packet->length);
+        env->SetByteArrayRegion(array, 0, packet->length, (jbyte*) packet->data);
         
-        env->ExceptionDescribe();
+        // Call the Java callback to pass the MIDI data to Java
+        env->CallVoidMethod(callbackParameters->midiMessage_object, callbackParameters->midiMessage_methodID,packet->length,array);
         
+        // Release the array once we are finished with it
+        env->ReleaseByteArrayElements(array, NULL, JNI_ABORT);
+        
+        // Check for and describe any exceptions
+        if ( env->ExceptionCheck() ) {
+            
+            env->ExceptionDescribe();
+        }
+        
+        // Move on to the next packet
+        packet = MIDIPacketNext(packet);
     }
     
     // And finally detach the thread
@@ -83,9 +90,8 @@ void javaMidiMessageCallback(const MIDIPacket *packet, void *readProcRefCon, MID
 
 void MIDIInput (const MIDIPacketList *packets, void *readProcRefCon, void *srcConnRefCon) {
     
-    // Call the Java callback function
-    javaMidiMessageCallback(&packets->packet[0],readProcRefCon, (MIDI_CALLBACK_PARAMETERS *) srcConnRefCon);
-    
+    // Call the Java callback function for each packet received
+    javaMidiMessageCallback(packets, readProcRefCon, (MIDI_CALLBACK_PARAMETERS *) srcConnRefCon);
 }
 
 /*
