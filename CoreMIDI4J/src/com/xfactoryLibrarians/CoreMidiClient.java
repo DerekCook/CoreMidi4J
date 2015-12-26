@@ -11,6 +11,9 @@
 
 package com.xfactoryLibrarians;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * CoreMidiClient class
  *
@@ -19,6 +22,8 @@ package com.xfactoryLibrarians;
 public class CoreMidiClient {
 
   private final int midiClientReference;
+  
+  private List<CoreMidiNotification> notificationListeners = new ArrayList<CoreMidiNotification>();
 
   /**
    * Constructor for class
@@ -66,6 +71,63 @@ public class CoreMidiClient {
   public CoreMidiOutputPort outputPortCreate(final String name) throws CoreMidiException {
   	
   	return new CoreMidiOutputPort(midiClientReference,name);
+  	
+  }
+  
+  /**
+   * The message callback for receiving notifications about changes in the MIDI environment from the JNI code
+   * 
+   * @throws CoreMidiException 
+   * 
+   */
+    
+  public void notifyCallback() throws CoreMidiException {
+  	
+  	synchronized(this) {
+  		
+    	// Iterate through the listeners (if any) and call them to advise that the environment has changed    	
+  		for (CoreMidiNotification listener : notificationListeners) {
+
+  			listener.midiSystemUpdated();
+
+  		}
+  		
+  	}
+  
+  }
+  
+  /**
+   * Adds a notification listener to the listener list maintained by this class
+   * 
+   * @param listener	The CoreMidiNotification listener to add
+   * 
+   */
+  
+  public void addNotificationListener(CoreMidiNotification listener) {
+  	
+  	// Need to ensure that any CoreMidiDeviceProvider are at the head of the notification list, so that the device map is updated before other listeners are called
+  	if ( listener instanceof CoreMidiDeviceProvider ) {
+  		
+  		notificationListeners.add(0,listener);
+  	
+  	} else {
+  		
+  		notificationListeners.add(listener);
+  	
+  	}
+  	
+  }
+  
+  /**
+   * Removes a notification listener from the listener list maintained by this class
+   * 
+   * @param listener	The CoreMidiNotification listener to remove
+   * 
+   */
+  
+  public void removeNotificationListener(CoreMidiNotification listener) {
+  	
+  	notificationListeners.remove(listener);
   	
   }
   

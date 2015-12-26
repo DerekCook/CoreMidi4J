@@ -24,10 +24,7 @@ import javax.sound.midi.spi.MidiDeviceProvider;
  *
  */
 
-public class CoreMidiDeviceProvider extends MidiDeviceProvider {
-	
-	/* Filter to remove devices that are offline */
-	private static boolean filterOfflineDevices = true;
+public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMidiNotification {
 	
   private static final int BUFFER_SIZE = 2048;
 
@@ -39,11 +36,26 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider {
       
   	private CoreMidiClient client;
   	private CoreMidiOutputPort output;
-  	private final Map<Integer, MidiDevice> deviceMap = new LinkedHashMap<Integer, MidiDevice>(DEVICE_MAP_SIZE);
+  	private Map<Integer, MidiDevice> deviceMap = new LinkedHashMap<Integer, MidiDevice>(DEVICE_MAP_SIZE);
   	
   }
 
   private static final MidiProperties midiProperties = new MidiProperties();
+  
+  /**
+   * Initialises the system
+   * 
+   * @throws CoreMidiException
+   * 
+   */
+  
+  private static void initialise() throws CoreMidiException {
+  	
+  	midiProperties.client = new CoreMidiClient("Core MIDI Provider");
+  	midiProperties.output = midiProperties.client.outputPortCreate("Core Midi Provider Output");
+  	buildDeviceMap();
+
+  }
 
   /**
    * Class constructor
@@ -54,14 +66,14 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider {
   
   public CoreMidiDeviceProvider() throws CoreMidiException {
   	
-  	if (midiProperties.client == null) {
-
-  		midiProperties.client = new CoreMidiClient("Core MIDI Provider");
-  		midiProperties.output = midiProperties.client.outputPortCreate("Core Midi Provider Output");
-  		buildDeviceMap();
+  	if ( midiProperties.client == null ) {
+  	
+  		initialise();
 
   	}
   	
+		midiProperties.client.addNotificationListener(this);
+		
   }
 
   /**
@@ -71,42 +83,45 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider {
    * 
    */
   
-  private void buildDeviceMap() throws CoreMidiException {
+  private static void buildDeviceMap() throws CoreMidiException {
 
-  	int count = this.getNumberOfSources();
-
+  	int count = getNumberOfSources();
+  	
   	for (int i = 0; i < count; i++) {
 
-  		final int endPointReference = this.getSource(i);
+  		final int endPointReference = getSource(i);
 
-  		final int uniqueID = this.getUniqueID(endPointReference);
-
+  		final int uniqueID = getUniqueID(endPointReference);
+  		
   		if ( midiProperties.deviceMap.containsKey(uniqueID) == false ) {
-
-  			midiProperties.deviceMap.put(uniqueID, new CoreMidiSource(this.getMidiDeviceInfo(endPointReference)));
+  			
+  			CoreMidiSource source = new CoreMidiSource(getMidiDeviceInfo(endPointReference));
+  			
+  			midiProperties.deviceMap.put(uniqueID,source);
   		
   		}
 
   	}
   	
-  	count = this.getNumberOfDestinations();
+  	count = getNumberOfDestinations();
   	
   	for (int i = 0; i < count; i++) {
   		
-  		final int endPointReference = this.getDestination(i);
+  		final int endPointReference = getDestination(i);
   		
-  		final int uniqueID = this.getUniqueID(endPointReference);
+  		final int uniqueID = getUniqueID(endPointReference);
 
   		if ( midiProperties.deviceMap.containsKey(uniqueID) == false ) {
+  			
+  			CoreMidiDestination destination = new CoreMidiDestination(getMidiDeviceInfo(endPointReference));
 
-  			midiProperties.deviceMap.put(uniqueID, new CoreMidiDestination(this.getMidiDeviceInfo(endPointReference)));
+  			midiProperties.deviceMap.put(uniqueID, destination);
   		
   		}
   		
   	}
   	
   }
-
 
   /**
    * Gets the CoreMidiClient object 
@@ -121,7 +136,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider {
   	
   	if (midiProperties.client == null) {
   		
-  		new CoreMidiDeviceProvider();
+  		initialise();
   		
   	}
   	
@@ -137,6 +152,20 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider {
    */
   
   static CoreMidiOutputPort getOutputPort() {
+  	
+  	if (midiProperties.output == null) {
+  		
+  		try {
+  			
+				initialise();
+				
+			} catch (CoreMidiException e) {
+				
+				e.printStackTrace();
+				
+			}
+  		
+  	}
   	
   	return midiProperties.output;
   	
@@ -235,8 +264,64 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider {
 			
 	}
 
-
-
+	/**
+	 * Called when a notification occurs
+	 * 
+	 * @throws CoreMidiException
+	 * 
+	 */
+	
+	public void midiSystemUpdated() throws CoreMidiException {
+		
+		// Clear the map and rebuild it
+		midiProperties.deviceMap.clear();
+		buildDeviceMap();
+		
+	}
+	
+  /**
+   * Adds a notification listener to the listener list maintained by this class
+   * 
+   * @param listener	The CoreMidiNotification listener to add
+   * 
+   * @throws 					CoreMidiException 
+   * 
+   */
+  
+  public static void addNotificationListener(CoreMidiNotification listener) throws CoreMidiException {
+  	
+  	if (midiProperties.client == null) {
+  		
+  		initialise();
+  		
+  	}
+  	
+  	midiProperties.client.addNotificationListener(listener);
+  	
+  }
+  
+  /**
+   * Removes a notification listener from the listener list maintained by this class
+   * 
+   * @param listener	The CoreMidiNotification listener to remove
+   * 
+   * @throws 					CoreMidiException 
+   * 
+   */
+  
+  public static void removedNotificationListener(CoreMidiNotification listener) throws CoreMidiException {
+  	
+  	if (midiProperties.client == null) {
+  		
+  		initialise();
+  		
+  	}
+  	
+  	midiProperties.client.removeNotificationListener(listener);
+  	
+  }
+  
+  
   //////////////////////////////
 	///// JNI Interfaces
   //////////////////////////////
@@ -259,7 +344,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider {
 	 * 
 	 */
   
-  public native int getNumberOfSources();
+  public static native int getNumberOfSources();
   
 	/**
 	 * Gets the number of destinations supported by the system
@@ -268,7 +353,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider {
 	 * 
 	 */
   
-  public native int getNumberOfDestinations();
+  public static native int getNumberOfDestinations();
   
   /**
    * Gets the specified MIDI Source EndPoint
@@ -281,7 +366,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider {
    * 
    */
   
-  public native int getSource(int sourceIndex) throws CoreMidiException;
+  public static native int getSource(int sourceIndex) throws CoreMidiException;
   
   /**
    * Gets the specified MIDI Destination EndPoint
@@ -294,7 +379,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider {
    * 
    */
   
-  public native int getDestination(int destinationIndex) throws CoreMidiException;
+  public static native int getDestination(int destinationIndex) throws CoreMidiException;
   
   /**
    * Gets the unique ID for an object reference
@@ -307,7 +392,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider {
    * 
    */
   
-  public native int getUniqueID(int reference) throws CoreMidiException;
+  public static native int getUniqueID(int reference) throws CoreMidiException;
   
 
   /**
@@ -321,6 +406,6 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider {
    * 
    */
   
-  public native CoreMidiDeviceInfo getMidiDeviceInfo(int reference) throws CoreMidiException;
-  
+  public static native CoreMidiDeviceInfo getMidiDeviceInfo(int reference) throws CoreMidiException;
+
 }

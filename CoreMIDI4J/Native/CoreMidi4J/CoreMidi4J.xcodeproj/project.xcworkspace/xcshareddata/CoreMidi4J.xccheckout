@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>B126E181-D4A9-4A9F-A02D-6696DC65E8C4</string>
+	<key>IDESourceControlProjectName</key>
+	<string>CoreMidi4J</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>9F17AC8257B4439ECE230A93C35073531E1EDD35</key>
+		<string>https://github.com/DerekCook/CoreMidi4J.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>CoreMIDI4J/Native/CoreMidi4J/CoreMidi4J.xcodeproj</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>9F17AC8257B4439ECE230A93C35073531E1EDD35</key>
+		<string>../../../../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/DerekCook/CoreMidi4J.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>9F17AC8257B4439ECE230A93C35073531E1EDD35</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>9F17AC8257B4439ECE230A93C35073531E1EDD35</string>
+			<key>IDESourceControlWCCName</key>
+			<string>CoreMidi4J</string>
+		</dict>
+	</array>
+</dict>
+</plist>

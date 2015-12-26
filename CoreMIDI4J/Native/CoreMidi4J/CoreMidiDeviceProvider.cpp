@@ -11,8 +11,6 @@
 
 #include "CoreMidiDeviceProvider.h"
 
-extern void helloWorld();
-
 /////////////////////////////////////////////////////////
 // Native functions for CoreMidiDeviceProvider
 /////////////////////////////////////////////////////////
@@ -24,16 +22,16 @@ extern void helloWorld();
  * Method:    getNumberOfSources
  * Signature: ()I
  *
- * @param env                   The JNI environment
- * @param obj                   The reference to the java object instance that called this native method
+ * @param env		The JNI environment
+ * @param obj   The reference to the java object instance that called this native method
  *
- * @return                      The number of MIDI sources provided by the Core MIDI system
+ * @return      The number of MIDI sources provided by the Core MIDI system
  *
  */
 
 JNIEXPORT jint JNICALL Java_com_xfactoryLibrarians_CoreMidiDeviceProvider_getNumberOfSources(JNIEnv *env, jobject obj) {
     
-    return (jint) MIDIGetNumberOfSources();
+	return (jint) MIDIGetNumberOfSources();
     
 }
 
@@ -44,16 +42,16 @@ JNIEXPORT jint JNICALL Java_com_xfactoryLibrarians_CoreMidiDeviceProvider_getNum
  * Method:    getNumberOfDestinations
  * Signature: ()I
  *
- * @param env                   The JNI environment
- * @param obj                   The reference to the java object instance that called this native method
+ * @param env    The JNI environment
+ * @param obj    The reference to the java object instance that called this native method
  *
- * @return                      The number of MIDI destinations provided by the Core MIDI system
+ * @return       The number of MIDI destinations provided by the Core MIDI system
  *
  */
 
 JNIEXPORT jint JNICALL Java_com_xfactoryLibrarians_CoreMidiDeviceProvider_getNumberOfDestinations(JNIEnv *env, jobject obj) {
     
-    return (jint) MIDIGetNumberOfDestinations();
+	return (jint) MIDIGetNumberOfDestinations();
     
 }
 
@@ -64,25 +62,25 @@ JNIEXPORT jint JNICALL Java_com_xfactoryLibrarians_CoreMidiDeviceProvider_getNum
  * Method:    getSource
  * Signature: (I)I
  *
- * @param env                   The JNI environment
- * @param obj                   The reference to the java object instance that called this native method
- * @param sourceIndex           The index of the MIDI source to get
+ * @param env            The JNI environment
+ * @param obj            The reference to the java object instance that called this native method
+ * @param sourceIndex    The index of the MIDI source to get
  *
- * @return                      The specified Core MIDI Source
+ * @return               The specified Core MIDI Source
  *
- * @throws                      CoreMidiEXception if the source index is not valid
+ * @throws               CoreMidiEXception if the source index is not valid
  *
  */
 
 JNIEXPORT jint JNICALL Java_com_xfactoryLibrarians_CoreMidiDeviceProvider_getSource(JNIEnv *env, jobject obj, jint sourceIndex) {
     
-    if ( sourceIndex >= MIDIGetNumberOfSources() ) {
+	if ( sourceIndex >= MIDIGetNumberOfSources() ) {
         
-        ThrowException(env,CFSTR("MIDIGetSource"),sourceIndex);
+		ThrowException(env,CFSTR("MIDIGetSource"),sourceIndex);
         
-    }
+	}
     
-    return MIDIGetSource(sourceIndex);
+	return MIDIGetSource(sourceIndex);
     
 }
 
@@ -105,13 +103,13 @@ JNIEXPORT jint JNICALL Java_com_xfactoryLibrarians_CoreMidiDeviceProvider_getSou
 
 JNIEXPORT jint JNICALL Java_com_xfactoryLibrarians_CoreMidiDeviceProvider_getDestination(JNIEnv *env, jobject obj, jint destinationIndex) {
     
-    if ( destinationIndex >= MIDIGetNumberOfDestinations() ) {
+	if ( destinationIndex >= MIDIGetNumberOfDestinations() ) {
         
-        ThrowException(env,CFSTR("MIDIGetDestination"), destinationIndex);
+		ThrowException(env,CFSTR("MIDIGetDestination"), destinationIndex);
         
-    }
+	}
     
-    return MIDIGetDestination(destinationIndex);
+	return MIDIGetDestination(destinationIndex);
     
 }
 
@@ -132,11 +130,11 @@ JNIEXPORT jint JNICALL Java_com_xfactoryLibrarians_CoreMidiDeviceProvider_getDes
 
 JNIEXPORT jint JNICALL Java_com_xfactoryLibrarians_CoreMidiDeviceProvider_getUniqueID(JNIEnv *env, jobject obj, jint endPointReference) {
     
-    SInt32 uid = 0;
+	SInt32 uid = 0;
     
-    MIDIObjectGetIntegerProperty(endPointReference, kMIDIPropertyUniqueID, &uid);
+	MIDIObjectGetIntegerProperty(endPointReference, kMIDIPropertyUniqueID, &uid);
     
-    return uid;
+	return uid;
     
 }
 
@@ -157,51 +155,51 @@ JNIEXPORT jint JNICALL Java_com_xfactoryLibrarians_CoreMidiDeviceProvider_getUni
 
 JNIEXPORT jobject JNICALL Java_com_xfactoryLibrarians_CoreMidiDeviceProvider_getMidiDeviceInfo(JNIEnv *env, jobject obj, jint endPointReference) {
     
-    // Find the Java CoreMIDIDeviceInfo class and methods we need
-    jclass javaClass = env->FindClass("com/xfactoryLibrarians/CoreMidiDeviceInfo");
-    jmethodID constructor = env->GetMethodID(javaClass, "<init>", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;III)V");
+	// Find the Java CoreMIDIDeviceInfo class and methods we need
+	jclass javaClass = env->FindClass("com/xfactoryLibrarians/CoreMidiDeviceInfo");
+	jmethodID constructor = env->GetMethodID(javaClass, "<init>", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;III)V");
     
-    CFStringRef name;
-    CFStringRef deviceName;
-    CFStringRef	description;
-    CFStringRef manufacturer;
-    SInt32 version;
-    SInt32 uid;
+	CFStringRef name;
+	CFStringRef deviceName;
+	CFStringRef	description;
+	CFStringRef manufacturer;
+	SInt32 version;
+	SInt32 uid;
     
-    // Get the device properties
-    MIDIObjectGetStringProperty(endPointReference, kMIDIPropertyName, &name);
-    MIDIObjectGetStringProperty(endPointReference, kMIDIPropertyName, &deviceName);
-    MIDIObjectGetStringProperty(endPointReference, kMIDIPropertyModel, &description);
-    MIDIObjectGetStringProperty(endPointReference, kMIDIPropertyManufacturer, &manufacturer);
-    MIDIObjectGetIntegerProperty(endPointReference, kMIDIPropertyDriverVersion, &version);
-    MIDIObjectGetIntegerProperty(endPointReference, kMIDIPropertyUniqueID, &uid);
+	// Get the device properties
+	MIDIObjectGetStringProperty(endPointReference, kMIDIPropertyName, &name);
+	MIDIObjectGetStringProperty(endPointReference, kMIDIPropertyName, &deviceName);
+	MIDIObjectGetStringProperty(endPointReference, kMIDIPropertyModel, &description);
+	MIDIObjectGetStringProperty(endPointReference, kMIDIPropertyManufacturer, &manufacturer);
+	MIDIObjectGetIntegerProperty(endPointReference, kMIDIPropertyDriverVersion, &version);
+	MIDIObjectGetIntegerProperty(endPointReference, kMIDIPropertyUniqueID, &uid);
     
-    CFMutableStringRef buildName = CFStringCreateMutable(NULL, 0);
+	CFMutableStringRef buildName = CFStringCreateMutable(NULL, 0);
     
-    // Add "Core MIDI " to our device name if we can
-    if (buildName) {
+	// Add "Core MIDI " to our device name if we can
+	if (buildName) {
         
-        CFStringAppend(buildName, CFSTR("Core MIDI - "));
-        CFStringAppend(buildName, name);
+		CFStringAppend(buildName, CFSTR("Core MIDI - "));
+		CFStringAppend(buildName, name);
         
-        // Overwrite
-        deviceName = CFStringCreateCopy(NULL, buildName);
+		// Overwrite
+		deviceName = CFStringCreateCopy(NULL, buildName);
         
-        CFRelease(buildName);
+		CFRelease(buildName);
         
-    }
+	}
     
-    // Create the Java Object
-    jobject info = env->NewObject(javaClass,
-                                  constructor,
-                                  env->NewStringUTF(CFStringGetCStringPtr(deviceName, kCFStringEncodingMacRoman)),
-                                  env->NewStringUTF(CFStringGetCStringPtr(manufacturer, kCFStringEncodingMacRoman)),
-                                  env->NewStringUTF(CFStringGetCStringPtr(description, kCFStringEncodingMacRoman)),
-                                  version,
-                                  endPointReference,
-                                  uid);
+	// Create the Java Object
+	jobject info = env->NewObject(javaClass,
+																constructor,
+																env->NewStringUTF(CFStringGetCStringPtr(deviceName, kCFStringEncodingMacRoman)),
+																env->NewStringUTF(CFStringGetCStringPtr(manufacturer, kCFStringEncodingMacRoman)),
+																env->NewStringUTF(CFStringGetCStringPtr(description, kCFStringEncodingMacRoman)),
+																version,
+																endPointReference,
+																uid);
     
-    return info;
+	return info;
     
 }
 

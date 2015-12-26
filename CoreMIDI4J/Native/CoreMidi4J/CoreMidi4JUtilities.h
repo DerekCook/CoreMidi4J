@@ -31,9 +31,9 @@ void ThrowException(JNIEnv *env, CFStringRef function, OSStatus status);
 
 typedef struct midiCallBackParameters {
     
-    JavaVM   *midiMessage_jvm;       // The JVM Reference
-    jobject   midiMessage_object;    // The Java CoreMidiDevice object that will be called
-    jmethodID midiMessage_methodID;  // The Java CoreMidiDevice messageCallback method that will be called
+    JavaVM   *jvm;       // The JVM Reference
+    jobject   object;    // The Java object that will be called
+    jmethodID methodID;  // The Java messageCallback method that will be called
     
 } MIDI_CALLBACK_PARAMETERS;
 
