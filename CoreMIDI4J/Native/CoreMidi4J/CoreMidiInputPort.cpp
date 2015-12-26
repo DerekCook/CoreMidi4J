@@ -3,7 +3,7 @@
  * Description:  Implementation of the native functions for the CoreMidiInputPort class
  * Copyright:    Copyright (c) 2015
  * Company:      x.factory Librarians
- * @author       Derek Cook
+ * @author       Derek Cook, James Elliott
  *
  * This is part of the native side of my Core MIDI Service Provider Interface for Java on OS X, inplemented as an XCODE C++ DYLIB project
  *
@@ -24,7 +24,7 @@
  *
  */
 
-void javaMidiMessageCallback(const MIDIPacket *packet, void *readProcRefCon, MIDI_CALLBACK_PARAMETERS *callbackParameters) {
+void javaMidiMessageCallback(const MIDIPacketList *packets, void *readProcRefCon, MIDI_CALLBACK_PARAMETERS *callbackParameters) {
     
 	JNIEnv *env;
     
@@ -49,24 +49,32 @@ void javaMidiMessageCallback(const MIDIPacket *packet, void *readProcRefCon, MID
 		std::cout << "GetEnv: version not supported" << std::endl;
         
 	}
+
+	// Loop over all the packets we have received, calling the Java callback for each one.
+	const MIDIPacket *packet = &packets->packet[0];
     
-	// Create a java array from the MIDIPacket
-	jbyteArray array = env->NewByteArray(packet->length);
-	env->SetByteArrayRegion(array, 0, packet->length, (jbyte*) packet->data);
-    
-	// Call the Java callback to pass the MIDI data to Java
-	env->CallVoidMethod(callbackParameters->object, callbackParameters->methodID,packet->length,array);
-    
-	// Release the array once we are finished with it
-	env->ReleaseByteArrayElements(array, NULL, JNI_ABORT);
-    
-	// Check for and describe any exceptions
-	if ( env->ExceptionCheck() ) {
+	for (int i = 0; i < packets->numPackets; i += 1 ) {
+		
+		// Create a java array from the MIDIPacket
+		jbyteArray array = env->NewByteArray(packet->length);
+		env->SetByteArrayRegion(array, 0, packet->length, (jbyte*) packet->data);
         
-		env->ExceptionDescribe();
+		// Call the Java callback to pass the MIDI data to Java
+		env->CallVoidMethod(callbackParameters->object, callbackParameters->methodID,packet->length,array);
         
+		// Release the array once we are finished with it
+		env->ReleaseByteArrayElements(array, NULL, JNI_ABORT);
+        
+		// Check for and describe any exceptions
+		if ( env->ExceptionCheck() ) {
+            
+			env->ExceptionDescribe();
+			
+		}
+        
+		
 	}
-    
+	
 	// And finally detach the thread
 	callbackParameters->jvm->DetachCurrentThread();
     
@@ -82,18 +90,10 @@ void javaMidiMessageCallback(const MIDIPacket *packet, void *readProcRefCon, MID
  */
 
 void MIDIInput (const MIDIPacketList *packets, void *readProcRefCon, void *srcConnRefCon) {
-	
-	MIDIPacket *packet = (MIDIPacket *) &packets->packet[0];
-	
-	for (int i = 0; i < packets->numPackets; ++i) {
-		
-		// Call the Java callback function
-		javaMidiMessageCallback(packet,readProcRefCon, (MIDI_CALLBACK_PARAMETERS *) srcConnRefCon);
-		
-		packet = MIDIPacketNext(packet);
-	
-	}
-	
+    
+	// Call the Java callback function for each packet received
+	javaMidiMessageCallback(packets, readProcRefCon, (MIDI_CALLBACK_PARAMETERS *) srcConnRefCon);
+
 }
 
 /*
@@ -103,14 +103,14 @@ void MIDIInput (const MIDIPacketList *packets, void *readProcRefCon, void *srcCo
  * Method:    createInputPort
  * Signature: (ILjava/lang/String;)I
  *
- * @param env              The JNI environment
- * @param obj              The reference to the java object instance that called this native method
- * @param clientReference  The MIDI Client used to create the port
- * @param portName         The name of the input port
+ * @param env                   The JNI environment
+ * @param obj                   The reference to the java object instance that called this native method
+ * @param clientReference       The MIDI Client used to create the port
+ * @param portName              The name of the input port
  *
- * @return                 A reference to the created input port
+ * @return                      A reference to the created input port
  *
- * @throws                 CoreMidiException if the input port cannot be created
+ * @throws                      CoreMidiException if the input port cannot be created
  *
  */
 
@@ -149,12 +149,12 @@ JNIEXPORT jint JNICALL Java_com_xfactoryLibrarians_CoreMidiInputPort_createInput
  * Method:    midiPortConnectSource
  * Signature: (ILcom/xfactoryLibrarians/CoreMidiSource;)V
  *
- * @param env                   The JNI environment
- * @param obj                   The reference to the java object instance that called this native method
- * @param inputPortReference    The reference of the input point that we wish to connect the end point to
- * @param sourceDevice          The reference of the source device
+ * @param env                      The JNI environment
+ * @param obj                      The reference to the java object instance that called this native method
+ * @param inputPortReference       The reference of the input point that we wish to connect the end point to
+ * @param sourceDevice             The reference of the source device
  *
- * @throws                      CoreMidiException if the output port cannot be created
+ * @throws                         CoreMidiException if the output port cannot be created
  *
  */
 
@@ -208,13 +208,13 @@ JNIEXPORT jlong JNICALL Java_com_xfactoryLibrarians_CoreMidiInputPort_midiPortCo
  * Method:    midiPortConnectSource
  * Signature: (ILcom/xfactoryLibrarians/CoreMidiSource;)V
  *
- * @param env                   The JNI environment
- * @param obj                   The reference to the java object instance that called this native method
- * @param inputPortReference    The reference of the input point that we wish to connect the end point to
- * @param memoryReference       The memory handle that can now be released.
- * @param sourceDevice          The reference of the source device
+ * @param env                      The JNI environment
+ * @param obj                      The reference to the java object instance that called this native method
+ * @param inputPortReference       The reference of the input point that we wish to connect the end point to
+ * @param memoryReference          The memory handle that can now be released.
+ * @param sourceDevice             The reference of the source device
  *
- * @throws                      CoreMidiException if the output port cannot be created
+ * @throws                         CoreMidiException if the output port cannot be created
  *
  */
 
