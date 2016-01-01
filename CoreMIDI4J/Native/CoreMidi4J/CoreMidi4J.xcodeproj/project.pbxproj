@@ -7,10 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		650999561C303B4100879DFB /* libCoreMidi4J.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 65E46C1D1B89DB8200CC6075 /* libCoreMidi4J.dylib */; };
 		65E46C271B89DBAF00CC6075 /* CoreMidi4J.h in Headers */ = {isa = PBXBuildFile; fileRef = 65E46C251B89DBAF00CC6075 /* CoreMidi4J.h */; };
 		65E46C291B89DC6700CC6075 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65E46C281B89DC6700CC6075 /* Cocoa.framework */; };
 		65E46C2B1B89DC7200CC6075 /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65E46C2A1B89DC7200CC6075 /* CoreMIDI.framework */; };
-		65E46C2D1B89DD8400CC6075 /* libCoreMidi4J.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 65E46C1D1B89DB8200CC6075 /* libCoreMidi4J.dylib */; };
 		65EE98281C240C66000DDF1A /* CoreMidiDeviceProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65EE98261C240C66000DDF1A /* CoreMidiDeviceProvider.cpp */; };
 		65EE982C1C2412C4000DDF1A /* CoreMidi4JUtilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65EE982B1C2412C4000DDF1A /* CoreMidi4JUtilities.cpp */; };
 		65EE982F1C2414BE000DDF1A /* CoreMidiClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65EE982D1C2414BE000DDF1A /* CoreMidiClient.cpp */; };
@@ -24,11 +24,11 @@
 /* Begin PBXCopyFilesBuildPhase section */
 		65E46C2C1B89DD2C00CC6075 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
+			buildActionMask = 12;
 			dstPath = /Users/derek/git/CoreMidi4J/CoreMIDI4J/Build/Release;
 			dstSubfolderSpec = 0;
 			files = (
-				65E46C2D1B89DD8400CC6075 /* libCoreMidi4J.dylib in CopyFiles */,
+				650999561C303B4100879DFB /* libCoreMidi4J.dylib in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

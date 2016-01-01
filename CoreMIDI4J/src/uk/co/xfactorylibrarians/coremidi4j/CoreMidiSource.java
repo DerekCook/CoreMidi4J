@@ -1,15 +1,18 @@
 /**
  * Title:        CoreMIDI4J
  * Description:  Core MIDI Device Provider for Java on OS X
- * Copyright:    Copyright (c) 2015
+ * Copyright:    Copyright (c) 2015-2016
  * Company:      x.factory Librarians
  *
  * @author Derek Cook, James Elliott
  * 
+ * CoreMIDI4J is an open source Service Provider Interface for supporting external MIDI devices on MAC OS X
+ * 
  * CREDITS - This library uses principles established by OSXMIDI4J, but converted so it operates at the JNI level with no additional libraries required
+ * 
  */
 
-package com.xfactoryLibrarians;
+package uk.co.xfactorylibrarians.coremidi4j;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -33,13 +36,9 @@ import javax.sound.midi.Transmitter;
 public class CoreMidiSource implements MidiDevice {
 
 	private final CoreMidiDeviceInfo info;
-
 	private boolean isOpen;
-
 	private CoreMidiInputPort input = null;
-
 	private final List<Transmitter> transmitters;
-
 	private boolean inSysexMessage = false;
 	private Vector<byte[]> messageData;
 	private int sysexMessageLength = 0;
@@ -56,9 +55,7 @@ public class CoreMidiSource implements MidiDevice {
 	CoreMidiSource(CoreMidiDeviceInfo info) throws CoreMidiException {
 
 		this.info = info;
-
 		this.isOpen = false;
-
 		transmitters = new ArrayList<Transmitter>();
 
 	}
@@ -89,12 +86,14 @@ public class CoreMidiSource implements MidiDevice {
 
 		try {
 
+			// Create the input port if not already created
 			if (this.input == null) {
 
 				this.input = CoreMidiDeviceProvider.getMIDIClient().inputPortCreate("Core Midi Provider Input");
 
 			}
 
+			// And connect to it
 			this.input.connectSource(this);
 			isOpen = true;
 
@@ -117,12 +116,14 @@ public class CoreMidiSource implements MidiDevice {
 
 		try {
 
+			// If the port is created then disconnect from it
 			if (this.input != null) {
 
 				this.input.disconnectSource(this);
 
 			}
 
+			// Clear the transmitter list
 			synchronized (transmitters) {
 
 				transmitters.clear();
@@ -255,15 +256,18 @@ public class CoreMidiSource implements MidiDevice {
 	@Override
 	public Transmitter getTransmitter() throws MidiUnavailableException {
 
-		Transmitter t = new CoreMidiTransmitter(this);
+		// Create the transmitter
+		Transmitter transmitter = new CoreMidiTransmitter(this);
 
+		// Add it to the list
 		synchronized (transmitters) {
 
-			transmitters.add(t);
+			transmitters.add(transmitter);
 
 		}
 
-		return t;
+		// Finally return it
+		return transmitter;
 
 	}
 
@@ -279,6 +283,7 @@ public class CoreMidiSource implements MidiDevice {
 	@Override
 	public List<Transmitter> getTransmitters() {
 
+		// Create and return a list of transmitters
 		synchronized (transmitters) {
 
 			final List<Transmitter> list = new ArrayList<Transmitter>();
@@ -293,7 +298,8 @@ public class CoreMidiSource implements MidiDevice {
 
 	/**
 	 * The message callback for receiving midi data from the JNI code
-	 *
+	 * 
+	 * @param timestamp 	 The system timestamp
 	 * @param packetlength The length of the packet of messages
 	 * @param data         The data array that holds the messages
 	 * 
@@ -301,58 +307,79 @@ public class CoreMidiSource implements MidiDevice {
 	 * 
 	 */
 
-	public void messageCallback(int packetlength, byte data[]) throws InvalidMidiDataException {
+	public void messageCallback(int timestamp, int packetlength, byte data[]) throws InvalidMidiDataException {
 
 		MidiMessage message;
 		int offset = 0;
 
+		// An OSX MIDI packet may contain multiple messages
 		while (offset < packetlength) {
 
-			if (inSysexMessage) {
+			if ( inSysexMessage ) {
+				
+				// We can get timing messages mingled in SYSEX Data! So we need to avoid putting them into SYSEX data
+				// Retransmitting them seems OK in SYSEX reception. 
+				if ( ( data[offset] & 0xff ) == ShortMessage.TIMING_CLOCK ) {
 
-				offset += processSysexData(packetlength, data, offset);
+					message = new ShortMessage(data[offset] & 0xff);
+					transmitMessage(message, timestamp);
+					offset += 1;
+					
+				}
+
+				offset += processSysexData(packetlength, data, offset, timestamp);
 
 			} else if (data[offset] < (byte) 0xf0) {
+				
+				// Channel messages
 
 				// Uncomment the following to show the received message whilst debugging
 				//System.out.println("Message " + this.getHexString(data));
 
+				// The type of message to construct will depend on the message type
 				switch (data[offset] & (byte) 0xf0) {
 
+					// Three byte messages
 					case (byte) ShortMessage.NOTE_ON:
 					case (byte) ShortMessage.NOTE_OFF:
 					case (byte) ShortMessage.POLY_PRESSURE:
 					case (byte) ShortMessage.CONTROL_CHANGE:
 					case (byte) ShortMessage.PITCH_BEND:
 						message = new ShortMessage(data[offset] & 0xff, data[offset + 1], data[offset + 2]);
-						transmitMessage(message);
+						transmitMessage(message, timestamp);
 						offset += 3;
 						break;
 
+					// Two byte messages
 					case (byte) ShortMessage.PROGRAM_CHANGE:
 					case (byte) ShortMessage.CHANNEL_PRESSURE:
 						message = new ShortMessage(data[offset], data[offset + 1], 0);
-						transmitMessage(message);
+						transmitMessage(message, timestamp);
 						offset += 2;
 						break;
 
+					// Invalid message
 					default:
 						throw new InvalidMidiDataException("Invalid Status Byte " + data[0]);
 
 				}
 
 			} else {
+				
+				// System common and SYSEX messages
 
 				switch (data[offset] & 0xff) {
 
+					// Three byte messages
 					case ShortMessage.MIDI_TIME_CODE:
 					case ShortMessage.SONG_POSITION_POINTER:
 					case ShortMessage.SONG_SELECT:
 						message = new ShortMessage(data[offset], data[offset + 1], data[offset + 2]);
-						transmitMessage(message);
+						transmitMessage(message, timestamp);
 						offset += 3;
 						break;
 
+					// Single byte messages
 					case ShortMessage.TUNE_REQUEST:
 					case ShortMessage.TIMING_CLOCK:
 					case ShortMessage.START:
@@ -361,16 +388,18 @@ public class CoreMidiSource implements MidiDevice {
 					case ShortMessage.ACTIVE_SENSING:
 					case ShortMessage.SYSTEM_RESET:
 						message = new ShortMessage(data[offset] & 0xff);
-						transmitMessage(message);
+						transmitMessage(message, timestamp);
 						offset += 1;
 						break;
 
+					// SYSEX Message
 					case SysexMessage.SYSTEM_EXCLUSIVE:
 						sysexMessageLength = 0;  // We are starting a SysEx message, may span multiple packets
 						messageData = new Vector<byte[]>();
-						offset += processSysexData(packetlength, data, offset);
+						offset += processSysexData(packetlength, data, offset, timestamp);
 						break;
 
+					// Invalid message
 					default:
 						throw new InvalidMidiDataException("Invalid Status Byte ");
 
@@ -428,23 +457,25 @@ public class CoreMidiSource implements MidiDevice {
 	 * we know the SYSEX is finished, and so we can assemble and transmit it from any fragments which have been
 	 * gathered.
 	 *
-	 * @param packetLength the length of the data packet
-	 * @param sourceData   the source data received from Core MIDI
-	 * @param startOffset  the position within the packet where the current message began
+	 * @param packetLength 	The length of the data packet
+	 * @param sourceData   	The source data received from Core MIDI
+	 * @param startOffset  	The position within the packet where the current message began
+	 * @param timestamp 		The message timestamp
 	 *
-	 * @return the number of bytes consumed from the packet by the SYSEX message.
+	 * @return 							The number of bytes consumed from the packet by the SYSEX message.
 	 * 
-	 * @throws InvalidMidiDataException 
+	 * @throws 							InvalidMidiDataException 
 	 * 
 	 */
 	
-	private int processSysexData(int packetLength, byte sourceData[], int startOffset) throws InvalidMidiDataException {
+	private int processSysexData(int packetLength, byte sourceData[], int startOffset, int timestamp) throws InvalidMidiDataException {
 
 		// Look for the end of the SYSEX or packet
 		int messageLength = 0;
 		boolean foundEnd = false;
 		
-		while (startOffset + messageLength < packetLength) {
+		// Check to see if this packet contains the end of the message
+		while ( ( startOffset + messageLength ) < packetLength) {
 			
 			byte latest = sourceData[startOffset + messageLength++];
 			
@@ -462,7 +493,6 @@ public class CoreMidiSource implements MidiDevice {
 		byte data[] = new byte[messageLength];
 
 		//Copy the data to the array
-
 		try {
 
 			System.arraycopy(sourceData, startOffset, data, 0, messageLength);
@@ -484,7 +514,7 @@ public class CoreMidiSource implements MidiDevice {
 		// If we found the end, send it now
 		if (foundEnd) {
 			
-			transmitMessage(constructSysexMessage());
+			transmitMessage(constructSysexMessage(), timestamp);
 			
 		}
 
@@ -497,18 +527,19 @@ public class CoreMidiSource implements MidiDevice {
 	/**
 	 * Sends a MIDI message to all of the registered transmitters
 	 *
-	 * @param message the message to send
+	 * @param message 		the message to send
+	 * @param timestamp 	the time stamp
 	 * 
 	 */
 
-	private void transmitMessage(final MidiMessage message) {
+	private void transmitMessage(final MidiMessage message, int timestamp) {
 
 		// Uncomment the following to filter realtime messages during debugging
-		//  	if ( ( message.getStatus() == ShortMessage.ACTIVE_SENSING ) || ( message.getStatus() == ShortMessage.TIMING_CLOCK ) ) {
+		//if ( ( message.getStatus() == ShortMessage.ACTIVE_SENSING ) || ( message.getStatus() == ShortMessage.TIMING_CLOCK ) ) {
 		//  		
-		//  		return;
+		//	return;
 		//  		
-		//  	}
+		//}
 
 		synchronized (transmitters) {
 
@@ -529,7 +560,7 @@ public class CoreMidiSource implements MidiDevice {
 					// If the receiver is not null then get send the message
 					if (receiver != null) {
 
-						receiver.send(message, -1);
+						receiver.send(message, timestamp);
 
 					}
 

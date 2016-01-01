@@ -1,13 +1,23 @@
-//
-//  CoreMidi4JUtilities.h
-//  CoreMidi4J
-//
-//  Created by Derek on 18/12/2015.
-//  Copyright (c) 2015 Derek. All rights reserved.
-//
+/**
+ * Title:        CoreMIDI4J
+ * Description:  Core MIDI Device Provider for Java on OS X
+ * Copyright:    Copyright (c) 2015-2016
+ * Company:      x.factory Librarians
+ *
+ * @author Derek Cook
+ *
+ * CoreMIDI4J is an open source Service Provider Interface for supporting external MIDI devices on MAC OS X
+ *
+ * This file is part of the XCODE project that provides the native implementation of CoreMIDI4J
+ *
+ * CREDITS - This library uses principles established by OSXMIDI4J, but converted so it operates at the JNI level with no additional libraries required
+ *
+ */
 
 #ifndef CoreMidi4J_CoreMidi4JUtilities_h
 #define CoreMidi4J_CoreMidi4JUtilities_h
+
+#include <iostream>
 
 #include "CoreMidi4J.h"
 #include <CoreMIDI/CoreMIDI.h>
@@ -25,6 +35,15 @@
 
 void ThrowException(JNIEnv *env, CFStringRef function, OSStatus status);
 
+/*
+ * Helper function that prints out JNI Status Codes
+ *
+ * @param status	The status value to print
+ *
+ */
+
+void printJniStatus(int status);
+    
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Type Definitions
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////

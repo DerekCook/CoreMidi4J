@@ -1,11 +1,16 @@
 /**
- * Title:        CoreMIDI4J - CoreMidiDeviceProvider
- * Description:  Implementation of the native functions for the CoreMidiDeviceProvider class
- * Copyright:    Copyright (c) 2015
+ * Title:        CoreMIDI4J
+ * Description:  Core MIDI Device Provider for Java on OS X
+ * Copyright:    Copyright (c) 2015-2016
  * Company:      x.factory Librarians
- * @author       Derek Cook
  *
- * This is part of the native side of my Core MIDI Service Provider Interface for Java on OS X, inplemented as an XCODE C++ DYLIB project
+ * @author Derek Cook
+ *
+ * CoreMIDI4J is an open source Service Provider Interface for supporting external MIDI devices on MAC OS X
+ *
+ * This file is part of the XCODE project that provides the native implementation of CoreMIDI4J
+ *
+ * CREDITS - This library uses principles established by OSXMIDI4J, but converted so it operates at the JNI level with no additional libraries required
  *
  */
 
@@ -18,7 +23,7 @@
 /*
  * Gets the number of MIDI sources provided by the Core MIDI system
  *
- * Class:     com_xfactoryLibrarians_CoreMidiDeviceProvider
+ * Class:     com_coremidi4j_CoreMidiDeviceProvider
  * Method:    getNumberOfSources
  * Signature: ()I
  *
@@ -29,7 +34,7 @@
  *
  */
 
-JNIEXPORT jint JNICALL Java_com_xfactoryLibrarians_CoreMidiDeviceProvider_getNumberOfSources(JNIEnv *env, jobject obj) {
+JNIEXPORT jint JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDeviceProvider_getNumberOfSources(JNIEnv *env, jobject obj) {
     
 	return (jint) MIDIGetNumberOfSources();
     
@@ -38,7 +43,7 @@ JNIEXPORT jint JNICALL Java_com_xfactoryLibrarians_CoreMidiDeviceProvider_getNum
 /*
  * Gets the number of MIDI destinations provided by the Core MIDI system
  *
- * Class:     com_xfactoryLibrarians_CoreMidiDeviceProvider
+ * Class:     com_coremidi4j_CoreMidiDeviceProvider
  * Method:    getNumberOfDestinations
  * Signature: ()I
  *
@@ -49,7 +54,7 @@ JNIEXPORT jint JNICALL Java_com_xfactoryLibrarians_CoreMidiDeviceProvider_getNum
  *
  */
 
-JNIEXPORT jint JNICALL Java_com_xfactoryLibrarians_CoreMidiDeviceProvider_getNumberOfDestinations(JNIEnv *env, jobject obj) {
+JNIEXPORT jint JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDeviceProvider_getNumberOfDestinations(JNIEnv *env, jobject obj) {
     
 	return (jint) MIDIGetNumberOfDestinations();
     
@@ -58,7 +63,7 @@ JNIEXPORT jint JNICALL Java_com_xfactoryLibrarians_CoreMidiDeviceProvider_getNum
 /*
  * Gets the specified Core MIDI Source
  *
- * Class:     com_xfactoryLibrarians_CoreMidiDeviceProvider
+ * Class:     com_coremidi4j_CoreMidiDeviceProvider
  * Method:    getSource
  * Signature: (I)I
  *
@@ -72,7 +77,7 @@ JNIEXPORT jint JNICALL Java_com_xfactoryLibrarians_CoreMidiDeviceProvider_getNum
  *
  */
 
-JNIEXPORT jint JNICALL Java_com_xfactoryLibrarians_CoreMidiDeviceProvider_getSource(JNIEnv *env, jobject obj, jint sourceIndex) {
+JNIEXPORT jint JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDeviceProvider_getSource(JNIEnv *env, jobject obj, jint sourceIndex) {
     
 	if ( sourceIndex >= MIDIGetNumberOfSources() ) {
         
@@ -87,7 +92,7 @@ JNIEXPORT jint JNICALL Java_com_xfactoryLibrarians_CoreMidiDeviceProvider_getSou
 /*
  * Gets the specified Core MIDI Destination
  *
- * Class:     com_xfactoryLibrarians_CoreMidiDeviceProvider
+ * Class:     com_coremidi4j_CoreMidiDeviceProvider
  * Method:    getDestination
  * Signature: (I)I
  *
@@ -101,7 +106,7 @@ JNIEXPORT jint JNICALL Java_com_xfactoryLibrarians_CoreMidiDeviceProvider_getSou
  *
  */
 
-JNIEXPORT jint JNICALL Java_com_xfactoryLibrarians_CoreMidiDeviceProvider_getDestination(JNIEnv *env, jobject obj, jint destinationIndex) {
+JNIEXPORT jint JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDeviceProvider_getDestination(JNIEnv *env, jobject obj, jint destinationIndex) {
     
 	if ( destinationIndex >= MIDIGetNumberOfDestinations() ) {
         
@@ -116,7 +121,7 @@ JNIEXPORT jint JNICALL Java_com_xfactoryLibrarians_CoreMidiDeviceProvider_getDes
 /*
  * Gets the unique ID (UID) of the specified end point
  *
- * Class:     com_xfactoryLibrarians_CoreMidiDeviceProvider
+ * Class:     com_coremidi4j_CoreMidiDeviceProvider
  * Method:    getUniqueID
  * Signature: (I)I
  *
@@ -128,7 +133,7 @@ JNIEXPORT jint JNICALL Java_com_xfactoryLibrarians_CoreMidiDeviceProvider_getDes
  *
  */
 
-JNIEXPORT jint JNICALL Java_com_xfactoryLibrarians_CoreMidiDeviceProvider_getUniqueID(JNIEnv *env, jobject obj, jint endPointReference) {
+JNIEXPORT jint JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDeviceProvider_getUniqueID(JNIEnv *env, jobject obj, jint endPointReference) {
     
 	SInt32 uid = 0;
     
@@ -141,7 +146,7 @@ JNIEXPORT jint JNICALL Java_com_xfactoryLibrarians_CoreMidiDeviceProvider_getUni
 /*
  * Creates and gets a MidiDevice.Info object for the specified end point reference
  *
- * Class:     com_xfactoryLibrarians_CoreMidiDeviceProvider
+ * Class:     com_coremidi4j_CoreMidiDeviceProvider
  * Method:    getMidiDeviceInfo
  * Signature: (I)Ljavax/sound/midi/MidiDevice/Info;
  *
@@ -153,11 +158,7 @@ JNIEXPORT jint JNICALL Java_com_xfactoryLibrarians_CoreMidiDeviceProvider_getUni
  *
  */
 
-JNIEXPORT jobject JNICALL Java_com_xfactoryLibrarians_CoreMidiDeviceProvider_getMidiDeviceInfo(JNIEnv *env, jobject obj, jint endPointReference) {
-    
-	// Find the Java CoreMIDIDeviceInfo class and methods we need
-	jclass javaClass = env->FindClass("com/xfactoryLibrarians/CoreMidiDeviceInfo");
-	jmethodID constructor = env->GetMethodID(javaClass, "<init>", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;III)V");
+JNIEXPORT jobject JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDeviceProvider_getMidiDeviceInfo(JNIEnv *env, jobject obj, jint endPointReference) {
     
 	CFStringRef name;
 	CFStringRef deviceName;
@@ -165,6 +166,10 @@ JNIEXPORT jobject JNICALL Java_com_xfactoryLibrarians_CoreMidiDeviceProvider_get
 	CFStringRef manufacturer;
 	SInt32 version;
 	SInt32 uid;
+	
+	// Find the Java CoreMIDIDeviceInfo class and its constructor
+	jclass javaClass = env->FindClass("uk/co/xfactorylibrarians/coremidi4j/CoreMidiDeviceInfo");
+	jmethodID constructor = env->GetMethodID(javaClass, "<init>", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;III)V");
     
 	// Get the device properties
 	MIDIObjectGetStringProperty(endPointReference, kMIDIPropertyName, &name);
@@ -176,15 +181,16 @@ JNIEXPORT jobject JNICALL Java_com_xfactoryLibrarians_CoreMidiDeviceProvider_get
     
 	CFMutableStringRef buildName = CFStringCreateMutable(NULL, 0);
     
-	// Add "Core MIDI " to our device name if we can
+	// Add "- Core MIDI " to the end of our device name if we can
 	if (buildName) {
-        
-		CFStringAppend(buildName, CFSTR("Core MIDI - "));
+		
 		CFStringAppend(buildName, name);
-        
-		// Overwrite
+		CFStringAppend(buildName, CFSTR(" - Core MIDI"));
+		
+		// Overwrite the deviceName with our updated one
 		deviceName = CFStringCreateCopy(NULL, buildName);
-        
+		
+		// And release the temporary string
 		CFRelease(buildName);
         
 	}

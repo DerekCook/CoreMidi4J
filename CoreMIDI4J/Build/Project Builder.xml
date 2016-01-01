@@ -1,12 +1,19 @@
-<project name="CoreMIDI4J Project Builder" basedir="../bin">
-	<!-- edit the following lines to your needs -->
+<project name="CoreMIDI4J SPI Builder">
+
 	<target name="MakeJar">
 		<echo> "Creating CoreMidi4J Jar File" </echo>
 		<delete file="../Build/Release/CoreMIDI4J.jar"/>
 		<jar destfile="../Build/Release/CoreMIDI4J.jar"
 			basedir="../bin">
-			<service type="javax.sound.midi.spi.MidiDeviceProvider" provider="com.xfactoryLibrarians.CoreMidiDeviceProvider"/>
+			<service type="javax.sound.midi.spi.MidiDeviceProvider" provider="uk.co.xfactorylibrarians.coremidi4j.CoreMidiDeviceProvider"/>
 		</jar>
+	</target>
+	
+	<target name="MakeZip">
+		<zip destfile="../Build/Release/CoreMidi4J.zip"
+		       basedir="../Build/Release"
+	  	     includes="**/*.jar,**/*.dylib"
+	    	   excludes="**/*.zip"/>
 	</target>
 
 </project>

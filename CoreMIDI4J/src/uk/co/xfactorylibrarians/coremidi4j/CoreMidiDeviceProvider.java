@@ -1,15 +1,18 @@
 /**
  * Title:        CoreMIDI4J
  * Description:  Core MIDI Device Provider for Java on OS X
- * Copyright:    Copyright (c) 2015
+ * Copyright:    Copyright (c) 2015-2016
  * Company:      x.factory Librarians
- * @author       Derek Cook
+ *
+ * @author Derek Cook
+ * 
+ * CoreMIDI4J is an open source Service Provider Interface for supporting external MIDI devices on MAC OS X
  * 
  * CREDITS - This library uses principles established by OSXMIDI4J, but converted so it operates at the JNI level with no additional libraries required
- *
+ * 
  */
 
-package com.xfactoryLibrarians;
+package uk.co.xfactorylibrarians.coremidi4j;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -26,10 +29,6 @@ import javax.sound.midi.spi.MidiDeviceProvider;
 
 public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMidiNotification {
 	
-  private static final int BUFFER_SIZE = 2048;
-
-  private static final String DEVICE_NAME_PREFIX = "CoreMidi - ";
-
   private static final int DEVICE_MAP_SIZE = 20;
 
   private static final class MidiProperties {
@@ -45,11 +44,11 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
   /**
    * Initialises the system
    * 
-   * @throws CoreMidiException
+   * @throws CoreMidiException 
    * 
    */
   
-  private static void initialise() throws CoreMidiException {
+  private void initialise() throws CoreMidiException {
   	
   	midiProperties.client = new CoreMidiClient("Core MIDI Provider");
   	midiProperties.output = midiProperties.client.outputPortCreate("Core Midi Provider Output");
@@ -66,6 +65,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
   
   public CoreMidiDeviceProvider() throws CoreMidiException {
   	
+  	// If the client has not been initialised then we need to setup the static fields in the class
   	if ( midiProperties.client == null ) {
   	
   		initialise();
@@ -83,39 +83,35 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
    * 
    */
   
-  private static void buildDeviceMap() throws CoreMidiException {
+  private void buildDeviceMap() throws CoreMidiException {
 
-  	int count = getNumberOfSources();
-  	
-  	for (int i = 0; i < count; i++) {
+  	// Iterate through the sources
+  	for (int i = 0; i < getNumberOfSources(); i++) {
 
+  		// Get the end point reference and its unique ID
   		final int endPointReference = getSource(i);
-
   		final int uniqueID = getUniqueID(endPointReference);
-  		
+
+  		// If the unique ID of the end point is not in the map then create a CoreMidiSource object and add it to the map
   		if ( midiProperties.deviceMap.containsKey(uniqueID) == false ) {
   			
-  			CoreMidiSource source = new CoreMidiSource(getMidiDeviceInfo(endPointReference));
-  			
-  			midiProperties.deviceMap.put(uniqueID,source);
+  			midiProperties.deviceMap.put(uniqueID,new CoreMidiSource(getMidiDeviceInfo(endPointReference)));
   		
   		}
 
   	}
   	
-  	count = getNumberOfDestinations();
-  	
-  	for (int i = 0; i < count; i++) {
+  	// Iterate through the destinations
+  	for (int i = 0; i < getNumberOfDestinations(); i++) {
   		
+  		// Get the end point reference and its unique ID
   		final int endPointReference = getDestination(i);
-  		
   		final int uniqueID = getUniqueID(endPointReference);
 
+  		// If the unique ID of the end point is not in the map then create a CoreMidiDestination object and add it to the map
   		if ( midiProperties.deviceMap.containsKey(uniqueID) == false ) {
   			
-  			CoreMidiDestination destination = new CoreMidiDestination(getMidiDeviceInfo(endPointReference));
-
-  			midiProperties.deviceMap.put(uniqueID, destination);
+  			midiProperties.deviceMap.put(uniqueID, new CoreMidiDestination(getMidiDeviceInfo(endPointReference)));
   		
   		}
   		
@@ -134,9 +130,10 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
   
   static CoreMidiClient getMIDIClient() throws CoreMidiException {
   	
+  	// If the client has not been initialised then we need to setup the static fields in the class
   	if (midiProperties.client == null) {
   		
-  		initialise();
+  		new CoreMidiDeviceProvider().initialise();
   		
   	}
   	
@@ -153,12 +150,13 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
   
   static CoreMidiOutputPort getOutputPort() {
   	
+  	// If the client has not been initialised then we need to setup the static fields in the class
   	if (midiProperties.output == null) {
   		
   		try {
   			
-				initialise();
-				
+    		new CoreMidiDeviceProvider().initialise();
+    		
 			} catch (CoreMidiException e) {
 				
 				e.printStackTrace();
@@ -183,24 +181,27 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
 	@Override
 	public Info[] getDeviceInfo() {
 		
-		
+		// If there are no devices in the map, then return an empty array
 		if (midiProperties.deviceMap == null) {
 			
 			return new MidiDevice.Info[0];
 			
 		}
 		
+		// Create the array and iterator
 		final MidiDevice.Info[] info = new MidiDevice.Info[midiProperties.deviceMap.size()];
-		
 		final Iterator<MidiDevice> iterator = midiProperties.deviceMap.values().iterator();
 
 		int counter = 0;
 		
+		// Iterate over the device map and populate the array
 		while (iterator.hasNext()) {
 		
 			final MidiDevice device = iterator.next();
 			
-			info[counter++] = (CoreMidiDeviceInfo) device.getDeviceInfo();
+			info[counter] = (CoreMidiDeviceInfo) device.getDeviceInfo();
+			
+			counter += 1;
 			
 		}
 
@@ -250,8 +251,10 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
 		
 		boolean foundDevice = false;
 
+		// The device map must be created and the info object must be a CoreMIDIDeviceInfo object 
 		if ( ( midiProperties.deviceMap != null ) && ( info instanceof CoreMidiDeviceInfo ) ) {
 
+			// Search for the device info UID within the device map
 			if (midiProperties.deviceMap.containsKey(((CoreMidiDeviceInfo)info).getUniqueID())) {
 
 				foundDevice = true;
@@ -290,10 +293,11 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
   
   public static void addNotificationListener(CoreMidiNotification listener) throws CoreMidiException {
   	
+  	// If the client has not been initialised then we need to setup the static fields in the class
   	if (midiProperties.client == null) {
   		
-  		initialise();
-  		
+  		new CoreMidiDeviceProvider().initialise();
+  		  		
   	}
   	
   	midiProperties.client.addNotificationListener(listener);
@@ -311,9 +315,10 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
   
   public static void removedNotificationListener(CoreMidiNotification listener) throws CoreMidiException {
   	
+  	// If the client has not been initialised then we need to setup the static fields in the class
   	if (midiProperties.client == null) {
   		
-  		initialise();
+  		new CoreMidiDeviceProvider().initialise();
   		
   	}
   	
@@ -344,7 +349,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
 	 * 
 	 */
   
-  public static native int getNumberOfSources();
+  private native int getNumberOfSources();
   
 	/**
 	 * Gets the number of destinations supported by the system
@@ -353,7 +358,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
 	 * 
 	 */
   
-  public static native int getNumberOfDestinations();
+  private native int getNumberOfDestinations();
   
   /**
    * Gets the specified MIDI Source EndPoint
@@ -366,7 +371,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
    * 
    */
   
-  public static native int getSource(int sourceIndex) throws CoreMidiException;
+  private native int getSource(int sourceIndex) throws CoreMidiException;
   
   /**
    * Gets the specified MIDI Destination EndPoint
@@ -379,21 +384,20 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
    * 
    */
   
-  public static native int getDestination(int destinationIndex) throws CoreMidiException;
+  private native int getDestination(int destinationIndex) throws CoreMidiException;
   
   /**
    * Gets the unique ID for an object reference
    * 
-   * @param reference 	the reference to the object to get the UID for 
+   * @param reference 	The reference to the object to get the UID for 
    * 
-   * @return						the UID of the referenced object
+   * @return						The UID of the referenced object
    * 
-   * @throws CoreMidiException 
+   * @throws 						CoreMidiException 
    * 
    */
   
-  public static native int getUniqueID(int reference) throws CoreMidiException;
-  
+  private native int getUniqueID(int reference) throws CoreMidiException; 
 
   /**
    * Gets a MidiDevice.Info class for the specified reference
@@ -406,6 +410,6 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
    * 
    */
   
-  public static native CoreMidiDeviceInfo getMidiDeviceInfo(int reference) throws CoreMidiException;
+  private native CoreMidiDeviceInfo getMidiDeviceInfo(int reference) throws CoreMidiException;
 
 }

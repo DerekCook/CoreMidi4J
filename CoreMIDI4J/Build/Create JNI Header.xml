@@ -1,23 +1,17 @@
-<project name="CoreMIDI4J" basedir="/Development/CoreMidi4J/bin">
-	<!-- edit the following lines to your needs -->
-	<target name="Initialise">
-		<echo> "Setting Properties" </echo>
-		<property name="project_name" value="CoreMIDI4J"/>
-		<property name="srcDir" value="."/>
-	</target>
+<project name="CoreMIDI4J" basedir="../bin">
 
 	<target name="MakeJNIHeader">
 		<echo> "Creating Header File" </echo>		
 		<javah 
-			outputfile="/Development/CoreMidi4J/Native/CoreMidi4J/CoreMidi4J.h"
-			classpath="/Development/CoreMidi4J/bin"
+			outputfile="../Native/CoreMidi4J/CoreMidi4J.h"
+			classpath="../bin"
 			verbose="yes" 
 			force="yes">
 		
-			<class name="com.xfactoryLibrarians.CoreMidiDeviceProvider"/>
-			<class name="com.xfactoryLibrarians.CoreMidiClient"/>
-			<class name="com.xfactoryLibrarians.CoreMidiOutputPort"/>
-			<class name="com.xfactoryLibrarians.CoreMidiInputPort"/>			
+			<class name="uk.co.xfactorylibrarians.coremidi4j.CoreMidiClient"/>
+			<class name="uk.co.xfactorylibrarians.coremidi4j.CoreMidiDeviceProvider"/>
+			<class name="uk.co.xfactorylibrarians.coremidi4j.CoreMidiInputPort"/>			
+			<class name="uk.co.xfactorylibrarians.coremidi4j.CoreMidiOutputPort"/>
 		</javah>
 	</target>
 

@@ -1,79 +1,31 @@
 /**
- * Title:        CoreMIDI4J - CoreMidiClient
- * Description:  Implementation of the native functions for the CoreMidiClient class
- * Copyright:    Copyright (c) 2015
+ * Title:        CoreMIDI4J
+ * Description:  Core MIDI Device Provider for Java on OS X
+ * Copyright:    Copyright (c) 2015-2016
  * Company:      x.factory Librarians
- * @author       Derek Cook, James Elliott
  *
- * This is part of the native side of my Core MIDI Service Provider Interface for Java on OS X, inplemented as an XCODE C++ DYLIB project
+ * @author Derek Cook, James Elliott
+ *
+ * CoreMIDI4J is an open source Service Provider Interface for supporting external MIDI devices on MAC OS X
+ *
+ * This file is part of the XCODE project that provides the native implementation of CoreMIDI4J
+ *
+ * CREDITS - This library uses principles established by OSXMIDI4J, but converted so it operates at the JNI level with no additional libraries required
  *
  */
 
 #include "CoreMidiClient.h"
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Global variable data
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // This is retained so we can free the allocated memory when the client is disposed of
-static MIDI_CALLBACK_PARAMETERS *g_callbackParameters;
+MIDI_CALLBACK_PARAMETERS *g_callbackParameters;
 
 /////////////////////////////////////////////////////////
-// Native functions for CoreMidiClient
+// Callback functions for CoreMidiClient
 /////////////////////////////////////////////////////////
-
-
-/*
- * The Java callback that is called when a MIDINotification message is received
- *
- * @param message             The MIDINotification Message received
- * @param callbackParameters  The refCon passed to MIDIClientCreate
- *
- */
-
-void javaNotifyCallback(const MIDINotification *message, MIDI_CALLBACK_PARAMETERS *callbackParameters) {
-	
-	JNIEnv *env;
-	
-	// Get a JNIEnv reference from the cached JVM
-	int getEnvStat = callbackParameters->jvm->GetEnv((void **) &env, 0);
-	
-	// If the ENV is not attached to the current thread then attach it
-	if (getEnvStat == JNI_EDETACHED) {
-		
-		if ( callbackParameters->jvm->AttachCurrentThread((void **) &env, NULL) != 0) {
-			
-			std::cout << "** javaNotifyCallback: Failed to attach" << std::endl;
-			
-		}
-		
-	} else if (getEnvStat == JNI_OK) {
-		
-		// Do Nothing
-		
-	} else if (getEnvStat == JNI_EVERSION) {
-		
-		std::cout << "** javaNotifyCallback: GetEnv: version not supported" << std::endl;
-		
-	}
-	
-	// TODO - should this code be in JNI_OK?
-	
-	// Call the Java callback to pass the MIDI data to Java
-	env->CallVoidMethod(callbackParameters->object, callbackParameters->methodID);
-	
-	// Check for and describe any exceptions
-	if ( env->ExceptionCheck() ) {
-		
-		env->ExceptionDescribe();
-		
-	}
-	
-	// And finally detach the thread
-	callbackParameters->jvm->DetachCurrentThread();
-	
-}
 
 /*
  * The native callback that is called when a MIDINotification message is received
@@ -85,32 +37,68 @@ void javaNotifyCallback(const MIDINotification *message, MIDI_CALLBACK_PARAMETER
 
 void notifyCallback(const MIDINotification *message, void *notifyRefCon) {
   
-  // IDs (enum MIDINotificationMessageID)
+  // Message IDs (enum MIDINotificationMessageID)
   //      1 kMIDIMsgSetupChanged
   //      2 kMIDIMsgObjectAdded
   //      3 kMIDIMsgObjectRemoved
   //      4 kMIDIMsgPropertyChanged
   //
-  //  In experimenting with changes, you get four messages, in the sequence 4, 3, 3, 1 when removing an interface and 4, 2, 2, 1 when adding an interface
+  //  In experimenting with notification of changes, you get four messages, in the sequence 4, 3, 3, 1 when removing an interface and 4, 2, 2, 1 when adding an interface
+	//  I am guessing that the duplicate 3, 3 or 2, 2 is because the deves in question have a source and a destination.
   //
   //  I think we only need to react to one message, the final one, not all four, assuming that we will use this as a trigger to rescan the interfaces.
     
-  // Uncomment the following if you wish to see the messages within the native client
-  //printf("MIDI Notify Message %d.\n",message->messageID);
+  // DEBUG CODE Uncomment the following if you wish to see the messages within the native client
+	//std::cout << "MIDI Notify Message " << message->messageID << std::endl;
 	
-	if ( message->messageID == 1 ) {
+	if ( message->messageID == kMIDIMsgSetupChanged ) {
 
-		// Notify Java
-		javaNotifyCallback(message, (MIDI_CALLBACK_PARAMETERS *) notifyRefCon);
+		JNIEnv *env;
+		
+		// Cast the supplied handle to the right data type
+		MIDI_CALLBACK_PARAMETERS *callbackParameters = (MIDI_CALLBACK_PARAMETERS *) notifyRefCon;
+		
+		// Attach this thread to the JVM
+		int attachResult = callbackParameters->jvm->AttachCurrentThread((void**) &env, NULL);
+
+		// DEBUG Code, uncomment to view parameters
+		//std::cout << "** javaNotifyCallback: AttachCurrentThread: ";
+		//printJniStatus(attachResult);
+		
+		if ( attachResult == JNI_OK) {
+			
+			// Call the Java callback to pass the MIDI data to Java
+			env->CallVoidMethod(callbackParameters->object, callbackParameters->methodID,127);
+			
+			// Check for and describe any exceptions
+			if ( env->ExceptionCheck() ) {
+			
+				env->ExceptionDescribe();
+						
+			}
+
+// TODO Calling this function crashes the JVM!!!
+//			callbackParameters->jvm->DetachCurrentThread();
+			
+		} else {
+			
+			ThrowException(env,CFSTR("Notify Callback"),attachResult);
+			
+		}
 		
 	}
 	
 }
 
+/////////////////////////////////////////////////////////
+// Native functions for CoreMidiClient
+/////////////////////////////////////////////////////////
+
+
 /*
  * Creates a MIDI client reference
  *
- * Class:     com_xfactoryLibrarians_CoreMidiClient
+ * Class:     com_coremidi4j_CoreMidiClient
  * Method:    createClient
  * Signature: ()I
  *
@@ -123,7 +111,7 @@ void notifyCallback(const MIDINotification *message, void *notifyRefCon) {
  *
  */
 
-JNIEXPORT jint JNICALL Java_com_xfactoryLibrarians_CoreMidiClient_createClient(JNIEnv *env, jobject obj, jstring clientName) {
+JNIEXPORT jint JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiClient_createClient(JNIEnv *env, jobject obj, jstring clientName) {
     
   __block MIDIClientRef client;
   __block OSStatus status;
@@ -139,10 +127,15 @@ JNIEXPORT jint JNICALL Java_com_xfactoryLibrarians_CoreMidiClient_createClient(J
 		
 	}
 	
-	// Cache the information needed for the callback
+	// Cache the information needed for the callback, note we obtain a global reference to the CoreMidiClient object
 	g_callbackParameters->object = env->NewGlobalRef(obj);
 	g_callbackParameters->methodID =  env->GetMethodID(env->GetObjectClass(obj), "notifyCallback", "()V");
 	jint result = env->GetJavaVM(&g_callbackParameters->jvm);
+
+	// DEBUG Code, uncomment to view parameters
+	//std::cout << "** createClient: object   : " << g_callbackParameters->object << std::endl;
+	//std::cout << "** createClient: methodID : " << g_callbackParameters->methodID << std::endl;
+	//std::cout << "** createClient: JVM      : " << g_callbackParameters->jvm << std::endl;
 	
 	//Ensure that the last call succeeded
 	assert (result == JNI_OK);
@@ -167,7 +160,7 @@ JNIEXPORT jint JNICALL Java_com_xfactoryLibrarians_CoreMidiClient_createClient(J
 /*
  * Disposes of a MIDI client reference
  *
- * Class:     com_xfactoryLibrarians__CoreMidiClient
+ * Class:     com_coremidi4j__CoreMidiClient
  * Method:    disposeClient
  * Signature: (I)V
  *
@@ -179,13 +172,19 @@ JNIEXPORT jint JNICALL Java_com_xfactoryLibrarians_CoreMidiClient_createClient(J
  *
  */
 
-JNIEXPORT void JNICALL Java_com_xfactoryLibrarians_CoreMidiClient_disposeClient(JNIEnv *env, jobject obj, jint clientReference) {
+JNIEXPORT void JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiClient_disposeClient(JNIEnv *env, jobject obj, jint clientReference) {
     
-  OSStatus status;
+	std::cout << "** disposeClient: ENV      : " << env << std::endl;
+
+	OSStatus status;
     
   // Release the client reference
   status = MIDIClientDispose(clientReference);
 	
+	// Release the global reference to the Java object
+	env->DeleteGlobalRef(g_callbackParameters->object);
+	
+	// Free up the allocated memory
 	if ( g_callbackParameters != NULL ) {
 		
 		free(g_callbackParameters);

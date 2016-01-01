@@ -1,15 +1,18 @@
 /**
  * Title:        CoreMIDI4J
  * Description:  Core MIDI Device Provider for Java on OS X
- * Copyright:    Copyright (c) 2015
+ * Copyright:    Copyright (c) 2015-2016
  * Company:      x.factory Librarians
- * @author       Derek Cook
+ *
+ * @author Derek Cook
+ * 
+ * CoreMIDI4J is an open source Service Provider Interface for supporting external MIDI devices on MAC OS X
  * 
  * CREDITS - This library uses principles established by OSXMIDI4J, but converted so it operates at the JNI level with no additional libraries required
- *
+ * 
  */
 
-package com.xfactoryLibrarians;
+package uk.co.xfactorylibrarians.coremidi4j;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +31,7 @@ public class CoreMidiClient {
   /**
    * Constructor for class
    * 
-   * @param name The name of the client		
+   * @param name 	The name of the client		
    * 
    * @throws 			CoreMidiException
    * 
@@ -64,7 +67,7 @@ public class CoreMidiClient {
    * 
    * @return			A new CoreMidiOutputPort
    * 
-   * @throws 			CoreMidiException
+   * @throws 			CoreMidiException 
    * 
    */
   
@@ -81,7 +84,10 @@ public class CoreMidiClient {
    * 
    */
     
-  public void notifyCallback() throws CoreMidiException {
+  public void notifyCallback() throws CoreMidiException  {
+  	
+  	// Debug code - uncomment to see this function being called
+  	//System.out.println("** CoreMidiClient - MIDI Environment Changed");
   	
   	synchronized(this) {
   		
@@ -105,7 +111,7 @@ public class CoreMidiClient {
   
   public void addNotificationListener(CoreMidiNotification listener) {
   	
-  	// Need to ensure that any CoreMidiDeviceProvider are at the head of the notification list, so that the device map is updated before other listeners are called
+  	// Need to ensure that any CoreMidiDeviceProvider objects are at the head of the notification list, so that the device map is updated before other listeners are called
   	if ( listener instanceof CoreMidiDeviceProvider ) {
   		
   		notificationListeners.add(0,listener);
@@ -156,7 +162,7 @@ public class CoreMidiClient {
    * @throws CoreMidiException	Thrown if the client cannot be created
    */
   
-  protected native int createClient(String clientName) throws CoreMidiException;
+  private native int createClient(String clientName) throws CoreMidiException;
   
 	/**
 	 * Disposes of a CoreMIDI Client
@@ -167,6 +173,6 @@ public class CoreMidiClient {
 	 * 
 	 */
 	
-  protected native void disposeClient(int clientReference) throws CoreMidiException;
+  private native void disposeClient(int clientReference) throws CoreMidiException;
   	
 }

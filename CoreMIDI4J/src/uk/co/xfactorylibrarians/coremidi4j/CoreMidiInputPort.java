@@ -1,15 +1,18 @@
 /**
  * Title:        CoreMIDI4J
  * Description:  Core MIDI Device Provider for Java on OS X
- * Copyright:    Copyright (c) 2015
+ * Copyright:    Copyright (c) 2015-2016
  * Company:      x.factory Librarians
- * @author       Derek Cook
+ *
+ * @author Derek Cook
+ * 
+ * CoreMIDI4J is an open source Service Provider Interface for supporting external MIDI devices on MAC OS X
  * 
  * CREDITS - This library uses principles established by OSXMIDI4J, but converted so it operates at the JNI level with no additional libraries required
- *
+ * 
  */
 
-package com.xfactoryLibrarians;
+package uk.co.xfactorylibrarians.coremidi4j;
 
 /**
  * CoreMidiInputPort class
@@ -21,7 +24,7 @@ public class CoreMidiInputPort {
 	/** The OSX MIDI port reference */
   private final int midiPortReference;
   
-  /** For each connection to an OSX EndPoint, some data is allocated on the memory side. This handle tracks the allocation so that it can be returned when this port is disconnected */
+  /** For each connection to an OSX EndPoint, some data is allocated on the native side. This handle tracks the allocation so that it can be returned when this port is disconnected */
   private long memoryHandle;
 
   /**

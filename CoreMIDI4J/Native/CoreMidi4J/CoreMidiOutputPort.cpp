@@ -1,14 +1,18 @@
 /**
- * Title:        CoreMIDI4J - CoreMidiOutputPort
- * Description:  Implementation of the native functions for the CoreMidiOutputPort class
- * Copyright:    Copyright (c) 2015
+ * Title:        CoreMIDI4J
+ * Description:  Core MIDI Device Provider for Java on OS X
+ * Copyright:    Copyright (c) 2015-2016
  * Company:      x.factory Librarians
- * @author       Derek Cook
  *
- * This is part of the native side of my Core MIDI Service Provider Interface for Java on OS X, inplemented as an XCODE C++ DYLIB project
+ * @author Derek Cook
+ *
+ * CoreMIDI4J is an open source Service Provider Interface for supporting external MIDI devices on MAC OS X
+ *
+ * This file is part of the XCODE project that provides the native implementation of CoreMIDI4J
+ *
+ * CREDITS - This library uses principles established by OSXMIDI4J, but converted so it operates at the JNI level with no additional libraries required
  *
  */
-
 
 #include "CoreMidiOutputPort.h"
 
@@ -19,7 +23,7 @@
 /*
  * Creates a MIDI Output port
  *
- * Class:     com_xfactoryLibrarians_CoreMidiOutputPort
+ * Class:     com_coremidi4j_CoreMidiOutputPort
  * Method:    createOutputPort
  * Signature: (ILjava/lang/String;)I
  *
@@ -34,7 +38,7 @@
  *
  */
 
-JNIEXPORT jint JNICALL Java_com_xfactoryLibrarians_CoreMidiOutputPort_createOutputPort(JNIEnv *env, jobject obj, jint clientReference, jstring portName) {
+JNIEXPORT jint JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiOutputPort_createOutputPort(JNIEnv *env, jobject obj, jint clientReference, jstring portName) {
     
 	MIDIPortRef outputPort;
 	OSStatus status;
@@ -61,11 +65,10 @@ JNIEXPORT jint JNICALL Java_com_xfactoryLibrarians_CoreMidiOutputPort_createOutp
     
 }
 
-
 /*
  * Sends a MIDI message to the end point of the device
  *
- * Class:     com_xfactoryLibrarians_CoreMidiOutputPort
+ * Class:     com_coremidi4j_CoreMidiOutputPort
  * Method:    sendMidiMessage
  * Signature: (IILjavax/sound/midi/MidiMessage;)V
  *
@@ -79,11 +82,12 @@ JNIEXPORT jint JNICALL Java_com_xfactoryLibrarians_CoreMidiOutputPort_createOutp
  *
  */
 
-JNIEXPORT void JNICALL Java_com_xfactoryLibrarians_CoreMidiOutputPort_sendMidiMessage(JNIEnv *env, jobject obj, jint outputPortReference, jint endPointReference, jobject midiMessage) {
+JNIEXPORT void JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiOutputPort_sendMidiMessage(JNIEnv *env, jobject obj, jint outputPortReference, jint endPointReference, jobject midiMessage) {
 	
 	OSStatus status;
     
 	int messageLength;
+	int bufferLength;
 	signed char *messageData;
 	jobject mvdata;
     
@@ -92,22 +96,36 @@ JNIEXPORT void JNICALL Java_com_xfactoryLibrarians_CoreMidiOutputPort_sendMidiMe
     
 	// Get the message length
 	messageLength = env->GetIntField(midiMessage, env->GetFieldID(mmClass,"length","I"));
+	
+	// Calculate the length of the buffer, allow some extra space for CoreMIDI data that may be added to the packet list.
+	bufferLength = 1000 + messageLength;
     
 	// Get the message data
 	mvdata = env->GetObjectField(midiMessage, env->GetFieldID(mmClass,"data","[B"));
 	jbyteArray *array = reinterpret_cast<jbyteArray*>(&mvdata);
 	messageData = env->GetByteArrayElements(*array, NULL);
+
+	// Allocate the buffer
+	char *buffer = (char *) malloc(bufferLength);
 	
-	// TODO - should we allocate this dynamically to ensure we have a large enough buffer for SYSEX messages?
-	// TODO - need to understand better how this part of CoreMidi works?
-	char buffer[2048];
-	MIDIPacketList *packets = (MIDIPacketList *)buffer;
-    
-	MIDIPacket *packet = MIDIPacketListInit(packets);
-	MIDIPacketListAdd(packets, 2048, packet, 0, messageLength, (Byte *) messageData);
-    
-	status = MIDISend(outputPortReference, endPointReference, packets);
-    
+	// Check for success
+	if ( buffer != NULL ) {
+		
+		MIDIPacketList *packets = (MIDIPacketList *)buffer;
+		
+		MIDIPacket *packet = MIDIPacketListInit(packets);
+		MIDIPacketListAdd(packets, bufferLength, packet, 0, messageLength, (Byte *) messageData);
+		
+		status = MIDISend(outputPortReference, endPointReference, packets);
+		
+		free(buffer);
+		
+	} else {
+		
+		ThrowException(env,CFSTR("MIDISend - Memory Allocation Fail"),-1);
+		
+	}
+	
 	// And release the array
 	env->ReleaseByteArrayElements(*array, messageData, 0);
     
