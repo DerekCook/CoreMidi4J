@@ -40,12 +40,12 @@ public class CoreMidiSource implements MidiDevice {
 	private CoreMidiInputPort input = null;
 	private final List<Transmitter> transmitters;
 
-	private int currentMessage = 0;  // Will contain the status byte (> 127) while gathering a multi-byte message.
-	private boolean currentDataIsSingleByte;  // Is true if currentMessage only needs one byte of data.
-	private byte firstDataByte;  // Will hold the first data byte received when gathering two-byte messages.
-	private boolean wasFirstByteReceived = false;  // Gets set to true when we read first byte of two-byte message.
-	private Vector<byte[]> sysexMessageData;  // Accumulates runs of SYSEX data values until we see the end of message.
-	private int sysexMessageLength = 0;  // Tracks the total SYSEX data length accumulated.
+	private int currentMessage = 0;  								// Will contain the status byte (> 127) while gathering a multi-byte message.
+	private boolean currentDataIsSingleByte;  			// Is true if currentMessage only needs one byte of data.
+	private byte firstDataByte;  										// Will hold the first data byte received when gathering two-byte messages.
+	private boolean wasFirstByteReceived = false;  	// Gets set to true when we read first byte of two-byte message.
+	private Vector<byte[]> sysexMessageData;  			// Accumulates runs of SYSEX data values until we see the end of message.
+	private int sysexMessageLength = 0;  						// Tracks the total SYSEX data length accumulated.
 
 	/**
 	 * Default constructor.
@@ -312,6 +312,7 @@ public class CoreMidiSource implements MidiDevice {
 	private boolean isRealTimeMessage(byte status) {
 
 		switch (status) {
+			
 			case (byte) ShortMessage.TIMING_CLOCK:
 			case (byte) ShortMessage.START:
 			case (byte) ShortMessage.CONTINUE:
@@ -322,7 +323,9 @@ public class CoreMidiSource implements MidiDevice {
 
 			default:
 				return false;
+				
 		}
+		
 	}
 
 	/**
@@ -337,18 +340,21 @@ public class CoreMidiSource implements MidiDevice {
 	private boolean isRunningStatusMessage (int status) {
 
 		switch(status & 0xF0) {
-			case 0x80:  // Note off
-			case 0x90:  // Note on
-			case 0xA0:  // Polyphonic key pressure (aftertouch)
-			case 0xB0:  // Control change
-			case 0xC0:  // Program change
-			case 0xD0:  // Channel pressure
-			case 0xE0:  // Pitch bend
+			
+			case ShortMessage.NOTE_OFF:
+			case ShortMessage.NOTE_ON: 
+			case ShortMessage.POLY_PRESSURE:
+			case ShortMessage.CONTROL_CHANGE:
+			case ShortMessage.PROGRAM_CHANGE: 
+			case ShortMessage.CHANNEL_PRESSURE:
+			case ShortMessage.PITCH_BEND:
 				return true;
 
 			default:
 				return false;
+				
 		}
+		
 	}
 
 	/**
@@ -361,46 +367,53 @@ public class CoreMidiSource implements MidiDevice {
 	 * @throws InvalidMidiDataException if the status byte is not valid.
 	 */
 	private int expectedDataLength (byte status) throws InvalidMidiDataException {
+		
 		// system common and system real-time messages
+		
 		switch(status &0xFF) {
-			case 0xF6:  // Tune Request
-			case 0xF7:  // EOX
-				// System real-time messages
-			case 0xF8:  // Timing Clock
+			
+			case ShortMessage.TUNE_REQUEST:
+			case ShortMessage.END_OF_EXCLUSIVE:
+				
+			// System real-time messages
+			case ShortMessage.TIMING_CLOCK:  
 			case 0xF9:  // Undefined
-			case 0xFA:  // Start
-			case 0xFB:  // Continue
-			case 0xFC:  // Stop
+			case ShortMessage.START:  
+			case ShortMessage.CONTINUE:  
+			case ShortMessage.STOP:  
 			case 0xFD:  // Undefined
-			case 0xFE:  // Active Sensing
-			case 0xFF:  // System Reset
+			case ShortMessage.ACTIVE_SENSING:  
+			case ShortMessage.SYSTEM_RESET:  
 				return 0;
 
-			case 0xF1:  // MTC Quarter Frame
-			case 0xF3:  // Song Select
+			case ShortMessage.MIDI_TIME_CODE:
+			case ShortMessage.SONG_SELECT:  
 				return 1;
 
-			case 0xF2:  // Song Position Pointer
+			case ShortMessage.SONG_POSITION_POINTER:  
 				return 2;
 
 			default:  // Fall through to next switch
+				
 		}
 
 		// channel voice and mode messages
 		switch(status & 0xF0) {
-			case 0x80:  // Note off
-			case 0x90:  // Note on
-			case 0xA0:  // Polyphonic key pressure (aftertouch)
-			case 0xB0:  // Control change
-			case 0xE0:  // Pitch bend
+			
+			case ShortMessage.NOTE_OFF: 
+			case ShortMessage.NOTE_ON:  
+			case ShortMessage.POLY_PRESSURE:
+			case ShortMessage.CONTROL_CHANGE:  
+			case ShortMessage.PITCH_BEND: 
 				return 2;
 
-			case 0xC0:  // Program change
-			case 0xD0:  // Channel pressure
+			case ShortMessage.PROGRAM_CHANGE:  
+			case ShortMessage.CHANNEL_PRESSURE:  
 				return 1;
 
 			default:
 				throw new InvalidMidiDataException("Invalid status byte: " + status);
+				
 		}
 
 	}
@@ -416,8 +429,8 @@ public class CoreMidiSource implements MidiDevice {
 	 * 
 	 */
 
-	public void messageCallback(int timestamp, int packetlength, byte data[]) throws InvalidMidiDataException {
-
+	public void messageCallback(long timestamp, int packetlength, byte data[]) throws InvalidMidiDataException {
+		
 		int offset = 0;
 
 		// An OSX MIDI packet may contain multiple messages
@@ -513,10 +526,15 @@ public class CoreMidiSource implements MidiDevice {
 						default:
 							throw new InvalidMidiDataException("Unexpected data length: " +
 									expectedDataLength(data[offset]));
+							
 					}
+					
 				}
+				
 			}
+			
 		}
+		
 	}
 
 	/**
@@ -579,7 +597,7 @@ public class CoreMidiSource implements MidiDevice {
 	 * 
 	 */
 	
-	private int processSysexData(int packetLength, byte sourceData[], int startOffset, int timestamp)
+	private int processSysexData(int packetLength, byte sourceData[], int startOffset, long timestamp)
 			throws InvalidMidiDataException {
 
 		// Look for the end of the SYSEX or packet
@@ -590,6 +608,7 @@ public class CoreMidiSource implements MidiDevice {
 		while ( ( startOffset + messageLength ) < packetLength) {
 			
 			byte latest = sourceData[startOffset + messageLength++];
+			
 			if (latest < 0 && messageLength + sysexMessageLength > 1) {
 
 				// We have encountered another status byte (after the F0 which starts the message).
@@ -616,6 +635,7 @@ public class CoreMidiSource implements MidiDevice {
 				}
 
 				break;  // One way or another, we are done gathering data bytes for now.
+				
 			}
 			
 		}
@@ -623,6 +643,7 @@ public class CoreMidiSource implements MidiDevice {
 		// Create an array to hold this part of the message, if we received any actual data.
 		// (Note the source array will be released by the native function.)
 		if (messageLength > 0) {
+			
 			byte data[] = new byte[messageLength];
 
 			//Copy the data to the array
@@ -640,6 +661,7 @@ public class CoreMidiSource implements MidiDevice {
 
 			// Add the message to the vector
 			sysexMessageData.add(data);
+			
 		}
 
 		// Update the length of the SYSEX message
@@ -667,7 +689,7 @@ public class CoreMidiSource implements MidiDevice {
 	 * 
 	 */
 
-	private void transmitMessage(final MidiMessage message, int timestamp) {
+	private void transmitMessage(final MidiMessage message, long timestamp) {
 
 		// Uncomment the following to filter realtime messages during debugging
 //		if (isRealTimeMessage ((byte)message.getStatus())) {

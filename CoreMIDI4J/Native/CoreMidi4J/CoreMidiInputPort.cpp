@@ -170,7 +170,7 @@ JNIEXPORT jlong JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiInputPo
     
 	// Cache the information needed for the callback, noting that we obtain a l=global reference for the CoreMidiInputPortObject
 	callbackParameters->object = env->NewGlobalRef(sourceDevice);
-	callbackParameters->methodID =  env->GetMethodID(env->GetObjectClass(sourceDevice), "messageCallback", "(II[B)V");
+	callbackParameters->methodID =  env->GetMethodID(env->GetObjectClass(sourceDevice), "messageCallback", "(JI[B)V");
 	jint result = env->GetJavaVM(&callbackParameters->jvm);
     
 	//Ensure that the last call succeeded
