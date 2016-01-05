@@ -25,7 +25,7 @@
 		65E46C2C1B89DD2C00CC6075 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 12;
-			dstPath = /Users/derek/git/CoreMidi4J/CoreMIDI4J/Build/Release;
+			dstPath = /Users/jim/git/CoreMidi4J/CoreMIDI4J/Build/Release;
 			dstSubfolderSpec = 0;
 			files = (
 				650999561C303B4100879DFB /* libCoreMidi4J.dylib in CopyFiles */,
@@ -258,7 +258,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				EXECUTABLE_PREFIX = lib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				"USER_HEADER_SEARCH_PATHS[arch=*]" = /Developer/SDKs/MacOSX10.7.sdk/System/Library/Frameworks/JavaVM.framework/Versions/A/Headers/;
+				"USER_HEADER_SEARCH_PATHS[arch=*]" = /System/Library/Frameworks/JavaVM.framework/Headers/;
 			};
 			name = Debug;
 		};
@@ -269,7 +269,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				EXECUTABLE_PREFIX = lib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				"USER_HEADER_SEARCH_PATHS[arch=*]" = /Developer/SDKs/MacOSX10.7.sdk/System/Library/Frameworks/JavaVM.framework/Versions/A/Headers/;
+				"USER_HEADER_SEARCH_PATHS[arch=*]" = /System/Library/Frameworks/JavaVM.framework/Headers/;
 			};
 			name = Release;
 		};

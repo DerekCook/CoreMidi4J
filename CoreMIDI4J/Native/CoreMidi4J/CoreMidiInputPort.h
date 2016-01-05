@@ -22,6 +22,9 @@
 
 #include <iostream>
 #include <stdio.h>
+#include <mach/mach.h>
+#include <mach/mach_time.h>
 #include <CoreMIDI/CoreMIDI.h>
+#include <CoreServices/CoreServices.h>
 
 #endif /* defined(__CoreMidi4J__CoreMidiInputPort__) */
