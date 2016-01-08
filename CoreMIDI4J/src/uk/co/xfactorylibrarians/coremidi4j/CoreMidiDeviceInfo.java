@@ -27,6 +27,25 @@ public class CoreMidiDeviceInfo extends MidiDevice.Info {
 	private final int uid; 							 // OS X UID
 
 	/**
+	 * Substitutes a default value if the value is null
+	 *
+	 * @param value the value which may be null
+	 * @param fallback the value to use if value is null
+	 */
+
+	private static String defaultForNull(final String value, final String fallback) {
+
+		if (value == null) {
+
+			return fallback;
+
+		}
+
+		return value;
+
+	}
+
+	/**
 	 * Constructs a CoreMidiDeviceInfo object from the parameters
 	 * 
 	 * @param name							The name of the device
@@ -40,7 +59,7 @@ public class CoreMidiDeviceInfo extends MidiDevice.Info {
 	
 	public CoreMidiDeviceInfo(final String name, final String vendor, final String description, final int version, final int endPointReference, final int uid) {
 		
-		super(name, vendor, description, Integer.toString(version));
+		super(name, defaultForNull(vendor, "Unknown vendor"), defaultForNull(description, name), Integer.toString(version));
 		this.endPointReference = endPointReference;
 		this.uid = uid;
 		
