@@ -35,9 +35,9 @@
  */
 
 JNIEXPORT jint JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDeviceProvider_getNumberOfSources(JNIEnv *env, jobject obj) {
-    
-	return (jint) MIDIGetNumberOfSources();
-    
+
+  return (jint) MIDIGetNumberOfSources();
+
 }
 
 /*
@@ -55,9 +55,9 @@ JNIEXPORT jint JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDevicePr
  */
 
 JNIEXPORT jint JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDeviceProvider_getNumberOfDestinations(JNIEnv *env, jobject obj) {
-    
-	return (jint) MIDIGetNumberOfDestinations();
-    
+
+  return (jint) MIDIGetNumberOfDestinations();
+
 }
 
 /*
@@ -78,15 +78,15 @@ JNIEXPORT jint JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDevicePr
  */
 
 JNIEXPORT jint JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDeviceProvider_getSource(JNIEnv *env, jobject obj, jint sourceIndex) {
-    
-	if ( sourceIndex >= MIDIGetNumberOfSources() ) {
-        
-		ThrowException(env,CFSTR("MIDIGetSource"),sourceIndex);
-        
-	}
-    
-	return MIDIGetSource(sourceIndex);
-    
+
+  if ( sourceIndex >= MIDIGetNumberOfSources() ) {
+
+    ThrowException(env,CFSTR("MIDIGetSource"),sourceIndex);
+
+  }
+
+  return MIDIGetSource(sourceIndex);
+
 }
 
 /*
@@ -107,15 +107,15 @@ JNIEXPORT jint JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDevicePr
  */
 
 JNIEXPORT jint JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDeviceProvider_getDestination(JNIEnv *env, jobject obj, jint destinationIndex) {
-    
-	if ( destinationIndex >= MIDIGetNumberOfDestinations() ) {
-        
-		ThrowException(env,CFSTR("MIDIGetDestination"), destinationIndex);
-        
-	}
-    
-	return MIDIGetDestination(destinationIndex);
-    
+
+  if ( destinationIndex >= MIDIGetNumberOfDestinations() ) {
+
+    ThrowException(env,CFSTR("MIDIGetDestination"), destinationIndex);
+
+  }
+
+  return MIDIGetDestination(destinationIndex);
+
 }
 
 /*
@@ -134,13 +134,13 @@ JNIEXPORT jint JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDevicePr
  */
 
 JNIEXPORT jint JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDeviceProvider_getUniqueID(JNIEnv *env, jobject obj, jint endPointReference) {
-    
-	SInt32 uid = 0;
-    
-	MIDIObjectGetIntegerProperty(endPointReference, kMIDIPropertyUniqueID, &uid);
-    
-	return uid;
-    
+
+  SInt32 uid = 0;
+
+  MIDIObjectGetIntegerProperty(endPointReference, kMIDIPropertyUniqueID, &uid);
+
+  return uid;
+
 }
 
 /*
@@ -159,53 +159,53 @@ JNIEXPORT jint JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDevicePr
  */
 
 JNIEXPORT jobject JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDeviceProvider_getMidiDeviceInfo(JNIEnv *env, jobject obj, jint endPointReference) {
-    
-	CFStringRef name;
-	CFStringRef deviceName;
-	CFStringRef	description;
-	CFStringRef manufacturer;
-	SInt32 version;
-	SInt32 uid;
-	
-	// Find the Java CoreMIDIDeviceInfo class and its constructor
-	jclass javaClass = env->FindClass("uk/co/xfactorylibrarians/coremidi4j/CoreMidiDeviceInfo");
-	jmethodID constructor = env->GetMethodID(javaClass, "<init>", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;III)V");
-    
-	// Get the device properties
-	MIDIObjectGetStringProperty(endPointReference, kMIDIPropertyName, &name);
-	MIDIObjectGetStringProperty(endPointReference, kMIDIPropertyName, &deviceName);
-	MIDIObjectGetStringProperty(endPointReference, kMIDIPropertyModel, &description);
-	MIDIObjectGetStringProperty(endPointReference, kMIDIPropertyManufacturer, &manufacturer);
-	MIDIObjectGetIntegerProperty(endPointReference, kMIDIPropertyDriverVersion, &version);
-	MIDIObjectGetIntegerProperty(endPointReference, kMIDIPropertyUniqueID, &uid);
-    
-	CFMutableStringRef buildName = CFStringCreateMutable(NULL, 0);
-    
-	// Add "CoreMIDI4J - " to the start of our device name if we can
-	if (buildName) {
-		
-		CFStringAppend(buildName, CFSTR("CoreMIDI4J - "));
-		CFStringAppend(buildName, name);
-		
-		// Overwrite the deviceName with our updated one
-		deviceName = CFStringCreateCopy(NULL, buildName);
-		
-		// And release the temporary string
-		CFRelease(buildName);
-        
-	}
-    
-	// Create the Java Object
-	jobject info = env->NewObject(javaClass,
-																constructor,
-																env->NewStringUTF(CFStringGetCStringPtr(deviceName, kCFStringEncodingMacRoman)),
-																env->NewStringUTF(CFStringGetCStringPtr(manufacturer, kCFStringEncodingMacRoman)),
-																env->NewStringUTF(CFStringGetCStringPtr(description, kCFStringEncodingMacRoman)),
-																version,
-																endPointReference,
-																uid);
-    
-	return info;
-    
+
+  CFStringRef name;
+  CFStringRef deviceName;
+  CFStringRef	description;
+  CFStringRef manufacturer;
+  SInt32 version;
+  SInt32 uid;
+
+  // Find the Java CoreMIDIDeviceInfo class and its constructor
+  jclass javaClass = env->FindClass("uk/co/xfactorylibrarians/coremidi4j/CoreMidiDeviceInfo");
+  jmethodID constructor = env->GetMethodID(javaClass, "<init>", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;III)V");
+
+  // Get the device properties
+  MIDIObjectGetStringProperty(endPointReference, kMIDIPropertyName, &name);
+  MIDIObjectGetStringProperty(endPointReference, kMIDIPropertyName, &deviceName);
+  MIDIObjectGetStringProperty(endPointReference, kMIDIPropertyModel, &description);
+  MIDIObjectGetStringProperty(endPointReference, kMIDIPropertyManufacturer, &manufacturer);
+  MIDIObjectGetIntegerProperty(endPointReference, kMIDIPropertyDriverVersion, &version);
+  MIDIObjectGetIntegerProperty(endPointReference, kMIDIPropertyUniqueID, &uid);
+
+  CFMutableStringRef buildName = CFStringCreateMutable(NULL, 0);
+
+  // Add "CoreMIDI4J - " to the start of our device name if we can
+  if (buildName) {
+
+    CFStringAppend(buildName, CFSTR("CoreMIDI4J - "));
+    CFStringAppend(buildName, name);
+
+    // Overwrite the deviceName with our updated one
+    deviceName = CFStringCreateCopy(NULL, buildName);
+
+    // And release the temporary string
+    CFRelease(buildName);
+
+  }
+
+  // Create the Java Object
+  jobject info = env->NewObject(javaClass,
+                                constructor,
+                                env->NewStringUTF(CFStringGetCStringPtr(deviceName, kCFStringEncodingMacRoman)),
+                                env->NewStringUTF(CFStringGetCStringPtr(manufacturer, kCFStringEncodingMacRoman)),
+                                env->NewStringUTF(CFStringGetCStringPtr(description, kCFStringEncodingMacRoman)),
+                                version,
+                                endPointReference,
+                                uid);
+
+  return info;
+
 }
 

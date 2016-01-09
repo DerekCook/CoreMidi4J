@@ -30,86 +30,87 @@
  */
 
 void MIDIInput(const MIDIPacketList *packets, void *readProcRefCon, void *srcConnRefCon) {
-	
-	static mach_timebase_info_data_t sTimebaseInfo;  // Will hold conversion factor for timestamps
-	JNIEnv *env;
 
-	// If this is the first time we've run, get the timebase.
-	// We can use denom == 0 to indicate that sTimebaseInfo is
-	// uninitialised because it makes no sense to have a zero
-	// denominator in a fraction.
-	if ( sTimebaseInfo.denom == 0 ) {
-		(void) mach_timebase_info(&sTimebaseInfo);
-	}
+  static mach_timebase_info_data_t sTimebaseInfo;  // Will hold conversion factor for timestamps
+  JNIEnv *env;
 
-	// Cast the supplied reference to the correct data type
-	MIDI_CALLBACK_PARAMETERS *callbackParameters = (MIDI_CALLBACK_PARAMETERS *) srcConnRefCon;
+  // If this is the first time we've run, get the timebase.
+  // We can use denom == 0 to indicate that sTimebaseInfo is
+  // uninitialised because it makes no sense to have a zero
+  // denominator in a fraction.
+  if ( sTimebaseInfo.denom == 0 ) {
     
-	// Get a JNIEnv reference from the cached JVM
-	int getEnvStat = callbackParameters->jvm->GetEnv((void **) &env, NULL);
-	
-	// If the ENV is not attached to the current thread then attach it
-	if (getEnvStat == JNI_EDETACHED) {
-		
-		if ( callbackParameters->jvm->AttachCurrentThread((void **) &env, NULL) != 0) {
-			
-			std::cout << "Failed to attach" << std::endl;
-			ThrowException(env,CFSTR("MIDIInput - Failed to attach"),-1);
-			
-			
-		}
-		
-	} else if (getEnvStat == JNI_EVERSION) {
-		
-		std::cout << "GetEnv: version not supported" << std::endl;
-		ThrowException(env,CFSTR("MIDIInput - GetEnv: version not supported"),-1);
-		
-	}
-	
-	// Loop over all the packets we have received, calling the Java callback for each one.
-	MIDIPacket *packet = (MIDIPacket *) &packets->packet[0];
-	
-	for (int i = 0; i < packets->numPackets; i += 1 ) {
-		
-		// Convert the CoreMIDI timestamp from Mach Absolute Time Units to microseconds,
-		// as expected by Java MIDI. The first step is based on Apple Tech Q&A 1398,
-		// https://developer.apple.com/library/mac/qa/qa1398/_index.html
-		//
-		// Because we are converting to microseconds rather than nanoseconds, we can start
-		// by dividing by 1000, which should eliminate the risk of overflow described in the
-		// comment below (copied in from the Q&A), which evidently should not have been an issue
-		// until 584.9 years after the most recent system boot anyway, according to
-		// http://lists.apple.com/archives/darwin-kernel/2012/Sep/msg00008.html
-		//
-		// Do the maths. We hope that the multiplication doesn't
-		// overflow; the price you pay for working in fixed point.
-		uint64_t timestamp = (packet->timeStamp / 1000) * sTimebaseInfo.numer / sTimebaseInfo.denom;
+    (void) mach_timebase_info(&sTimebaseInfo);
+    
+  }
 
-		// Create a java array from the MIDIPacket
-		jbyteArray array = env->NewByteArray(packet->length);
-		env->SetByteArrayRegion(array, 0, packet->length, (jbyte*) packet->data);
-		
-		// Call the Java callback to pass the MIDI data to Java
-		env->CallVoidMethod(callbackParameters->object, callbackParameters->methodID, timestamp, packet->length, array);
-		
-		// Release the array once we are finished with it
-		env->ReleaseByteArrayElements(array, NULL, JNI_ABORT);
-		
-		// Check for and describe any exceptions
-		if ( env->ExceptionCheck() ) {
-			
-			env->ExceptionDescribe();
-			
-		}
-		
-		// Move on to the next packet
-		packet = MIDIPacketNext(packet);
+  // Cast the supplied reference to the correct data type
+  MIDI_CALLBACK_PARAMETERS *callbackParameters = (MIDI_CALLBACK_PARAMETERS *) srcConnRefCon;
 
-	}
-	
-	// And finally detach the thread
-	callbackParameters->jvm->DetachCurrentThread();
-	
+  // Get a JNIEnv reference from the cached JVM
+  int getEnvStat = callbackParameters->jvm->GetEnv((void **) &env, NULL);
+
+  // If the ENV is not attached to the current thread then attach it
+  if (getEnvStat == JNI_EDETACHED) {
+
+    if ( callbackParameters->jvm->AttachCurrentThread((void **) &env, NULL) != 0) {
+
+      std::cout << "Failed to attach" << std::endl;
+      ThrowException(env,CFSTR("MIDIInput - Failed to attach"),-1);
+
+    }
+
+  } else if (getEnvStat == JNI_EVERSION) {
+
+    std::cout << "GetEnv: version not supported" << std::endl;
+    ThrowException(env,CFSTR("MIDIInput - GetEnv: version not supported"),-1);
+
+  }
+
+  // Loop over all the packets we have received, calling the Java callback for each one.
+  MIDIPacket *packet = (MIDIPacket *) &packets->packet[0];
+
+  for (int i = 0; i < packets->numPackets; i += 1 ) {
+
+    // Convert the CoreMIDI timestamp from Mach Absolute Time Units to microseconds,
+    // as expected by Java MIDI. The first step is based on Apple Tech Q&A 1398,
+    // https://developer.apple.com/library/mac/qa/qa1398/_index.html
+    //
+    // Because we are converting to microseconds rather than nanoseconds, we can start
+    // by dividing by 1000, which should eliminate the risk of overflow described in the
+    // comment below (copied in from the Q&A), which evidently should not have been an issue
+    // until 584.9 years after the most recent system boot anyway, according to
+    // http://lists.apple.com/archives/darwin-kernel/2012/Sep/msg00008.html
+    //
+    // Do the maths. We hope that the multiplication doesn't
+    // overflow; the price you pay for working in fixed point.
+    uint64_t timestamp = (packet->timeStamp / 1000) * sTimebaseInfo.numer / sTimebaseInfo.denom;
+
+    // Create a java array from the MIDIPacket
+    jbyteArray array = env->NewByteArray(packet->length);
+    env->SetByteArrayRegion(array, 0, packet->length, (jbyte*) packet->data);
+
+    // Call the Java callback to pass the MIDI data to Java
+    env->CallVoidMethod(callbackParameters->object, callbackParameters->methodID, timestamp, packet->length, array);
+
+    // Release the array once we are finished with it
+    env->ReleaseByteArrayElements(array, NULL, JNI_ABORT);
+
+    // Check for and describe any exceptions
+    if ( env->ExceptionCheck() ) {
+
+      env->ExceptionDescribe();
+
+    }
+
+    // Move on to the next packet
+    packet = MIDIPacketNext(packet);
+
+  }
+
+  // And finally detach the thread
+  callbackParameters->jvm->DetachCurrentThread();
+
 }
 
 /////////////////////////////////////////////////////////
@@ -135,30 +136,30 @@ void MIDIInput(const MIDIPacketList *packets, void *readProcRefCon, void *srcCon
  */
 
 JNIEXPORT jint JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiInputPort_createInputPort(JNIEnv *env, jobject obj, jint clientReference, jstring portName) {
-    
-	MIDIPortRef inputPort;
-	OSStatus status;
-    
-	// Create a CFStringRef from the portName jstring
-	const char *portNameString = env->GetStringUTFChars(portName,0);
-	CFStringRef cfPortName = CFStringCreateWithCString(NULL,portNameString,kCFStringEncodingMacRoman);
-    
-	// Create the MIDI Input port
-	status = MIDIInputPortCreate(clientReference, cfPortName, MIDIInput, NULL, &inputPort);
-    
-	// Relase the allocated string
-	env->ReleaseStringUTFChars(portName, portNameString);
-    
-	// If the returned status is non zero then throw an exception
-	if ( status != 0) {
-        
-		ThrowException(env,CFSTR("MIDIInputPortCreate"),status);
-        
-	}
-    
-	// Finally, return the reference
-	return inputPort;
-    
+
+  MIDIPortRef inputPort;
+  OSStatus status;
+
+  // Create a CFStringRef from the portName jstring
+  const char *portNameString = env->GetStringUTFChars(portName,0);
+  CFStringRef cfPortName = CFStringCreateWithCString(NULL,portNameString,kCFStringEncodingMacRoman);
+
+  // Create the MIDI Input port
+  status = MIDIInputPortCreate(clientReference, cfPortName, MIDIInput, NULL, &inputPort);
+
+  // Relase the allocated string
+  env->ReleaseStringUTFChars(portName, portNameString);
+
+  // If the returned status is non zero then throw an exception
+  if ( status != 0) {
+
+    ThrowException(env,CFSTR("MIDIInputPortCreate"),status);
+
+  }
+
+  // Finally, return the reference
+  return inputPort;
+
 }
 
 /*
@@ -178,46 +179,46 @@ JNIEXPORT jint JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiInputPor
  */
 
 JNIEXPORT jlong JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiInputPort_midiPortConnectSource(JNIEnv *env, jobject obj, jint inputPortReference, jobject sourceDevice) {
-    
-	OSStatus status;
-    
-	// Allocate memory for the callback parameters
-	MIDI_CALLBACK_PARAMETERS *callbackParameters = (MIDI_CALLBACK_PARAMETERS *) malloc(sizeof(MIDI_CALLBACK_PARAMETERS));
-    
-	// Throw exception if memory allocation failed
-	if ( callbackParameters == NULL ) {
-        
-		ThrowException(env,CFSTR("MIDIPortConnectSource"),-1);
-        
-	}
-    
-	// Cache the information needed for the callback, noting that we obtain a l=global reference for the CoreMidiInputPortObject
-	callbackParameters->object = env->NewGlobalRef(sourceDevice);
-	callbackParameters->methodID =  env->GetMethodID(env->GetObjectClass(sourceDevice), "messageCallback", "(JI[B)V");
-	jint result = env->GetJavaVM(&callbackParameters->jvm);
-    
-	//Ensure that the last call succeeded
-	assert (result == JNI_OK);
-    
-	// Get the info object from the sourceDevice object
-	jobject info = env->GetObjectField(sourceDevice, env->GetFieldID(env->GetObjectClass(sourceDevice), "info","Luk/co/xfactorylibrarians/coremidi4j/CoreMidiDeviceInfo;"));
-    
-	// Get the endpoint reference from the info object
-	int sourceEndPointReference = env->GetIntField(info, env->GetFieldID(env->GetObjectClass(info),"endPointReference","I"));
-    
-	// Connect the input port to the source endpoint.
-	status = MIDIPortConnectSource(inputPortReference, sourceEndPointReference, callbackParameters);
-    
-	// If the returned status is non zero then throw an exception
-	if ( status != 0) {
-        
-		ThrowException(env,CFSTR("MIDIPortConnectSource"),status);
-        
-	}
-    
-	// And return the pointer to Java so that it can cache it.....
-	return (jlong) callbackParameters;
-    
+
+  OSStatus status;
+
+  // Allocate memory for the callback parameters
+  MIDI_CALLBACK_PARAMETERS *callbackParameters = (MIDI_CALLBACK_PARAMETERS *) malloc(sizeof(MIDI_CALLBACK_PARAMETERS));
+
+  // Throw exception if memory allocation failed
+  if ( callbackParameters == NULL ) {
+
+    ThrowException(env,CFSTR("MIDIPortConnectSource"),-1);
+
+  }
+
+  // Cache the information needed for the callback, noting that we obtain a l=global reference for the CoreMidiInputPortObject
+  callbackParameters->object = env->NewGlobalRef(sourceDevice);
+  callbackParameters->methodID =  env->GetMethodID(env->GetObjectClass(sourceDevice), "messageCallback", "(JI[B)V");
+  jint result = env->GetJavaVM(&callbackParameters->jvm);
+
+  //Ensure that the last call succeeded
+  assert (result == JNI_OK);
+
+  // Get the info object from the sourceDevice object
+  jobject info = env->GetObjectField(sourceDevice, env->GetFieldID(env->GetObjectClass(sourceDevice), "info","Luk/co/xfactorylibrarians/coremidi4j/CoreMidiDeviceInfo;"));
+
+  // Get the endpoint reference from the info object
+  int sourceEndPointReference = env->GetIntField(info, env->GetFieldID(env->GetObjectClass(info),"endPointReference","I"));
+
+  // Connect the input port to the source endpoint.
+  status = MIDIPortConnectSource(inputPortReference, sourceEndPointReference, callbackParameters);
+
+  // If the returned status is non zero then throw an exception
+  if ( status != 0) {
+
+    ThrowException(env,CFSTR("MIDIPortConnectSource"),status);
+
+  }
+
+  // And return the pointer to Java so that it can cache it.....
+  return (jlong) callbackParameters;
+
 }
 
 /*
@@ -238,29 +239,29 @@ JNIEXPORT jlong JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiInputPo
  */
 
 JNIEXPORT void JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiInputPort_midiPortDisconnectSource(JNIEnv *env, jobject obj, jint inputPortReference, jlong memoryReference, jobject sourceDevice) {
-    
-	OSStatus status;
-    
-	// get the info object from the sourceDevice object
-	jobject info = env->GetObjectField(sourceDevice, env->GetFieldID(env->GetObjectClass(sourceDevice), "info","Luk/co/xfactorylibrarians/coremidi4j/CoreMidiDeviceInfo;"));
-    
-	// Get the endpoint reference from the info object
-	int sourceEndPointReference = env->GetIntField(info, env->GetFieldID(env->GetObjectClass(info),"endPointReference","I"));
-	
-	// Disconnect this input port from the end port
-	status = MIDIPortDisconnectSource(inputPortReference, sourceEndPointReference);
-	
-	// Delete the globsal reference to the Java CoreMidiInputPort object
-	env->DeleteGlobalRef(((MIDI_CALLBACK_PARAMETERS *) memoryReference)->object);
-    
-	// Release the memory block that Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiInputPort_midiPortConnectSource allocated
-	free((void *) memoryReference);
-    
-	// If the returned status is non zero then throw an exception
-	if ( status != 0) {
-        
-		ThrowException(env,CFSTR("MIDIPortDisconnectSource"),status);
-        
-	}
-    
+
+  OSStatus status;
+
+  // get the info object from the sourceDevice object
+  jobject info = env->GetObjectField(sourceDevice, env->GetFieldID(env->GetObjectClass(sourceDevice), "info","Luk/co/xfactorylibrarians/coremidi4j/CoreMidiDeviceInfo;"));
+
+  // Get the endpoint reference from the info object
+  int sourceEndPointReference = env->GetIntField(info, env->GetFieldID(env->GetObjectClass(info),"endPointReference","I"));
+
+  // Disconnect this input port from the end port
+  status = MIDIPortDisconnectSource(inputPortReference, sourceEndPointReference);
+
+  // Delete the globsal reference to the Java CoreMidiInputPort object
+  env->DeleteGlobalRef(((MIDI_CALLBACK_PARAMETERS *) memoryReference)->object);
+
+  // Release the memory block that Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiInputPort_midiPortConnectSource allocated
+  free((void *) memoryReference);
+
+  // If the returned status is non zero then throw an exception
+  if ( status != 0) {
+
+    ThrowException(env,CFSTR("MIDIPortDisconnectSource"),status);
+
+  }
+
 }

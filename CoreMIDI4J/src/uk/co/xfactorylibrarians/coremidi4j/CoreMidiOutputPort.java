@@ -23,7 +23,7 @@ import javax.sound.midi.MidiMessage;
 
 public class CoreMidiOutputPort {
 
-	private final int midiPortReference;
+  private final int midiPortReference;
 
   /**
    * Constructor
@@ -34,43 +34,43 @@ public class CoreMidiOutputPort {
    * @throws 								CoreMidiException 
    * 
    */
-  
-	public CoreMidiOutputPort(final int clientReference, String portName) throws CoreMidiException {
-		
-		this.midiPortReference = this.createOutputPort(clientReference,portName);
-		
-	}
 
-	/**
-	 * Sends a MIDI message on this output port to the specified destination end point
-	 * 
-	 * @param destinationEndPointReference	The destination end point to send the message to
-	 * @param message												The message to send
-	 * 
-	 * @throws 															CoreMidiException
-	 */
-	
-	public void send(int destinationEndPointReference, MidiMessage message) throws CoreMidiException {
-		
-		sendMidiMessage(midiPortReference, destinationEndPointReference, message);
-		
-	}
+  public CoreMidiOutputPort(final int clientReference, String portName) throws CoreMidiException {
 
-  //////////////////////////////
-	///// JNI Interfaces
-  //////////////////////////////
-	
-	/**
-	 * Static method for loading the native library 
-	 * 
-	 */
-	
-  static {
-  	
-    System.loadLibrary("CoreMIDI4J");
-      
+    this.midiPortReference = this.createOutputPort(clientReference,portName);
+
   }
-  
+
+  /**
+   * Sends a MIDI message on this output port to the specified destination end point
+   * 
+   * @param destinationEndPointReference	The destination end point to send the message to
+   * @param message												The message to send
+   * 
+   * @throws 															CoreMidiException
+   */
+
+  public void send(int destinationEndPointReference, MidiMessage message) throws CoreMidiException {
+
+    sendMidiMessage(midiPortReference, destinationEndPointReference, message);
+
+  }
+
+  //////////////////////////////
+  ///// JNI Interfaces
+  //////////////////////////////
+
+  /**
+   * Static method for loading the native library 
+   * 
+   */
+
+  static {
+
+    System.loadLibrary("CoreMIDI4J");
+
+  }
+
   /**
    * Creates a CoreMIDI output port
    * 
@@ -82,9 +82,9 @@ public class CoreMidiOutputPort {
    * @throws 								CoreMidiException if the port cannot be created
    * 
    */
-  
+
   private native int createOutputPort(int clientReference, String portName) throws CoreMidiException;
-  
+
   /**
    * Transmits a MIDI message to the OSX CoreMidi device
    * 
@@ -94,7 +94,7 @@ public class CoreMidiOutputPort {
    * @throws 																CoreMidiException 
    * 
    */
-  
+
   private native void sendMidiMessage(int midiPortReference, int destinationEndPointReference, MidiMessage message) throws CoreMidiException;
-  
+
 }

@@ -24,69 +24,69 @@ import javax.sound.midi.MidiMessage;
  */
 
 public class CoreMidiReceiver implements MidiDeviceReceiver {
-	
-	private final CoreMidiDestination device;
 
-	/**
-	 * CoreMidiReceicer constructor
-	 * 
-	 * @param device	The MIDI device that contains the information required to send MIDI data via OSX core MIDI
-	 */
-	
-	public CoreMidiReceiver(final CoreMidiDestination device) {
+  private final CoreMidiDestination device;
 
-		this.device = device;
-	
-	}
+  /**
+   * CoreMidiReceicer constructor
+   * 
+   * @param device	The MIDI device that contains the information required to send MIDI data via OSX core MIDI
+   */
 
-	/** 
-	 * Sends a MIDI message
-	 * 
-	 * @see javax.sound.midi.Receiver#send(javax.sound.midi.MidiMessage, long)
-	 * 
-	 */
-	
-	@Override
-	public void send(MidiMessage message, long timeStamp) {
-		
-		try {
-			
-			CoreMidiDeviceProvider.getOutputPort().send(((CoreMidiDeviceInfo)device.getDeviceInfo()).getEndPointReference(), message);
-			
-		} catch (CoreMidiException e) {
-			
-			e.printStackTrace();
+  public CoreMidiReceiver(final CoreMidiDestination device) {
 
-		}
+    this.device = device;
 
-	}
-	
-	/** 
-	 * Closes the MIDI Receiver
-	 * 
-	 * @see javax.sound.midi.Receiver#close()
-	 * 
-	 */
-	
-	@Override
-	public void close() {
+  }
 
-		// Do nothing. No close action required, but this method must be implemented.
+  /** 
+   * Sends a MIDI message
+   * 
+   * @see javax.sound.midi.Receiver#send(javax.sound.midi.MidiMessage, long)
+   * 
+   */
 
-	}
-	
-	/**
-	 * Gets the MIDI Device that this receiver is attached to
-	 * 
-	 * @return the MIDI Device that this receiver is attached to
-	 * 
-	 */
-	
-	@Override
-	public MidiDevice getMidiDevice() {
+  @Override
+  public void send(MidiMessage message, long timeStamp) {
 
-		return device;
-		
-	}
-  
+    try {
+
+      CoreMidiDeviceProvider.getOutputPort().send(((CoreMidiDeviceInfo)device.getDeviceInfo()).getEndPointReference(), message);
+
+    } catch (CoreMidiException e) {
+
+      e.printStackTrace();
+
+    }
+
+  }
+
+  /** 
+   * Closes the MIDI Receiver
+   * 
+   * @see javax.sound.midi.Receiver#close()
+   * 
+   */
+
+  @Override
+  public void close() {
+
+    // Do nothing. No close action required, but this method must be implemented.
+
+  }
+
+  /**
+   * Gets the MIDI Device that this receiver is attached to
+   * 
+   * @return the MIDI Device that this receiver is attached to
+   * 
+   */
+
+  @Override
+  public MidiDevice getMidiDevice() {
+
+    return device;
+
+  }
+
 }

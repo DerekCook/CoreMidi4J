@@ -39,30 +39,30 @@
  */
 
 JNIEXPORT jint JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiOutputPort_createOutputPort(JNIEnv *env, jobject obj, jint clientReference, jstring portName) {
-    
-	MIDIPortRef outputPort;
-	OSStatus status;
-    
-	// Create a CFStringRef from the portName jstring
-	const char *portNameString = env->GetStringUTFChars(portName,0);
-	CFStringRef cfPortName = CFStringCreateWithCString(NULL,portNameString,kCFStringEncodingMacRoman);
-    
-	// Create the MIDI Output port
-	status = MIDIOutputPortCreate(clientReference, cfPortName, &outputPort);
-    
-	// Relase the allocated string
-	env->ReleaseStringUTFChars(portName, portNameString);
-    
-	// If the returned status is non zero then throw an exception
-	if ( status != 0) {
-        
-		ThrowException(env,CFSTR("MIDIOutputPortCreate"),status);
-        
-	}
-    
-	// Finally, return the reference
-	return outputPort;
-    
+
+  MIDIPortRef outputPort;
+  OSStatus status;
+
+  // Create a CFStringRef from the portName jstring
+  const char *portNameString = env->GetStringUTFChars(portName,0);
+  CFStringRef cfPortName = CFStringCreateWithCString(NULL,portNameString,kCFStringEncodingMacRoman);
+
+  // Create the MIDI Output port
+  status = MIDIOutputPortCreate(clientReference, cfPortName, &outputPort);
+
+  // Relase the allocated string
+  env->ReleaseStringUTFChars(portName, portNameString);
+
+  // If the returned status is non zero then throw an exception
+  if ( status != 0) {
+
+    ThrowException(env,CFSTR("MIDIOutputPortCreate"),status);
+
+  }
+
+  // Finally, return the reference
+  return outputPort;
+
 }
 
 /*
@@ -83,57 +83,57 @@ JNIEXPORT jint JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiOutputPo
  */
 
 JNIEXPORT void JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiOutputPort_sendMidiMessage(JNIEnv *env, jobject obj, jint outputPortReference, jint endPointReference, jobject midiMessage) {
-	
-	OSStatus status;
-    
-	int messageLength;
-	int bufferLength;
-	signed char *messageData;
-	jobject mvdata;
-    
-	// Find the class definitions that we need
-	jclass mmClass = env->FindClass("javax/sound/midi/MidiMessage");
-    
-	// Get the message length
-	messageLength = env->GetIntField(midiMessage, env->GetFieldID(mmClass,"length","I"));
-	
-	// Calculate the length of the buffer, allow some extra space for CoreMIDI data that may be added to the packet list.
-	bufferLength = 1000 + messageLength;
-    
-	// Get the message data
-	mvdata = env->GetObjectField(midiMessage, env->GetFieldID(mmClass,"data","[B"));
-	jbyteArray *array = reinterpret_cast<jbyteArray*>(&mvdata);
-	messageData = env->GetByteArrayElements(*array, NULL);
 
-	// Allocate the buffer
-	char *buffer = (char *) malloc(bufferLength);
-	
-	// Check for success
-	if ( buffer != NULL ) {
-		
-		MIDIPacketList *packets = (MIDIPacketList *)buffer;
-		
-		MIDIPacket *packet = MIDIPacketListInit(packets);
-		MIDIPacketListAdd(packets, bufferLength, packet, 0, messageLength, (Byte *) messageData);
-		
-		status = MIDISend(outputPortReference, endPointReference, packets);
-		
-		free(buffer);
-		
-	} else {
-		
-		ThrowException(env,CFSTR("MIDISend - Memory Allocation Fail"),-1);
-		
-	}
-	
-	// And release the array
-	env->ReleaseByteArrayElements(*array, messageData, 0);
-    
-	// Thow an exception if the status is non-zero
-	if ( status != 0) {
-        
-		ThrowException(env,CFSTR("MIDISend"),status);
-        
-	}
-    
+  OSStatus status;
+
+  int messageLength;
+  int bufferLength;
+  signed char *messageData;
+  jobject mvdata;
+
+  // Find the class definitions that we need
+  jclass mmClass = env->FindClass("javax/sound/midi/MidiMessage");
+
+  // Get the message length
+  messageLength = env->GetIntField(midiMessage, env->GetFieldID(mmClass,"length","I"));
+
+  // Calculate the length of the buffer, allow some extra space for CoreMIDI data that may be added to the packet list.
+  bufferLength = 1000 + messageLength;
+
+  // Get the message data
+  mvdata = env->GetObjectField(midiMessage, env->GetFieldID(mmClass,"data","[B"));
+  jbyteArray *array = reinterpret_cast<jbyteArray*>(&mvdata);
+  messageData = env->GetByteArrayElements(*array, NULL);
+
+  // Allocate the buffer
+  char *buffer = (char *) malloc(bufferLength);
+
+  // Check for success
+  if ( buffer != NULL ) {
+
+    MIDIPacketList *packets = (MIDIPacketList *)buffer;
+
+    MIDIPacket *packet = MIDIPacketListInit(packets);
+    MIDIPacketListAdd(packets, bufferLength, packet, 0, messageLength, (Byte *) messageData);
+
+    status = MIDISend(outputPortReference, endPointReference, packets);
+
+    free(buffer);
+
+  } else {
+
+    ThrowException(env,CFSTR("MIDISend - Memory Allocation Fail"),-1);
+
+  }
+
+  // And release the array
+  env->ReleaseByteArrayElements(*array, messageData, 0);
+
+  // Thow an exception if the status is non-zero
+  if ( status != 0) {
+
+    ThrowException(env,CFSTR("MIDISend"),status);
+
+  }
+
 }

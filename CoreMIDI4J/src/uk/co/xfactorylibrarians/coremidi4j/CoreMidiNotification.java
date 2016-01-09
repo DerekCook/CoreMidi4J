@@ -20,14 +20,14 @@ package uk.co.xfactorylibrarians.coremidi4j;
  */
 
 public interface CoreMidiNotification {
-	
-	/**
-	 * Called when a notification occurs
-	 * 
-	 * @throws CoreMidiException
-	 * 
-	 */
-	
-	public void midiSystemUpdated() throws CoreMidiException;
+
+  /**
+   * Called when a notification occurs
+   * 
+   * @throws CoreMidiException
+   * 
+   */
+
+  public void midiSystemUpdated() throws CoreMidiException;
 
 }

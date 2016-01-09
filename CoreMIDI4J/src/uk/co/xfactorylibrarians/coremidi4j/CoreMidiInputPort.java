@@ -21,9 +21,9 @@ package uk.co.xfactorylibrarians.coremidi4j;
 
 public class CoreMidiInputPort {
 
-	/** The OSX MIDI port reference */
+  /** The OSX MIDI port reference */
   private final int midiPortReference;
-  
+
   /** For each connection to an OSX EndPoint, some data is allocated on the native side. This handle tracks the allocation so that it can be returned when this port is disconnected */
   private long memoryHandle;
 
@@ -35,10 +35,10 @@ public class CoreMidiInputPort {
    * @throws 								CoreMidiException if the input port cannot be created
    * 
    */
-  
+
   public CoreMidiInputPort(final int clientReference, String portName) throws CoreMidiException {
 
-  	this.midiPortReference = this.createInputPort(clientReference, portName);
+    this.midiPortReference = this.createInputPort(clientReference, portName);
 
   }
 
@@ -50,11 +50,11 @@ public class CoreMidiInputPort {
    * @throws 								CoreMidiException
    * 
    */
-  
+
   public void connectSource(final CoreMidiSource sourceDevice) throws CoreMidiException {
-  	
-  	memoryHandle = midiPortConnectSource(midiPortReference, sourceDevice);
-  			
+
+    memoryHandle = midiPortConnectSource(midiPortReference, sourceDevice);
+
   }
 
   /**
@@ -65,28 +65,28 @@ public class CoreMidiInputPort {
    * @throws 							CoreMidiException
    * 
    */
-  
+
   public void disconnectSource(final CoreMidiSource sourceDevice) throws CoreMidiException {
-  
-  	midiPortDisconnectSource(midiPortReference, memoryHandle, sourceDevice);
-  	
+
+    midiPortDisconnectSource(midiPortReference, memoryHandle, sourceDevice);
+
   }
 
   //////////////////////////////
-	///// JNI Interfaces
+  ///// JNI Interfaces
   //////////////////////////////
-	
-	/**
-	 * Static method for loading the native library 
-	 * 
-	 */
-	
+
+  /**
+   * Static method for loading the native library 
+   * 
+   */
+
   static {
-  	
+
     System.loadLibrary("CoreMIDI4J");
-      
+
   }
-  
+
   /**
    * Creates a CoreMIDI input port
    * 
@@ -98,9 +98,9 @@ public class CoreMidiInputPort {
    * @throws 								CoreMidiException if the port cannot be created
    * 
    */
-  
+
   private native int createInputPort(int clientReference, String portName) throws CoreMidiException;
-  
+
   /**
    * Connects a source end point to a MIDI input
    * 
@@ -112,9 +112,9 @@ public class CoreMidiInputPort {
    * @throws 												CoreMidiException 
    * 
    */
-  
+
   private native long midiPortConnectSource(int inputPortReference, CoreMidiSource sourceDevice) throws CoreMidiException;
-  
+
   /**
    * Disconnects a source end point to a MIDI input
    * 
@@ -125,7 +125,7 @@ public class CoreMidiInputPort {
    * @throws 												CoreMidiException 
    * 
    */
-  
+
   private native void midiPortDisconnectSource(int inputPortReference, long memoryReference, CoreMidiSource sourceDevice) throws CoreMidiException;
-  
+
 }

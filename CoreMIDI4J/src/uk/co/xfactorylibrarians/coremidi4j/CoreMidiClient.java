@@ -25,7 +25,7 @@ import java.util.List;
 public class CoreMidiClient {
 
   private final int midiClientReference;
-  
+
   private List<CoreMidiNotification> notificationListeners = new ArrayList<CoreMidiNotification>();
 
   /**
@@ -36,11 +36,11 @@ public class CoreMidiClient {
    * @throws 			CoreMidiException
    * 
    */
-  
+
   public CoreMidiClient(String name) throws CoreMidiException {
-  	
-  	midiClientReference = this.createClient(name);
-  	
+
+    midiClientReference = this.createClient(name);
+
   }
 
   /**
@@ -53,11 +53,11 @@ public class CoreMidiClient {
    * @throws 			CoreMidiException
    * 
    */
-  
+
   public CoreMidiInputPort inputPortCreate(final String name) throws CoreMidiException {
-  	
-  	return new CoreMidiInputPort(midiClientReference,name);
-  
+
+    return new CoreMidiInputPort(midiClientReference,name);
+
   }
 
   /**
@@ -70,88 +70,88 @@ public class CoreMidiClient {
    * @throws 			CoreMidiException 
    * 
    */
-  
+
   public CoreMidiOutputPort outputPortCreate(final String name) throws CoreMidiException {
-  	
-  	return new CoreMidiOutputPort(midiClientReference,name);
-  	
+
+    return new CoreMidiOutputPort(midiClientReference,name);
+
   }
-  
+
   /**
    * The message callback for receiving notifications about changes in the MIDI environment from the JNI code
    * 
    * @throws CoreMidiException 
    * 
    */
-    
+
   public void notifyCallback() throws CoreMidiException  {
-  	
-  	// Debug code - uncomment to see this function being called
-  	//System.out.println("** CoreMidiClient - MIDI Environment Changed");
-  	
-  	synchronized(this) {
-  		
-    	// Iterate through the listeners (if any) and call them to advise that the environment has changed    	
-  		for (CoreMidiNotification listener : notificationListeners) {
 
-  			listener.midiSystemUpdated();
+    // Debug code - uncomment to see this function being called
+    //System.out.println("** CoreMidiClient - MIDI Environment Changed");
 
-  		}
-  		
-  	}
-  
+    synchronized(this) {
+
+      // Iterate through the listeners (if any) and call them to advise that the environment has changed    	
+      for (CoreMidiNotification listener : notificationListeners) {
+
+        listener.midiSystemUpdated();
+
+      }
+
+    }
+
   }
-  
+
   /**
    * Adds a notification listener to the listener list maintained by this class
    * 
    * @param listener	The CoreMidiNotification listener to add
    * 
    */
-  
+
   public void addNotificationListener(CoreMidiNotification listener) {
-  	
-  	// Need to ensure that any CoreMidiDeviceProvider objects are at the head of the notification list, so that the device map is updated before other listeners are called
-  	if ( listener instanceof CoreMidiDeviceProvider ) {
-  		
-  		notificationListeners.add(0,listener);
-  	
-  	} else {
-  		
-  		notificationListeners.add(listener);
-  	
-  	}
-  	
+
+    // Need to ensure that any CoreMidiDeviceProvider objects are at the head of the notification list, so that the device map is updated before other listeners are called
+    if ( listener instanceof CoreMidiDeviceProvider ) {
+
+      notificationListeners.add(0,listener);
+
+    } else {
+
+      notificationListeners.add(listener);
+
+    }
+
   }
-  
+
   /**
    * Removes a notification listener from the listener list maintained by this class
    * 
    * @param listener	The CoreMidiNotification listener to remove
    * 
    */
-  
+
   public void removeNotificationListener(CoreMidiNotification listener) {
-  	
-  	notificationListeners.remove(listener);
-  	
+
+    notificationListeners.remove(listener);
+
   }
-  
+
   //////////////////////////////
-	///// JNI Interfaces
+  ///// JNI Interfaces
   //////////////////////////////
-	
-	/**
-	 * Static method for loading the native library 
-	 * 
-	 */
-	
+
+  /**
+   * Static method for loading the native library 
+   * 
+   */
+
   static {
-  	
+
     System.loadLibrary("CoreMIDI4J");
-      
+
   }
-  
+
   /**
    * Creates the MIDI Client
    * 
@@ -161,18 +161,18 @@ public class CoreMidiClient {
    * 
    * @throws CoreMidiException	Thrown if the client cannot be created
    */
-  
+
   private native int createClient(String clientName) throws CoreMidiException;
-  
-	/**
-	 * Disposes of a CoreMIDI Client
-	 * 
-	 * @param clientReference		The reference of the client to dispose of
-	 * 
-	 * @throws 									CoreMidiException 
-	 * 
-	 */
-	
+
+  /**
+   * Disposes of a CoreMIDI Client
+   * 
+   * @param clientReference		The reference of the client to dispose of
+   * 
+   * @throws 									CoreMidiException 
+   * 
+   */
+
   private native void disposeClient(int clientReference) throws CoreMidiException;
-  	
+
 }

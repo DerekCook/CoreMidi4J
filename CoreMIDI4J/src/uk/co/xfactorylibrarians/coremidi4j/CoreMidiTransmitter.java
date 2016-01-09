@@ -25,80 +25,80 @@ import javax.sound.midi.Receiver;
 
 public class CoreMidiTransmitter implements MidiDeviceTransmitter {
 
-	private final CoreMidiSource device;
-	private Receiver receiver = null;
+  private final CoreMidiSource device;
+  private Receiver receiver = null;
 
-	/**
-	 * CoreMidiTransmitter constructor
-	 * 
-	 * @param device	The MIDI device that contains the information required to receive MIDI data via OSX core MIDI
-	 * 
-	 */
-	
-	public CoreMidiTransmitter(final CoreMidiSource device) {
+  /**
+   * CoreMidiTransmitter constructor
+   * 
+   * @param device	The MIDI device that contains the information required to receive MIDI data via OSX core MIDI
+   * 
+   */
 
-		this.device = device;
-	
-	}
+  public CoreMidiTransmitter(final CoreMidiSource device) {
 
-	/** 
-	 * Sets a receiver on this transmitter
-	 * 
-	 * @see javax.sound.midi.Transmitter#setReceiver(javax.sound.midi.Receiver)
-	 * 
-	 * @param receiver	The receiver to set
-	 * 
-	 */
-	
-	@Override
-	public void setReceiver(Receiver receiver) {
+    this.device = device;
 
-		this.receiver = receiver;
-		
-	}
+  }
 
-	/** 
-	 * Gets the receiver set on this transmitter
-	 * 
-	 * @see javax.sound.midi.Transmitter#setReceiver(javax.sound.midi.Receiver)
-	 * 
-	 * @return	The receiver set on this transmitter
-	 * 
-	 */
-	
-	@Override
-	public Receiver getReceiver() {
+  /** 
+   * Sets a receiver on this transmitter
+   * 
+   * @see javax.sound.midi.Transmitter#setReceiver(javax.sound.midi.Receiver)
+   * 
+   * @param receiver	The receiver to set
+   * 
+   */
 
-		return receiver;
-		
-	}
+  @Override
+  public void setReceiver(Receiver receiver) {
 
-	/**
-	 * Closes this transmitter
-	 * 
-	 * @see javax.sound.midi.Transmitter#close()
-	 * 
-	 */
-	
-	@Override
-	public void close() {
+    this.receiver = receiver;
 
-		receiver = null;
-		
-	}
+  }
 
-	/**
-	 * Gets the MIDI Device that this receiver is attached to
-	 * 
-	 * @return the MIDI Device that this receiver is attached to
-	 * 
-	 */
-	
-	@Override
-	public MidiDevice getMidiDevice() {
+  /** 
+   * Gets the receiver set on this transmitter
+   * 
+   * @see javax.sound.midi.Transmitter#setReceiver(javax.sound.midi.Receiver)
+   * 
+   * @return	The receiver set on this transmitter
+   * 
+   */
 
-		return device;
-		
-	}
+  @Override
+  public Receiver getReceiver() {
+
+    return receiver;
+
+  }
+
+  /**
+   * Closes this transmitter
+   * 
+   * @see javax.sound.midi.Transmitter#close()
+   * 
+   */
+
+  @Override
+  public void close() {
+
+    receiver = null;
+
+  }
+
+  /**
+   * Gets the MIDI Device that this receiver is attached to
+   * 
+   * @return the MIDI Device that this receiver is attached to
+   * 
+   */
+
+  @Override
+  public MidiDevice getMidiDevice() {
+
+    return device;
+
+  }
 
 }

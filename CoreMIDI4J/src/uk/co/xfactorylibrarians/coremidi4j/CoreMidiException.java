@@ -21,17 +21,17 @@ package uk.co.xfactorylibrarians.coremidi4j;
 
 public class CoreMidiException extends Exception {
 
-	/**
-	 * Default constructor
-	 * 
-	 * @param message	The error message to include in the exception
-	 * 
-	 */
-	
-	public CoreMidiException(String message) {
+  /**
+   * Default constructor
+   * 
+   * @param message	The error message to include in the exception
+   * 
+   */
 
-		super(message);
-		
-	}
+  public CoreMidiException(String message) {
+
+    super(message);
+
+  }
 
 }

@@ -26,22 +26,22 @@
  */
 
 void ThrowException(JNIEnv *env, CFStringRef function, OSStatus status) {
-    
-	CFMutableStringRef string = CFStringCreateMutable(NULL, 0);
-    
-	// Create the exception string
-	if (string) {
-        
-		CFStringAppend(string, CFSTR("Exception in CoreMIDI JNI Library by \""));
-		CFStringAppend(string, function);
-		CFStringAppend(string, CFSTR("\" - OS STatus Code: "));
-		CFStringAppend(string, CFStringCreateWithFormat(NULL, NULL, CFSTR("%8.8x"), status));
-        
-	}
-    
-	jclass Exception = env->FindClass("com/coremidi4j/CoreMidiException");
-	env->ThrowNew(Exception,CFStringGetCStringPtr(CFStringCreateCopy(NULL, string), kCFStringEncodingMacRoman ));
-    
+
+  CFMutableStringRef string = CFStringCreateMutable(NULL, 0);
+
+  // Create the exception string
+  if (string) {
+
+    CFStringAppend(string, CFSTR("Exception in CoreMIDI JNI Library by \""));
+    CFStringAppend(string, function);
+    CFStringAppend(string, CFSTR("\" - OS STatus Code: "));
+    CFStringAppend(string, CFStringCreateWithFormat(NULL, NULL, CFSTR("%8.8x"), status));
+
+  }
+
+  jclass Exception = env->FindClass("com/coremidi4j/CoreMidiException");
+  env->ThrowNew(Exception,CFStringGetCStringPtr(CFStringCreateCopy(NULL, string), kCFStringEncodingMacRoman ));
+
 }
 
 /*
@@ -52,44 +52,44 @@ void ThrowException(JNIEnv *env, CFStringRef function, OSStatus status) {
  */
 
 void printJniStatus(int status) {
-	
-	switch (status) {
-			
-		case JNI_OK:
-			std::cout << "JNI_OK - success";
-			break;
-			
-		case JNI_ERR:
-			std::cout << "JNI_ERR - unknown error";
-			break;
-			
-		case JNI_EDETACHED:
-			std::cout << "JNI_EDETACHED - thread detached from the VM";
-			break;
-			
-		case JNI_EVERSION:
-			std::cout << "JNI_EVERSION - JNI version error";
-			break;
-			
-		case JNI_ENOMEM:
-			std::cout << "JNI_ENOMEM - not enough memory";
-			break;
-			
-		case JNI_EEXIST:
-			std::cout << "JNI_EEXIST - VM already created";
-			break;
-			
-		case JNI_EINVAL:
-			std::cout << "JNI_EINVAL - invalid arguments";
-			break;
-			
-		default:
-			std::cout << "!! Undefined Error Code";
-			break;
-			
-	}
-	
-	std::cout << std::endl;
-	
+
+  switch (status) {
+
+    case JNI_OK:
+      std::cout << "JNI_OK - success";
+      break;
+
+    case JNI_ERR:
+      std::cout << "JNI_ERR - unknown error";
+      break;
+
+    case JNI_EDETACHED:
+      std::cout << "JNI_EDETACHED - thread detached from the VM";
+      break;
+
+    case JNI_EVERSION:
+      std::cout << "JNI_EVERSION - JNI version error";
+      break;
+
+    case JNI_ENOMEM:
+      std::cout << "JNI_ENOMEM - not enough memory";
+      break;
+
+    case JNI_EEXIST:
+      std::cout << "JNI_EEXIST - VM already created";
+      break;
+
+    case JNI_EINVAL:
+      std::cout << "JNI_EINVAL - invalid arguments";
+      break;
+
+    default:
+      std::cout << "!! Undefined Error Code";
+      break;
+
+  }
+
+  std::cout << std::endl;
+
 }
 

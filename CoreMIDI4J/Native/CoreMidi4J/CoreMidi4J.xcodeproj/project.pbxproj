@@ -36,19 +36,19 @@
 
 /* Begin PBXFileReference section */
 		65E46C1D1B89DB8200CC6075 /* libCoreMidi4J.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libCoreMidi4J.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		65E46C251B89DBAF00CC6075 /* CoreMidi4J.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreMidi4J.h; sourceTree = "<group>"; };
+		65E46C251B89DBAF00CC6075 /* CoreMidi4J.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = CoreMidi4J.h; sourceTree = "<group>"; tabWidth = 2; wrapsLines = 0; };
 		65E46C281B89DC6700CC6075 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		65E46C2A1B89DC7200CC6075 /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = System/Library/Frameworks/CoreMIDI.framework; sourceTree = SDKROOT; };
-		65EE98261C240C66000DDF1A /* CoreMidiDeviceProvider.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; path = CoreMidiDeviceProvider.cpp; sourceTree = "<group>"; tabWidth = 2; usesTabs = 1; };
-		65EE982A1C240D37000DDF1A /* CoreMidi4JUtilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CoreMidi4JUtilities.h; sourceTree = "<group>"; };
-		65EE982B1C2412C4000DDF1A /* CoreMidi4JUtilities.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; path = CoreMidi4JUtilities.cpp; sourceTree = "<group>"; tabWidth = 2; usesTabs = 1; };
-		65EE982D1C2414BE000DDF1A /* CoreMidiClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; path = CoreMidiClient.cpp; sourceTree = "<group>"; tabWidth = 2; usesTabs = 1; };
-		65EE982E1C2414BE000DDF1A /* CoreMidiClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreMidiClient.h; sourceTree = "<group>"; };
-		65EE98311C241529000DDF1A /* CoreMidiDeviceProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CoreMidiDeviceProvider.h; sourceTree = "<group>"; };
-		65EE98321C2415B1000DDF1A /* CoreMidiOutputPort.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; path = CoreMidiOutputPort.cpp; sourceTree = "<group>"; tabWidth = 2; usesTabs = 1; wrapsLines = 0; };
-		65EE98331C2415B1000DDF1A /* CoreMidiOutputPort.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreMidiOutputPort.h; sourceTree = "<group>"; };
-		65EE98361C241615000DDF1A /* CoreMidiInputPort.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; path = CoreMidiInputPort.cpp; sourceTree = "<group>"; tabWidth = 2; usesTabs = 1; wrapsLines = 0; };
-		65EE98371C241615000DDF1A /* CoreMidiInputPort.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreMidiInputPort.h; sourceTree = "<group>"; };
+		65EE98261C240C66000DDF1A /* CoreMidiDeviceProvider.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; path = CoreMidiDeviceProvider.cpp; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; wrapsLines = 0; };
+		65EE982A1C240D37000DDF1A /* CoreMidi4JUtilities.h */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = CoreMidi4JUtilities.h; sourceTree = "<group>"; tabWidth = 2; wrapsLines = 0; };
+		65EE982B1C2412C4000DDF1A /* CoreMidi4JUtilities.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; path = CoreMidi4JUtilities.cpp; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; wrapsLines = 0; };
+		65EE982D1C2414BE000DDF1A /* CoreMidiClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; path = CoreMidiClient.cpp; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; wrapsLines = 0; };
+		65EE982E1C2414BE000DDF1A /* CoreMidiClient.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = CoreMidiClient.h; sourceTree = "<group>"; tabWidth = 2; wrapsLines = 0; };
+		65EE98311C241529000DDF1A /* CoreMidiDeviceProvider.h */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = CoreMidiDeviceProvider.h; sourceTree = "<group>"; tabWidth = 2; wrapsLines = 0; };
+		65EE98321C2415B1000DDF1A /* CoreMidiOutputPort.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; path = CoreMidiOutputPort.cpp; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; wrapsLines = 0; };
+		65EE98331C2415B1000DDF1A /* CoreMidiOutputPort.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = CoreMidiOutputPort.h; sourceTree = "<group>"; tabWidth = 2; wrapsLines = 0; };
+		65EE98361C241615000DDF1A /* CoreMidiInputPort.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; path = CoreMidiInputPort.cpp; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; wrapsLines = 0; };
+		65EE98371C241615000DDF1A /* CoreMidiInputPort.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = CoreMidiInputPort.h; sourceTree = "<group>"; tabWidth = 2; wrapsLines = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
