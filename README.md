@@ -1,5 +1,5 @@
 # CoreMidi4J
-Core MIDI Service provider Interace (SPI) for Java 1.7 and above on OS X.
+Core MIDI Service Provider Interface (SPI) for Java 1.7 and above on OS X.
 
 I have created CoreMIDI4J as to my knowledge there is currently no SPI under active development that overcomes the inherent Java MIDI SYSEX limitiations, which still have not been fixed in the Java Core software. Hopefully one day these SPIs will not be required, but until then one is needed.
 

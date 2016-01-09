@@ -39,9 +39,13 @@ public class CoreMidiSource implements MidiDevice {
 	private boolean isOpen;
 	private CoreMidiInputPort input = null;
 	private final List<Transmitter> transmitters;
-	private boolean inSysexMessage = false;
-	private Vector<byte[]> messageData;
-	private int sysexMessageLength = 0;
+
+	private int currentMessage = 0;  								// Will contain the status byte (> 127) while gathering a multi-byte message.
+	private boolean currentDataIsSingleByte;  			// Is true if currentMessage only needs one byte of data.
+	private byte firstDataByte;  										// Will hold the first data byte received when gathering two-byte messages.
+	private boolean wasFirstByteReceived = false;  	// Gets set to true when we read first byte of two-byte message.
+	private Vector<byte[]> sysexMessageData;  			// Accumulates runs of SYSEX data values until we see the end of message.
+	private int sysexMessageLength = 0;  						// Tracks the total SYSEX data length accumulated.
 
 	/**
 	 * Default constructor.
@@ -297,6 +301,124 @@ public class CoreMidiSource implements MidiDevice {
 	}
 
 	/**
+	 * Checks whether a status byte represents a real-time message, which can occur even in the middle of another
+	 * multi-byte message.
+	 *
+	 * @param status the status byte which has just been received.
+	 *
+	 * @return true if the status byte represents a standalone real-time message which should be passed on without
+	 *         interrupting any other message being gathered.
+	 */
+	private boolean isRealTimeMessage(byte status) {
+
+		switch (status) {
+			
+			case (byte) ShortMessage.TIMING_CLOCK:
+			case (byte) ShortMessage.START:
+			case (byte) ShortMessage.CONTINUE:
+			case (byte) ShortMessage.STOP:
+			case (byte) ShortMessage.ACTIVE_SENSING:
+			case (byte) ShortMessage.SYSTEM_RESET:
+				return  true;
+
+			default:
+				return false;
+				
+		}
+		
+	}
+
+	/**
+	 * Checks whether a status byte represents a running-status message, which means that multiple messages can be
+	 * sent without re-sending the status byte, for example to support multiple note-on messages in a row by simply
+	 * sending a stream of data byte pairs after the note-on status byte.
+	 *
+	 * @param status the status byte which is being processed.
+	 *
+	 * @return true if we should stay in this status after receiving our full complement of data bytes.
+	 */
+	private boolean isRunningStatusMessage (int status) {
+
+		switch(status & 0xF0) {
+			
+			case ShortMessage.NOTE_OFF:
+			case ShortMessage.NOTE_ON: 
+			case ShortMessage.POLY_PRESSURE:
+			case ShortMessage.CONTROL_CHANGE:
+			case ShortMessage.PROGRAM_CHANGE: 
+			case ShortMessage.CHANNEL_PRESSURE:
+			case ShortMessage.PITCH_BEND:
+				return true;
+
+			default:
+				return false;
+				
+		}
+		
+	}
+
+	/**
+	 * Determine how many data bytes are expected for a given MIDI message other than a SYSEX message, which varies.
+	 *
+	 * @param status the status byte introducing the MIDI message.
+	 *
+	 * @return the number of data bytes which must be received for the message to be complete.
+	 *
+	 * @throws InvalidMidiDataException if the status byte is not valid.
+	 */
+	private int expectedDataLength (byte status) throws InvalidMidiDataException {
+		
+		// system common and system real-time messages
+		
+		switch(status &0xFF) {
+			
+			case ShortMessage.TUNE_REQUEST:
+			case ShortMessage.END_OF_EXCLUSIVE:
+				
+			// System real-time messages
+			case ShortMessage.TIMING_CLOCK:  
+			case 0xF9:  // Undefined
+			case ShortMessage.START:  
+			case ShortMessage.CONTINUE:  
+			case ShortMessage.STOP:  
+			case 0xFD:  // Undefined
+			case ShortMessage.ACTIVE_SENSING:  
+			case ShortMessage.SYSTEM_RESET:  
+				return 0;
+
+			case ShortMessage.MIDI_TIME_CODE:
+			case ShortMessage.SONG_SELECT:  
+				return 1;
+
+			case ShortMessage.SONG_POSITION_POINTER:  
+				return 2;
+
+			default:  // Fall through to next switch
+				
+		}
+
+		// channel voice and mode messages
+		switch(status & 0xF0) {
+			
+			case ShortMessage.NOTE_OFF: 
+			case ShortMessage.NOTE_ON:  
+			case ShortMessage.POLY_PRESSURE:
+			case ShortMessage.CONTROL_CHANGE:  
+			case ShortMessage.PITCH_BEND: 
+				return 2;
+
+			case ShortMessage.PROGRAM_CHANGE:  
+			case ShortMessage.CHANNEL_PRESSURE:  
+				return 1;
+
+			default:
+				throw new InvalidMidiDataException("Invalid status byte: " + status);
+				
+		}
+
+	}
+
+	/**
 	 * The message callback for receiving midi data from the JNI code
 	 * 
 	 * @param timestamp 	 The system timestamp
@@ -307,102 +429,106 @@ public class CoreMidiSource implements MidiDevice {
 	 * 
 	 */
 
-	public void messageCallback(int timestamp, int packetlength, byte data[]) throws InvalidMidiDataException {
-
-		MidiMessage message;
+	public void messageCallback(long timestamp, int packetlength, byte data[]) throws InvalidMidiDataException {
+		
 		int offset = 0;
 
 		// An OSX MIDI packet may contain multiple messages
 		while (offset < packetlength) {
 
-			if ( inSysexMessage ) {
-				
-				// We can get timing messages mingled in SYSEX Data! So we need to avoid putting them into SYSEX data
-				// Retransmitting them seems OK in SYSEX reception. 
-				if ( ( data[offset] & 0xff ) == ShortMessage.TIMING_CLOCK ) {
+			if (data[offset] >= 0) {
 
-					message = new ShortMessage(data[offset] & 0xff);
-					transmitMessage(message, timestamp);
-					offset += 1;
-					
-				}
+				// This is a regular data byte. Process it appropriately for our current message type.
+				if (currentMessage == 0) {
 
-				offset += processSysexData(packetlength, data, offset, timestamp);
+					throw new InvalidMidiDataException("Data received outside of a message.");
 
-			} else if (data[offset] < (byte) 0xf0) {
-				
-				// Channel messages
+				} else if (currentMessage == SysexMessage.SYSTEM_EXCLUSIVE) {
 
-				// Uncomment the following to show the received message whilst debugging
-				//System.out.println("Message " + this.getHexString(data));
+					// We are in the middle of gathering system exclusive data; continue.
+					offset += processSysexData(packetlength, data, offset, timestamp);
 
-				// The type of message to construct will depend on the message type
-				switch (data[offset] & (byte) 0xf0) {
+				} else if (currentDataIsSingleByte) {
 
-					// Three byte messages
-					case (byte) ShortMessage.NOTE_ON:
-					case (byte) ShortMessage.NOTE_OFF:
-					case (byte) ShortMessage.POLY_PRESSURE:
-					case (byte) ShortMessage.CONTROL_CHANGE:
-					case (byte) ShortMessage.PITCH_BEND:
-						message = new ShortMessage(data[offset] & 0xff, data[offset + 1], data[offset + 2]);
-						transmitMessage(message, timestamp);
-						offset += 3;
-						break;
+					// We are processing a message which only needs one data byte, this completes it
+					transmitMessage(new ShortMessage(currentMessage, data[offset++], 0), timestamp);
+					if (!isRunningStatusMessage(currentMessage)) currentMessage = 0;
 
-					// Two byte messages
-					case (byte) ShortMessage.PROGRAM_CHANGE:
-					case (byte) ShortMessage.CHANNEL_PRESSURE:
-						message = new ShortMessage(data[offset], data[offset + 1], 0);
-						transmitMessage(message, timestamp);
-						offset += 2;
-						break;
+				} else {
 
-					// Invalid message
-					default:
-						throw new InvalidMidiDataException("Invalid Status Byte " + data[0]);
+					// We are processing a message which needs two data bytes
+					if (wasFirstByteReceived) {
 
+						// We have the second data byte, the message is now complete
+						transmitMessage(new ShortMessage(currentMessage, firstDataByte, data[offset++]), timestamp);
+						wasFirstByteReceived = false;
+						if (!isRunningStatusMessage(currentMessage)) currentMessage = 0;
+
+					} else {
+
+						// We have just received the first data byte of a message which needs two.
+						firstDataByte = data[offset++];
+						wasFirstByteReceived = true;
+					}
 				}
 
 			} else {
-				
-				// System common and SYSEX messages
 
-				switch (data[offset] & 0xff) {
+				// This is a status byte, handle appropriately
+				if (isRealTimeMessage(data[offset])) {
 
-					// Three byte messages
-					case ShortMessage.MIDI_TIME_CODE:
-					case ShortMessage.SONG_POSITION_POINTER:
-					case ShortMessage.SONG_SELECT:
-						message = new ShortMessage(data[offset], data[offset + 1], data[offset + 2]);
-						transmitMessage(message, timestamp);
-						offset += 3;
-						break;
+					// Real-time messages can come anywhere, including in between data bytes of other messages.
+					// Simply transmit it and move on.
+					transmitMessage(new ShortMessage(data[offset++] & 0xff), timestamp);
 
-					// Single byte messages
-					case ShortMessage.TUNE_REQUEST:
-					case ShortMessage.TIMING_CLOCK:
-					case ShortMessage.START:
-					case ShortMessage.CONTINUE:
-					case ShortMessage.STOP:
-					case ShortMessage.ACTIVE_SENSING:
-					case ShortMessage.SYSTEM_RESET:
-						message = new ShortMessage(data[offset] & 0xff);
-						transmitMessage(message, timestamp);
-						offset += 1;
-						break;
+				} else if (data[offset] == (byte) ShortMessage.END_OF_EXCLUSIVE) {
 
-					// SYSEX Message
-					case SysexMessage.SYSTEM_EXCLUSIVE:
-						sysexMessageLength = 0;  // We are starting a SysEx message, may span multiple packets
-						messageData = new Vector<byte[]>();
+					// This is the marker for the end of a system exclusive message. If we were gathering one,
+					// process (finish) it.
+					if (currentMessage == SysexMessage.SYSTEM_EXCLUSIVE) {
+
 						offset += processSysexData(packetlength, data, offset, timestamp);
-						break;
+					} else {
 
-					// Invalid message
-					default:
-						throw new InvalidMidiDataException("Invalid Status Byte ");
+						throw new InvalidMidiDataException("Received End of Exclusive marker outside SYSEX message");
 
+					}
+
+				} else if (data[offset] == (byte) SysexMessage.SYSTEM_EXCLUSIVE) {
+
+					// We are starting to gather a SYSEX message.
+					currentMessage = SysexMessage.SYSTEM_EXCLUSIVE;
+					sysexMessageLength = 0;
+					sysexMessageData = new Vector<byte[]>();
+					offset += processSysexData(packetlength, data, offset, timestamp);
+
+				} else {
+
+					// Some ordinary MIDI message.
+					switch (expectedDataLength(data[offset])) {
+
+						case 0:  // No data bytes, this is a standalone message, so we can send it right away.
+							transmitMessage(new ShortMessage(data[offset++] & 0xff), timestamp);
+							currentMessage = 0;  // If we were in a running status, it's over now
+							break;
+
+						case 1: // We are expecting data before we can send this message.
+							currentMessage = data[offset++] & 0xff;
+							currentDataIsSingleByte = true;
+							break;
+
+						case 2: // We are expecting two bytes of data before we can send this message.
+							currentMessage = data[offset++] & 0xff;
+							currentDataIsSingleByte = false;
+							wasFirstByteReceived = false;
+							break;
+
+						default:
+							throw new InvalidMidiDataException("Unexpected data length: " +
+									expectedDataLength(data[offset]));
+							
+					}
+					
 				}
 				
 			}
@@ -428,10 +554,10 @@ public class CoreMidiSource implements MidiDevice {
 		int index = 0;
 
 		// Iterate through the partial messages
-		for (int i = 0; i < messageData.size(); i += 1) {
+		for (int i = 0; i < sysexMessageData.size(); i += 1) {
 
 			// Get the partial message
-			byte sourceData[] = messageData.get(i);
+			byte sourceData[] = sysexMessageData.get(i);
 
 			// Copy the partial message into the array
 			System.arraycopy(sourceData, 0, data, index, sourceData.length);
@@ -442,7 +568,7 @@ public class CoreMidiSource implements MidiDevice {
 		}
 
 		// We are done with the message fragments, so allow them to be garbage collected
-		messageData = null;
+		sysexMessageData = null;
 
 		// Create and return the new SYSYEX Message
 		return new SysexMessage(data, sysexMessageLength);
@@ -453,9 +579,12 @@ public class CoreMidiSource implements MidiDevice {
 	 * Called when a SYSEX message is being received, either because an F0 byte has been seen at the start of a
 	 * message, which starts the process of gathering a SYSEX potentially across multiple packets, or because a
 	 * new packet has been received while we are still in the process of gathering bytes of a SYSEX which was
-	 * started in a previous packet. The partial data is added to the messageData Vector. If we see an F7 byte,
-	 * we know the SYSEX is finished, and so we can assemble and transmit it from any fragments which have been
-	 * gathered.
+	 * started in a previous message. The partial data is added to the sysexMessageData Vector. If we see another
+	 * status byte, except for one which represents a real-time message, we know the SYSEX is finished, and so we
+	 * can assemble and transmit it from any fragments which have been gathered.
+	 *
+	 * If we see a real-time message or the end of the packet, we return the data we have gathered,
+	 * and let the main loop decide what to do next.
 	 *
 	 * @param packetLength 	The length of the data packet
 	 * @param sourceData   	The source data received from Core MIDI
@@ -468,57 +597,85 @@ public class CoreMidiSource implements MidiDevice {
 	 * 
 	 */
 	
-	private int processSysexData(int packetLength, byte sourceData[], int startOffset, int timestamp) throws InvalidMidiDataException {
+	private int processSysexData(int packetLength, byte sourceData[], int startOffset, long timestamp)
+			throws InvalidMidiDataException {
 
 		// Look for the end of the SYSEX or packet
 		int messageLength = 0;
 		boolean foundEnd = false;
-		
+
 		// Check to see if this packet contains the end of the message
 		while ( ( startOffset + messageLength ) < packetLength) {
 			
 			byte latest = sourceData[startOffset + messageLength++];
 			
-			if (latest == (byte) SysexMessage.SPECIAL_SYSTEM_EXCLUSIVE) {
-				
-				foundEnd = true;
-				break;  // We found the end of the message
+			if (latest < 0 && messageLength + sysexMessageLength > 1) {
+
+				// We have encountered another status byte (after the F0 which starts the message).
+				// Is it the marker of the end of the SYSEX message?
+				if (latest == (byte) ShortMessage.END_OF_EXCLUSIVE) {
+
+					currentMessage = 0;  // Found end marker, ready to send this SYSEX and look for next message.
+					foundEnd = true;
+
+				} else if (isRealTimeMessage(latest)) {
+
+					// Back up so the main loop can send this real-time message embedded in our data,
+					// then call us again to keep gathering SYSEX data.
+					--messageLength;
+
+				} else {
+
+					// Found the start of another message. Back up so it gets processed, and note that we have found
+					// the end of our SYSEX data. If we decide we should not pass on incomplete SYSEX messages, the
+					// code below the loop can use the fact that currentMessage is not 0 to do so.
+					--messageLength;
+					foundEnd = true;
+
+				}
+
+				break;  // One way or another, we are done gathering data bytes for now.
 				
 			}
 			
 		}
 
-		// Create an array to hold this part of the message (note the source array will be released by the native function)
+		// Create an array to hold this part of the message, if we received any actual data.
+		// (Note the source array will be released by the native function.)
+		if (messageLength > 0) {
+			
+			byte data[] = new byte[messageLength];
 
-		byte data[] = new byte[messageLength];
+			//Copy the data to the array
+			try {
 
-		//Copy the data to the array
-		try {
+				System.arraycopy(sourceData, startOffset, data, 0, messageLength);
 
-			System.arraycopy(sourceData, startOffset, data, 0, messageLength);
+			} catch (ArrayIndexOutOfBoundsException e) {
 
-		} catch (ArrayIndexOutOfBoundsException e) {
+				e.printStackTrace();
 
-			e.printStackTrace();
+				throw e;
 
-			throw e;
+			}
 
+			// Add the message to the vector
+			sysexMessageData.add(data);
+			
 		}
-
-		// Add the message to the vector
-		messageData.add(data);
 
 		// Update the length of the SYSEX message
 		sysexMessageLength += messageLength;
 
 		// If we found the end, send it now
 		if (foundEnd) {
-			
+
+			// Again, here we could refrain from sending if currentMessage != 0, because that indicates we received
+			// a partial SYSEX message, i.e. the next message started before we received the End of Exclusive marker.
 			transmitMessage(constructSysexMessage(), timestamp);
 			
 		}
 
-		inSysexMessage = !foundEnd;
 		return messageLength;
 		
 	}
@@ -532,14 +689,14 @@ public class CoreMidiSource implements MidiDevice {
 	 * 
 	 */
 
-	private void transmitMessage(final MidiMessage message, int timestamp) {
+	private void transmitMessage(final MidiMessage message, long timestamp) {
 
 		// Uncomment the following to filter realtime messages during debugging
-		//if ( ( message.getStatus() == ShortMessage.ACTIVE_SENSING ) || ( message.getStatus() == ShortMessage.TIMING_CLOCK ) ) {
-		//  		
-		//	return;
-		//  		
-		//}
+//		if (isRealTimeMessage ((byte)message.getStatus())) {
+//
+//			return;
+//
+//		}
 
 		synchronized (transmitters) {
 

@@ -31,7 +31,16 @@
 
 void MIDIInput(const MIDIPacketList *packets, void *readProcRefCon, void *srcConnRefCon) {
 	
+	static mach_timebase_info_data_t sTimebaseInfo;  // Will hold conversion factor for timestamps
 	JNIEnv *env;
+
+	// If this is the first time we've run, get the timebase.
+	// We can use denom == 0 to indicate that sTimebaseInfo is
+	// uninitialised because it makes no sense to have a zero
+	// denominator in a fraction.
+	if ( sTimebaseInfo.denom == 0 ) {
+		(void) mach_timebase_info(&sTimebaseInfo);
+	}
 
 	// Cast the supplied reference to the correct data type
 	MIDI_CALLBACK_PARAMETERS *callbackParameters = (MIDI_CALLBACK_PARAMETERS *) srcConnRefCon;
@@ -62,12 +71,26 @@ void MIDIInput(const MIDIPacketList *packets, void *readProcRefCon, void *srcCon
 	
 	for (int i = 0; i < packets->numPackets; i += 1 ) {
 		
+		// Convert the CoreMIDI timestamp from Mach Absolute Time Units to microseconds,
+		// as expected by Java MIDI. The first step is based on Apple Tech Q&A 1398,
+		// https://developer.apple.com/library/mac/qa/qa1398/_index.html
+		//
+		// Because we are converting to microseconds rather than nanoseconds, we can start
+		// by dividing by 1000, which should eliminate the risk of overflow described in the
+		// comment below (copied in from the Q&A), which evidently should not have been an issue
+		// until 584.9 years after the most recent system boot anyway, according to
+		// http://lists.apple.com/archives/darwin-kernel/2012/Sep/msg00008.html
+		//
+		// Do the maths. We hope that the multiplication doesn't
+		// overflow; the price you pay for working in fixed point.
+		uint64_t timestamp = (packet->timeStamp / 1000) * sTimebaseInfo.numer / sTimebaseInfo.denom;
+
 		// Create a java array from the MIDIPacket
 		jbyteArray array = env->NewByteArray(packet->length);
 		env->SetByteArrayRegion(array, 0, packet->length, (jbyte*) packet->data);
 		
 		// Call the Java callback to pass the MIDI data to Java
-		env->CallVoidMethod(callbackParameters->object, callbackParameters->methodID,packet->timeStamp, packet->length,array);
+		env->CallVoidMethod(callbackParameters->object, callbackParameters->methodID, timestamp, packet->length, array);
 		
 		// Release the array once we are finished with it
 		env->ReleaseByteArrayElements(array, NULL, JNI_ABORT);
@@ -170,7 +193,7 @@ JNIEXPORT jlong JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiInputPo
     
 	// Cache the information needed for the callback, noting that we obtain a l=global reference for the CoreMidiInputPortObject
 	callbackParameters->object = env->NewGlobalRef(sourceDevice);
-	callbackParameters->methodID =  env->GetMethodID(env->GetObjectClass(sourceDevice), "messageCallback", "(II[B)V");
+	callbackParameters->methodID =  env->GetMethodID(env->GetObjectClass(sourceDevice), "messageCallback", "(JI[B)V");
 	jint result = env->GetJavaVM(&callbackParameters->jvm);
     
 	//Ensure that the last call succeeded

@@ -14,9 +14,7 @@
 
 package uk.co.xfactorylibrarians.coremidi4j;
 
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiDevice.Info;
@@ -85,12 +83,17 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
   
   private void buildDeviceMap() throws CoreMidiException {
 
+		Set<Integer> devicesSeen = new HashSet<Integer>();
+
   	// Iterate through the sources
   	for (int i = 0; i < getNumberOfSources(); i++) {
 
   		// Get the end point reference and its unique ID
   		final int endPointReference = getSource(i);
   		final int uniqueID = getUniqueID(endPointReference);
+
+			// Keep track of the IDs of all the devices we see
+			devicesSeen.add(uniqueID);
 
   		// If the unique ID of the end point is not in the map then create a CoreMidiSource object and add it to the map
   		if ( midiProperties.deviceMap.containsKey(uniqueID) == false ) {
@@ -108,7 +111,10 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
   		final int endPointReference = getDestination(i);
   		final int uniqueID = getUniqueID(endPointReference);
 
-  		// If the unique ID of the end point is not in the map then create a CoreMidiDestination object and add it to the map
+			// Keep track of the IDs of all the devices we see
+			devicesSeen.add(uniqueID);
+
+			// If the unique ID of the end point is not in the map then create a CoreMidiDestination object and add it to the map
   		if ( midiProperties.deviceMap.containsKey(uniqueID) == false ) {
   			
   			midiProperties.deviceMap.put(uniqueID, new CoreMidiDestination(getMidiDeviceInfo(endPointReference)));
@@ -116,8 +122,19 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
   		}
   		
   	}
-  	
-  }
+
+		// Finally, remove any devices from the map which were no longer available according to CoreMIDI.
+		Set<Integer> devicesInMap = new HashSet<Integer>(midiProperties.deviceMap.keySet());
+		for (Integer uniqueID : devicesInMap) {
+
+			if ( !devicesSeen.contains(uniqueID)) {
+				midiProperties.deviceMap.remove(uniqueID);
+
+			}
+
+		}
+
+	}
 
   /**
    * Gets the CoreMidiClient object 
@@ -276,8 +293,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
 	
 	public void midiSystemUpdated() throws CoreMidiException {
 		
-		// Clear the map and rebuild it
-		midiProperties.deviceMap.clear();
+		// Update the device map
 		buildDeviceMap();
 		
 	}
