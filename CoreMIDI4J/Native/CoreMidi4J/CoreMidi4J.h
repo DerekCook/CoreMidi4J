@@ -27,6 +27,25 @@ JNIEXPORT void JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiClient_d
 }
 #endif
 #endif
+/* Header for class uk_co_xfactorylibrarians_coremidi4j_CoreMidiDestination */
+
+#ifndef _Included_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDestination
+#define _Included_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDestination
+#ifdef __cplusplus
+extern "C" {
+#endif
+/*
+ * Class:     uk_co_xfactorylibrarians_coremidi4j_CoreMidiDestination
+ * Method:    getMicroSecondTime
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDestination_getMicroSecondTime
+  (JNIEnv *, jobject);
+
+#ifdef __cplusplus
+}
+#endif
+#endif
 /* Header for class uk_co_xfactorylibrarians_coremidi4j_CoreMidiDeviceProvider */
 
 #ifndef _Included_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDeviceProvider
@@ -34,8 +53,6 @@ JNIEXPORT void JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiClient_d
 #ifdef __cplusplus
 extern "C" {
 #endif
-#undef uk_co_xfactorylibrarians_coremidi4j_CoreMidiDeviceProvider_BUFFER_SIZE
-#define uk_co_xfactorylibrarians_coremidi4j_CoreMidiDeviceProvider_BUFFER_SIZE 2048L
 #undef uk_co_xfactorylibrarians_coremidi4j_CoreMidiDeviceProvider_DEVICE_MAP_SIZE
 #define uk_co_xfactorylibrarians_coremidi4j_CoreMidiDeviceProvider_DEVICE_MAP_SIZE 20L
 /* Inaccessible static: midiProperties */
@@ -148,6 +165,25 @@ JNIEXPORT jint JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiOutputPo
  */
 JNIEXPORT void JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiOutputPort_sendMidiMessage
   (JNIEnv *, jobject, jint, jint, jobject);
+
+#ifdef __cplusplus
+}
+#endif
+#endif
+/* Header for class uk_co_xfactorylibrarians_coremidi4j_CoreMidiSource */
+
+#ifndef _Included_uk_co_xfactorylibrarians_coremidi4j_CoreMidiSource
+#define _Included_uk_co_xfactorylibrarians_coremidi4j_CoreMidiSource
+#ifdef __cplusplus
+extern "C" {
+#endif
+/*
+ * Class:     uk_co_xfactorylibrarians_coremidi4j_CoreMidiSource
+ * Method:    getMicroSecondTime
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiSource_getMicroSecondTime
+  (JNIEnv *, jobject);
 
 #ifdef __cplusplus
 }

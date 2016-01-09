@@ -9,9 +9,11 @@
 			force="yes">
 		
 			<class name="uk.co.xfactorylibrarians.coremidi4j.CoreMidiClient"/>
+			<class name="uk.co.xfactorylibrarians.coremidi4j.CoreMidiDestination"/>
 			<class name="uk.co.xfactorylibrarians.coremidi4j.CoreMidiDeviceProvider"/>
 			<class name="uk.co.xfactorylibrarians.coremidi4j.CoreMidiInputPort"/>			
 			<class name="uk.co.xfactorylibrarians.coremidi4j.CoreMidiOutputPort"/>
+			<class name="uk.co.xfactorylibrarians.coremidi4j.CoreMidiSource"/>
 		</javah>
 	</target>
 

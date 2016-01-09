@@ -46,6 +46,7 @@ public class CoreMidiSource implements MidiDevice {
   private boolean wasFirstByteReceived = false;  	// Gets set to true when we read first byte of two-byte message.
   private Vector<byte[]> sysexMessageData;  			// Accumulates runs of SYSEX data values until we see the end of message.
   private int sysexMessageLength = 0;  						// Tracks the total SYSEX data length accumulated.
+  private long startTime;                         // The system time in microseconds when the port was opened
 
   /**
    * Default constructor.
@@ -100,6 +101,9 @@ public class CoreMidiSource implements MidiDevice {
       // And connect to it
       this.input.connectSource(this);
       isOpen = true;
+      
+      // Get the system time in microseconds
+      startTime = this.getMicroSecondTime();
 
     } catch (CoreMidiException e) {
 
@@ -164,10 +168,9 @@ public class CoreMidiSource implements MidiDevice {
   }
 
   /**
-   * Obtains the current time-stamp of the device, in microseconds.
-   * This interface does not support time-stamps, so it should always return -1.
+   * Obtains the time in microseconds that has elapsed since this MIDI Device was opened.
    *
-   * @return Always -1 as this device does not support timestamps.
+   * @return the time in microseconds that has elapsed since this MIDI Device was opened.
    * 
    * @see javax.sound.midi.MidiDevice#getMicrosecondPosition()
    * 
@@ -176,8 +179,8 @@ public class CoreMidiSource implements MidiDevice {
   @Override
   public long getMicrosecondPosition() {
 
-    // Not supported
-    return -1;
+    // Return the elapsed time in Microseconds
+    return this.getMicroSecondTime() - startTime;
 
   }
 
@@ -755,5 +758,29 @@ public class CoreMidiSource implements MidiDevice {
     return new String(sbuf).trim();
 
   }
+  
+  //////////////////////////////
+  ///// JNI Interfaces
+  //////////////////////////////
+
+  /**
+   * Static method for loading the native library 
+   * 
+   */
+
+  static {
+
+    System.loadLibrary("CoreMIDI4J");
+
+  }
+
+  /**
+   * Obtains the current system time in microseconds.
+   *
+   * @return The current system time in microseconds.
+   * 
+   */
+
+  private native long getMicroSecondTime();
 
 }

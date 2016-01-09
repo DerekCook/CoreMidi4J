@@ -31,6 +31,7 @@ public class CoreMidiDestination implements MidiDevice {
   private final CoreMidiDeviceInfo info;
 
   private boolean isOpen;
+  private long startTime;  // The system time in microseconds when the port was opened
 
   /**
    * Default constructor. 
@@ -72,6 +73,9 @@ public class CoreMidiDestination implements MidiDevice {
   public void open() throws MidiUnavailableException {
 
     isOpen = true;
+  
+    // Get the system time in microseconds
+    startTime = this.getMicroSecondTime();
 
   }
 
@@ -105,20 +109,19 @@ public class CoreMidiDestination implements MidiDevice {
   }
 
   /**
-   * Obtains the current time-stamp of the device, in microseconds. 
-   * This interface does not support time-stamps, so it should always return -1.
+   * Obtains the time in microseconds that has elapsed since this MIDI Device was opened.
+   *
+   * @return the time in microseconds that has elapsed since this MIDI Device was opened.
    * 
    * @see javax.sound.midi.MidiDevice#getMicrosecondPosition()
-   * 
-   * @return Always -1 as this device does not support timestamps. 
    * 
    */
 
   @Override
   public long getMicrosecondPosition() {
 
-    // Not supported
-    return -1;
+    // Return the elapsed time in Microseconds
+    return this.getMicroSecondTime() - startTime;
 
   }
 
@@ -219,5 +222,29 @@ public class CoreMidiDestination implements MidiDevice {
     return null;
 
   }
+
+  //////////////////////////////
+  ///// JNI Interfaces
+  //////////////////////////////
+
+  /**
+   * Static method for loading the native library 
+   * 
+   */
+
+  static {
+
+    System.loadLibrary("CoreMIDI4J");
+
+  }
+
+  /**
+   * Obtains the current system time in microseconds.
+   *
+   * @return The current system time in microseconds.
+   * 
+   */
+
+  private native long getMicroSecondTime();
 
 }
