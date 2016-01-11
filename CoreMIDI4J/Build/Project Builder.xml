@@ -1,19 +1,33 @@
 <project name="CoreMIDI4J SPI Builder">
 
-	<target name="MakeJar">
-		<echo> "Creating CoreMidi4J Jar File" </echo>
-		<delete file="../Build/Release/CoreMIDI4J.jar"/>
-		<jar destfile="../Build/Release/CoreMIDI4J.jar"
-			basedir="../bin">
-			<service type="javax.sound.midi.spi.MidiDeviceProvider" provider="uk.co.xfactorylibrarians.coremidi4j.CoreMidiDeviceProvider"/>
-		</jar>
-	</target>
-	
-	<target name="MakeZip">
-		<zip destfile="../Build/Release/CoreMidi4J.zip"
-		       basedir="../Build/Release"
-	  	     includes="**/*.jar,**/*.dylib"
-	    	   excludes="**/*.zip"/>
-	</target>
+  <property name="src.dir" value="../src"/>
+  <property name="classes.dir" value = "../bin"/>
+  <property name="release.dir" value = "../Build/Release"/>
+
+  <target name="clean">
+    <delete dir="${classes.dir}"/>
+  </target>
+
+  <target name="compile">
+    <mkdir dir="${classes.dir}"/>
+    <javac includeantruntime="false" srcdir="${src.dir}" destdir="${classes.dir}"/>
+  </target>
+
+  <target name="MakeJar" depends="compile">
+    <echo> "Creating CoreMidi4J Jar File" </echo>
+    <delete file="${release.dir}/CoreMIDI4J.jar"/>
+    <jar destfile="${release.dir}/CoreMIDI4J.jar"
+         basedir="${classes.dir}">
+      <service type="javax.sound.midi.spi.MidiDeviceProvider"
+               provider="uk.co.xfactorylibrarians.coremidi4j.CoreMidiDeviceProvider"/>
+    </jar>
+  </target>
+  
+  <target name="MakeZip" depends="MakeJar">
+    <zip destfile="${release.dir}/CoreMidi4J.zip"
+         basedir="${release.dir}"
+         includes="**/*.jar,**/*.dylib"
+         excludes="**/*.zip"/>
+  </target>
 
 </project>
