@@ -46,13 +46,15 @@ public class CoreMidiOutputPort {
    * 
    * @param destinationEndPointReference	The destination end point to send the message to
    * @param message												The message to send
+   * @param timestamp                     The time at which the message should take effect, in microseconds since the
+   *                                      system booted, with 0 meaning "immediately".
    * 
    * @throws 															CoreMidiException
    */
 
-  public void send(int destinationEndPointReference, MidiMessage message) throws CoreMidiException {
+  public void send(int destinationEndPointReference, MidiMessage message, long timestamp) throws CoreMidiException {
 
-    sendMidiMessage(midiPortReference, destinationEndPointReference, message);
+    sendMidiMessage(midiPortReference, destinationEndPointReference, message, timestamp);
 
   }
 
@@ -88,13 +90,16 @@ public class CoreMidiOutputPort {
   /**
    * Transmits a MIDI message to the OSX CoreMidi device
    * 
-   * @param midiPortReference 							The output MIDI port reference
-   * @param destinationEndPointReference		The device to send the message to
-   * @param message													The message to send
-   * @throws 																CoreMidiException 
+   * @param midiPortReference              The output MIDI port reference
+   * @param destinationEndPointReference   The device to send the message to
+   * @param message                        The message to send
+   * @param timestamp                      The time at which the message should take effect, in microseconds since the
+   *                                       system booted, with zero meaning immediately.
+   *
+   * @throws 																CoreMidiException
    * 
    */
 
-  private native void sendMidiMessage(int midiPortReference, int destinationEndPointReference, MidiMessage message) throws CoreMidiException;
+  private native void sendMidiMessage(int midiPortReference, int destinationEndPointReference, MidiMessage message, long timestamp) throws CoreMidiException;
 
 }

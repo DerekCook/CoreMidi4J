@@ -424,17 +424,21 @@ public class CoreMidiSource implements MidiDevice {
   /**
    * The message callback for receiving midi data from the JNI code
    * 
-   * @param timestamp 	 The system timestamp
-   * @param packetlength The length of the packet of messages
-   * @param data         The data array that holds the messages
+   * @param coreTimestamp  The time in microseconds since boot at which the messages should take effect
+   * @param packetlength   The length of the packet of messages
+   * @param data           The data array that holds the messages
    * 
    * @throws InvalidMidiDataException
    * 
    */
 
-  public void messageCallback(long timestamp, int packetlength, byte data[]) throws InvalidMidiDataException {
+  public void messageCallback(long coreTimestamp, int packetlength, byte data[]) throws InvalidMidiDataException {
 
     int offset = 0;
+
+    // Convert from CoreMIDI-oriented boot-relative microseconds to Java-oriented port-relative microsecends,
+    // and from unsigned CoreMIDI semantics of 0 meaning now to signed Java semantics of -1 meaning now.
+    final long timestamp = (coreTimestamp == 0) ? -1 : coreTimestamp - startTime;
 
     // An OSX MIDI packet may contain multiple messages
     while (offset < packetlength) {

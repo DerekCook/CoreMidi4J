@@ -76,13 +76,26 @@ JNIEXPORT jint JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiOutputPo
  * @param obj                   The reference to the java object instance that called this native method
  * @param outputPortReference   The reference of the output port to use
  * @param endPointReference     The reference of the destination end point to send the message to
+ * @param timestamp             The time in microseconds at which the message should take effect, with 0 meaning now
  * @param midiMessage           The message to send
  *
  * @throws                      CoreMidiException if the OSStatus code from MIDISend is non zero
  *
  */
 
-JNIEXPORT void JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiOutputPort_sendMidiMessage(JNIEnv *env, jobject obj, jint outputPortReference, jint endPointReference, jobject midiMessage) {
+JNIEXPORT void JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiOutputPort_sendMidiMessage(JNIEnv *env, jobject obj, jint outputPortReference, jint endPointReference, jobject midiMessage, jlong timestamp) {
+
+  static mach_timebase_info_data_t sTimebaseInfo;  // Will hold conversion factor for timestamps
+
+  // If this is the first time we've run, get the timebase.
+  // We can use denom == 0 to indicate that sTimebaseInfo is
+  // uninitialised because it makes no sense to have a zero
+  // denominator in a fraction.
+  if ( sTimebaseInfo.denom == 0 ) {
+
+    (void) mach_timebase_info(&sTimebaseInfo);
+
+  }
 
   OSStatus status;
 
@@ -108,13 +121,16 @@ JNIEXPORT void JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiOutputPo
   // Allocate the buffer
   char *buffer = (char *) malloc(bufferLength);
 
+  // Convert timestamp from microseconds to Mach Absolute Time Units unless it is zero meaning "now"
+  uint64_t coreTimestamp = (timestamp == 0) ? 0 : ((timestamp * sTimebaseInfo.denom) / sTimebaseInfo.numer) * 1000;
+
   // Check for success
   if ( buffer != NULL ) {
 
     MIDIPacketList *packets = (MIDIPacketList *)buffer;
 
     MIDIPacket *packet = MIDIPacketListInit(packets);
-    MIDIPacketListAdd(packets, bufferLength, packet, 0, messageLength, (Byte *) messageData);
+    MIDIPacketListAdd(packets, bufferLength, packet, coreTimestamp, messageLength, (Byte *) messageData);
 
     status = MIDISend(outputPortReference, endPointReference, packets);
 

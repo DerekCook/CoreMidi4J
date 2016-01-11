@@ -51,7 +51,11 @@ public class CoreMidiReceiver implements MidiDeviceReceiver {
 
     try {
 
-      CoreMidiDeviceProvider.getOutputPort().send(((CoreMidiDeviceInfo)device.getDeviceInfo()).getEndPointReference(), message);
+      // Convert from Java-oriented port-relative microsecends to CoreMIDI-oriented boot-relative microseconds,
+      // and from signed Java semantics of -1 meaning now to unsigned CoreMIDI semantics of 0 meaning now.
+      final long coreTimestamp = (timeStamp == -1) ? 0 : timeStamp + device.getStartTime();
+
+      CoreMidiDeviceProvider.getOutputPort().send(((CoreMidiDeviceInfo)device.getDeviceInfo()).getEndPointReference(), message, coreTimestamp);
 
     } catch (CoreMidiException e) {
 

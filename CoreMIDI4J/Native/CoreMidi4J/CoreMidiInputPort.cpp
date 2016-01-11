@@ -73,7 +73,8 @@ void MIDIInput(const MIDIPacketList *packets, void *readProcRefCon, void *srcCon
   for (int i = 0; i < packets->numPackets; i += 1 ) {
 
     // Convert the CoreMIDI timestamp from Mach Absolute Time Units to microseconds,
-    // as expected by Java MIDI. The first step is based on Apple Tech Q&A 1398,
+    // as expected by Java MIDI, unless the value was zero, which means "now".
+    // The conversion is based on Apple Tech Q&A 1398,
     // https://developer.apple.com/library/mac/qa/qa1398/_index.html
     //
     // Because we are converting to microseconds rather than nanoseconds, we can start
@@ -84,7 +85,7 @@ void MIDIInput(const MIDIPacketList *packets, void *readProcRefCon, void *srcCon
     //
     // Do the maths. We hope that the multiplication doesn't
     // overflow; the price you pay for working in fixed point.
-    uint64_t timestamp = (packet->timeStamp / 1000) * sTimebaseInfo.numer / sTimebaseInfo.denom;
+    uint64_t timestamp = (packet->timeStamp == 0) ? 0 : (packet->timeStamp / 1000) * sTimebaseInfo.numer / sTimebaseInfo.denom;
 
     // Create a java array from the MIDIPacket
     jbyteArray array = env->NewByteArray(packet->length);

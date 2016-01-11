@@ -126,6 +126,18 @@ public class CoreMidiDestination implements MidiDevice {
   }
 
   /**
+   * Obtains the time in microseconds at which this MIDI Device was opened.
+   *
+   * @return the time in microseconds that was recorded when this device was opened.
+   */
+
+  public long getStartTime() {
+
+    return startTime;
+
+  }
+
+  /**
    * Gets the maximum number of receivers that can be attached to this device.
    * 
    * @see javax.sound.midi.MidiDevice#getMaxReceivers()
