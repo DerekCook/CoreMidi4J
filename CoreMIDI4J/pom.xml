@@ -6,7 +6,7 @@
 
   <groupId>uk.co.xfactory-librarians</groupId>
   <artifactId>coremidi4j</artifactId>
-  <version>0.3</version>
+  <version>0.4</version>
 
   <packaging>jar</packaging>
 
