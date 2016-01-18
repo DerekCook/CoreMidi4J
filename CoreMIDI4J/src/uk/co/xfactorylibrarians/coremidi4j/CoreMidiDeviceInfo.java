@@ -104,6 +104,7 @@ public class CoreMidiDeviceInfo extends MidiDevice.Info {
   public int getEndPointReference() {
 
     return endPointReference;
+    
   }
 
 }

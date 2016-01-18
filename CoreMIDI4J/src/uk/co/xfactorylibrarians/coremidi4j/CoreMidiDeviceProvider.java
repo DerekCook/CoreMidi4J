@@ -372,6 +372,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
    * @return true if the library was loaded successfully, and we are operational, and false if the library was
    *         not available, so we are idle and not going to return any devices or post any notifications.
    */
+  
   public static boolean isLibraryLoaded() {
 
     return libraryLoaded;
