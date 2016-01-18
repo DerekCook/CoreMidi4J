@@ -161,10 +161,10 @@ JNIEXPORT jint JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiOutputPo
 /*
  * Class:     uk_co_xfactorylibrarians_coremidi4j_CoreMidiOutputPort
  * Method:    sendMidiMessage
- * Signature: (IILjavax/sound/midi/MidiMessage;)V
+ * Signature: (IILjavax/sound/midi/MidiMessage;J)V
  */
 JNIEXPORT void JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiOutputPort_sendMidiMessage
-  (JNIEnv *, jobject, jint, jint, jobject);
+  (JNIEnv *, jobject, jint, jint, jobject, jlong);
 
 #ifdef __cplusplus
 }
