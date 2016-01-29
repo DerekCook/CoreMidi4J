@@ -9,7 +9,7 @@ The current release (0.3) is a stable pre-release version, which is now consider
 
 To download and install, navigate to the
 [release](https://github.com/DerekCook/CoreMidi4J/releases) page and
-follow the instructions for release 0.3.
+follow the instructions for the most recent release.
 
 ## Using CoreMidi4J
 
