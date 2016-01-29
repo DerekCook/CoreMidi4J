@@ -7,7 +7,9 @@ For years I have used MMJ, but that appears to longer be under development and i
 
 The current release (0.3) is a stable pre-release version, which is now considered stable enough for users to experiment with. Feedback on any discovered problems/issues is welcome.
 
-To download and install, navigate to the release page and follow the instructions for release 0.3.
+To download and install, navigate to the
+[release](https://github.com/DerekCook/CoreMidi4J/releases) page and
+follow the instructions for release 0.3.
 
 ## Using CoreMidi4J
 
@@ -111,7 +113,7 @@ plan to only use it when you find that it has been installed as an
 extension on the system where you are running), then you should
 declare it as a dependency in the `provided` scope. That will allow
 your code to compile, but will not try to copy the CoreMidi4J Java
-classes into your project. This is the most likely appropriate
+classes into your project. This is likely the most appropriate
 approach, because you will need to provide some sort of installer for
 the native library if you want to distribute CoreMidi4J with your
 project in any case.
