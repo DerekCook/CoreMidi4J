@@ -15,19 +15,23 @@ follow the instructions for the most recent release.
 
 Once installed, if all you want to do is use the enhanced MIDI devices
 provided by CoreMidi4J, all you have to do is use the normal Java MIDI
-API, but choose CoreMidi4J's device implementations instead of the
+API, but choose CoreMidi4J&rsquo;s device implementations instead of the
 ones provided by the native MIDI SPI. You will be able to identify
-them because their names will begin with "CoreMidi4J -". They will
-properly support System Exclusive messages and CoreMidi timestamps,
-and the list of devices available will properly update even if you
-connect or detach devices after Java is already running.
+them because their names will begin with "CoreMidi4J -". These devices
+will:
 
-If you would like to take advantage of CoreMidi4J's ability to notify
-your code when the MIDI environment changes, you will need to access
-some of its classes directly. You should use reflection to make sure
-that CoreMidi4J is available before trying to do this, however, or
-your application will fail to run on machines where CoreMidi4J has not
-been installed.
+* properly support System Exclusive messages,
+* provide, translate, and honor CoreMidi timestamps on MIDI events,
+  and
+* the list of devices available will correctly update even if you
+  connect or detach devices after Java is already running.
+
+If you would like to go further and take advantage of
+CoreMidi4J&rsquo;s ability to notify your code when the MIDI
+environment changes, you will need to access some of its classes
+directly. You should use reflection to make sure that CoreMidi4J is
+available before trying to do this, however, or your application will
+fail to run on machines where CoreMidi4J has not been installed.
 
 Here is an example of how to do that. The first class can safely be
 loaded on any system, and will check the environment to see if it is
