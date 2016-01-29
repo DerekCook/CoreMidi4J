@@ -17,7 +17,7 @@ Once installed, if all you want to do is use the enhanced MIDI devices
 provided by CoreMidi4J, all you have to do is use the normal Java MIDI
 API, but choose CoreMidi4J&rsquo;s device implementations instead of the
 ones provided by the native MIDI SPI. You will be able to identify
-them because their names will begin with "CoreMidi4J -". These devices
+them because their names will begin with `CoreMidi4J -`. These devices
 will:
 
 * properly support System Exclusive messages,
