@@ -173,12 +173,20 @@ JNIEXPORT jobject JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDevic
 
   // Get the device properties
   MIDIObjectGetStringProperty(endPointReference, kMIDIPropertyName, &name);
-  MIDIObjectGetStringProperty(endPointReference, kMIDIPropertyName, &deviceName);
+  MIDIObjectGetStringProperty(endPointReference, kMIDIPropertyName, &deviceName); // Get this again in case our string build fails 
   MIDIObjectGetStringProperty(endPointReference, kMIDIPropertyModel, &description);
   MIDIObjectGetStringProperty(endPointReference, kMIDIPropertyManufacturer, &manufacturer);
   MIDIObjectGetIntegerProperty(endPointReference, kMIDIPropertyDriverVersion, &version);
   MIDIObjectGetIntegerProperty(endPointReference, kMIDIPropertyUniqueID, &uid);
 
+  std::cout << " ** Debug - End Point Ref: " << endPointReference << "\n";
+  std::cout << " ** Debug - Name         : " << CFStringGetCStringPtr ( deviceName, kCFStringEncodingMacRoman ) << "\n";
+  std::cout << " ** Debug - Description  : " << CFStringGetCStringPtr ( description, kCFStringEncodingMacRoman ) << "\n";
+  std::cout << " ** Debug - Manufacturer : " << CFStringGetCStringPtr ( manufacturer, kCFStringEncodingMacRoman ) << "\n";
+  std::cout << " ** Debug - Version      : " << version << "\n";
+  std::cout << " ** Debug - UID          : " << uid << "\n";
+  
+  
   CFMutableStringRef buildName = CFStringCreateMutable(NULL, 0);
 
   // Add "CoreMIDI4J - " to the start of our device name if we can
