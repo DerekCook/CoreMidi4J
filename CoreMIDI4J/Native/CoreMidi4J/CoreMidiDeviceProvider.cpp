@@ -187,9 +187,9 @@ JNIEXPORT jobject JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDevic
   status5 = MIDIObjectGetIntegerProperty(endPointReference, kMIDIPropertyDriverVersion, &version);
   status6 = MIDIObjectGetIntegerProperty(endPointReference, kMIDIPropertyUniqueID, &uid);
 
-  const char *debugName = CFStringGetCStringPtr ( name, kCFStringEncodingMacRoman );
-  const char *debugDescription = CFStringGetCStringPtr ( description, kCFStringEncodingMacRoman );
-  const char *debugManufacturer = CFStringGetCStringPtr ( manufacturer, kCFStringEncodingMacRoman );
+  const char *debugName = CFStringGetCStringPtr ( name, CFStringGetSystemEncoding() );
+  const char *debugDescription = CFStringGetCStringPtr ( description, CFStringGetSystemEncoding() );
+  const char *debugManufacturer = CFStringGetCStringPtr ( manufacturer, CFStringGetSystemEncoding() );
 
   printf(" ** Debug - End Point Ref: %8.8x, %8.8x\n",0, endPointReference);
   printf(" ** Debug - Name         : %8.8x, %s\n",status1, ( debugName         != NULL ) ? debugName         : "NULL Pointer");
