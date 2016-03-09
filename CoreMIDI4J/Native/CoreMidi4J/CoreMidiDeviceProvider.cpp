@@ -217,9 +217,9 @@ JNIEXPORT jobject JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDevic
   // Create the Java Object
   jobject info = env->NewObject(javaClass,
                                 constructor,
-                                env->NewStringUTF(CFStringGetCStringPtr(deviceName, kCFStringEncodingMacRoman)),
-                                env->NewStringUTF(CFStringGetCStringPtr(manufacturer, kCFStringEncodingMacRoman)),
-                                env->NewStringUTF(CFStringGetCStringPtr(description, kCFStringEncodingMacRoman)),
+                                env->NewStringUTF(CFStringGetCStringPtr(deviceName, CFStringGetSystemEncoding())),
+                                env->NewStringUTF(CFStringGetCStringPtr(manufacturer, CFStringGetSystemEncoding())),
+                                env->NewStringUTF(CFStringGetCStringPtr(description, CFStringGetSystemEncoding())),
                                 version,
                                 endPointReference,
                                 uid);
