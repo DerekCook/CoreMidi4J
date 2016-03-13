@@ -167,36 +167,17 @@ JNIEXPORT jobject JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDevic
   SInt32 version;
   SInt32 uid;
   
-  // Temp for debugging
-  OSStatus status1;
-  OSStatus status2;
-  OSStatus status3;
-  OSStatus status4;
-  OSStatus status5;
-  OSStatus status6;
-
   // Find the Java CoreMIDIDeviceInfo class and its constructor
   jclass javaClass = env->FindClass("uk/co/xfactorylibrarians/coremidi4j/CoreMidiDeviceInfo");
   jmethodID constructor = env->GetMethodID(javaClass, "<init>", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;III)V");
 
   // Get the device properties
-  status1 = MIDIObjectGetStringProperty(endPointReference, kMIDIPropertyName, &name);
-  status2 = MIDIObjectGetStringProperty(endPointReference, kMIDIPropertyName, &deviceName); // Get this again in case our string build fails
-  status3 = MIDIObjectGetStringProperty(endPointReference, kMIDIPropertyModel, &description);
-  status4 = MIDIObjectGetStringProperty(endPointReference, kMIDIPropertyManufacturer, &manufacturer);
-  status5 = MIDIObjectGetIntegerProperty(endPointReference, kMIDIPropertyDriverVersion, &version);
-  status6 = MIDIObjectGetIntegerProperty(endPointReference, kMIDIPropertyUniqueID, &uid);
-
-  const char *debugName = CFStringGetCStringPtr ( name, CFStringGetSystemEncoding() );
-  const char *debugDescription = CFStringGetCStringPtr ( description, CFStringGetSystemEncoding() );
-  const char *debugManufacturer = CFStringGetCStringPtr ( manufacturer, CFStringGetSystemEncoding() );
-
-  printf(" ** Debug - End Point Ref: %8.8x, %8.8x\n",0, endPointReference);
-  printf(" ** Debug - Name         : %8.8x, %s\n",status1, ( debugName         != NULL ) ? debugName         : "NULL Pointer");
-  printf(" ** Debug - Description  : %8.8x, %s\n",status3, ( debugDescription  != NULL ) ? debugDescription  : "NULL Pointer");
-  printf(" ** Debug - Manufacturer : %8.8x, %s\n",status4, ( debugManufacturer != NULL ) ? debugManufacturer : "NULL Pointer");
-  printf(" ** Debug - Version      : %8.8x, %8.8x\n",status5, version);
-  printf(" ** Debug - UID          : %8.8x, %8.8x\n",status6, uid);
+  MIDIObjectGetStringProperty(endPointReference, kMIDIPropertyName, &name);
+  MIDIObjectGetStringProperty(endPointReference, kMIDIPropertyName, &deviceName); // Get this again in case our string build fails
+  MIDIObjectGetStringProperty(endPointReference, kMIDIPropertyModel, &description);
+  MIDIObjectGetStringProperty(endPointReference, kMIDIPropertyManufacturer, &manufacturer);
+  MIDIObjectGetIntegerProperty(endPointReference, kMIDIPropertyDriverVersion, &version);
+  MIDIObjectGetIntegerProperty(endPointReference, kMIDIPropertyUniqueID, &uid);
 
   CFMutableStringRef buildName = CFStringCreateMutable(NULL, 0);
 
@@ -214,12 +195,16 @@ JNIEXPORT jobject JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDevic
 
   }
 
+  const char *deviceInfoName = CFStringGetCStringPtr ( deviceName, CFStringGetSystemEncoding() );
+  const char *deviceInfoDescription = CFStringGetCStringPtr ( description, CFStringGetSystemEncoding() );
+  const char *deviceInfoManufacturer = CFStringGetCStringPtr ( manufacturer, CFStringGetSystemEncoding() );
+  
   // Create the Java Object
   jobject info = env->NewObject(javaClass,
                                 constructor,
-                                env->NewStringUTF(CFStringGetCStringPtr(deviceName, CFStringGetSystemEncoding())),
-                                env->NewStringUTF(CFStringGetCStringPtr(manufacturer, CFStringGetSystemEncoding())),
-                                env->NewStringUTF(CFStringGetCStringPtr(description, CFStringGetSystemEncoding())),
+                                env->NewStringUTF(( deviceInfoName         != NULL ) ? deviceInfoName         : "** Internal Error getting Device Name!"),
+                                env->NewStringUTF(( deviceInfoManufacturer != NULL ) ? deviceInfoManufacturer : "** Internal Error getting Device Manufacturer!"),
+                                env->NewStringUTF(( deviceInfoDescription  != NULL ) ? deviceInfoDescription  : "** Internal Error getting Device Description!"),
                                 version,
                                 endPointReference,
                                 uid);
