@@ -160,20 +160,20 @@ JNIEXPORT jint JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDevicePr
 
 JNIEXPORT jobject JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDeviceProvider_getMidiDeviceInfo(JNIEnv *env, jobject obj, jint endPointReference) {
 
-  CFStringRef name;
-  CFStringRef deviceName;
-  CFStringRef	description;
-  CFStringRef manufacturer;
+  CFStringRef name = NULL;
+  CFStringRef deviceName = NULL;
+  CFStringRef	description = NULL;
+  CFStringRef manufacturer = NULL;
   SInt32 version;
   SInt32 uid;
-
+  
   // Find the Java CoreMIDIDeviceInfo class and its constructor
   jclass javaClass = env->FindClass("uk/co/xfactorylibrarians/coremidi4j/CoreMidiDeviceInfo");
   jmethodID constructor = env->GetMethodID(javaClass, "<init>", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;III)V");
 
   // Get the device properties
   MIDIObjectGetStringProperty(endPointReference, kMIDIPropertyName, &name);
-  MIDIObjectGetStringProperty(endPointReference, kMIDIPropertyName, &deviceName);
+  MIDIObjectGetStringProperty(endPointReference, kMIDIPropertyName, &deviceName); // Get this again in case our string build fails
   MIDIObjectGetStringProperty(endPointReference, kMIDIPropertyModel, &description);
   MIDIObjectGetStringProperty(endPointReference, kMIDIPropertyManufacturer, &manufacturer);
   MIDIObjectGetIntegerProperty(endPointReference, kMIDIPropertyDriverVersion, &version);
@@ -195,12 +195,16 @@ JNIEXPORT jobject JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDevic
 
   }
 
+  const char *deviceInfoName = CFStringGetCStringPtr ( deviceName, CFStringGetSystemEncoding() );
+  const char *deviceInfoDescription = CFStringGetCStringPtr ( description, CFStringGetSystemEncoding() );
+  const char *deviceInfoManufacturer = CFStringGetCStringPtr ( manufacturer, CFStringGetSystemEncoding() );
+  
   // Create the Java Object
   jobject info = env->NewObject(javaClass,
                                 constructor,
-                                env->NewStringUTF(CFStringGetCStringPtr(deviceName, kCFStringEncodingMacRoman)),
-                                env->NewStringUTF(CFStringGetCStringPtr(manufacturer, kCFStringEncodingMacRoman)),
-                                env->NewStringUTF(CFStringGetCStringPtr(description, kCFStringEncodingMacRoman)),
+                                env->NewStringUTF(( deviceInfoName         != NULL ) ? deviceInfoName         : "** Internal Error getting Device Name!"),
+                                env->NewStringUTF(( deviceInfoManufacturer != NULL ) ? deviceInfoManufacturer : "** Internal Error getting Device Manufacturer!"),
+                                env->NewStringUTF(( deviceInfoDescription  != NULL ) ? deviceInfoDescription  : "** Internal Error getting Device Description!"),
                                 version,
                                 endPointReference,
                                 uid);
