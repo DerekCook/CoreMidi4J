@@ -162,7 +162,7 @@ JNIEXPORT jobject JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDevic
 
   CFStringRef name = NULL;
   CFStringRef deviceName = NULL;
-  CFStringRef	description = NULL;
+  CFStringRef description = NULL;
   CFStringRef manufacturer = NULL;
   SInt32 version;
   SInt32 uid;
@@ -195,6 +195,7 @@ JNIEXPORT jobject JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDevic
 
   }
 
+  const char *rawName = CFStringGetCStringPtr ( name, CFStringGetSystemEncoding() );
   const char *deviceInfoName = CFStringGetCStringPtr ( deviceName, CFStringGetSystemEncoding() );
   const char *deviceInfoDescription = CFStringGetCStringPtr ( description, CFStringGetSystemEncoding() );
   const char *deviceInfoManufacturer = CFStringGetCStringPtr ( manufacturer, CFStringGetSystemEncoding() );
@@ -203,8 +204,8 @@ JNIEXPORT jobject JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDevic
   jobject info = env->NewObject(javaClass,
                                 constructor,
                                 env->NewStringUTF(( deviceInfoName         != NULL ) ? deviceInfoName         : "** Internal Error getting Device Name!"),
-                                env->NewStringUTF(( deviceInfoManufacturer != NULL ) ? deviceInfoManufacturer : "** Internal Error getting Device Manufacturer!"),
-                                env->NewStringUTF(( deviceInfoDescription  != NULL ) ? deviceInfoDescription  : "** Internal Error getting Device Description!"),
+                                env->NewStringUTF(( deviceInfoManufacturer != NULL ) ? deviceInfoManufacturer : "Unknown Manufacturer"),
+                                env->NewStringUTF(( deviceInfoDescription  != NULL ) ? deviceInfoDescription  : rawName),
                                 version,
                                 endPointReference,
                                 uid);
