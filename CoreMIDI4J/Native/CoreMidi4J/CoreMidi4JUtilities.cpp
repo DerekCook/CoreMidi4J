@@ -39,7 +39,7 @@ void ThrowException(JNIEnv *env, CFStringRef function, OSStatus status) {
 
   }
 
-  jclass Exception = env->FindClass("com/coremidi4j/CoreMidiException");
+  jclass Exception = env->FindClass("uk/co/xfactorylibrarians/coremidi4j/CoreMidiException");
   env->ThrowNew(Exception,CFStringGetCStringPtr(CFStringCreateCopy(NULL, string), kCFStringEncodingMacRoman ));
 
 }
