@@ -34,4 +34,17 @@ public class CoreMidiException extends Exception {
 
   }
 
+  /**
+   * Constructor with an underlying cause
+   *
+   * @param message the error message to include in the exception
+   *
+   * @param cause the underlying exception or other throwable being wrapped
+   */
+  public CoreMidiException(String message, Throwable cause) {
+
+    super(message, cause);
+
+  }
+
 }

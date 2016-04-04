@@ -65,7 +65,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
 
     // If the dynamic library failed to load, leave ourselves in an uninitialised state, so we simply always return
     // an empty device map.
-    if (libraryLoaded) {
+    if (isLibraryLoaded()) {
 
       // If the client has not been initialised then we need to set up the static fields in the class
       if ( midiProperties.client == null ) {
@@ -318,7 +318,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
   public static void addNotificationListener(CoreMidiNotification listener) throws CoreMidiException {
 
     // If the dynamic library failed to load, we cannot provide notifications
-    if (!libraryLoaded) {
+    if (!isLibraryLoaded()) {
 
       throw new CoreMidiException("libCoreMidi4J.dylib could not be loaded, CoreMIDI4J is not active.");
 
@@ -347,7 +347,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
   public static void removedNotificationListener(CoreMidiNotification listener) throws CoreMidiException {
 
     // If the dynamic library failed to load, we cannot provide notifications
-    if (!libraryLoaded) {
+    if (!isLibraryLoaded()) {
 
       throw new CoreMidiException("libCoreMidi4J.dylib could not be loaded, CoreMIDI4J is not active.");
 
@@ -364,18 +364,19 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
 
   }
 
-  private static boolean libraryLoaded;
-
   /**
    * Check whether we have been able to load the native library.
    *
    * @return true if the library was loaded successfully, and we are operational, and false if the library was
    *         not available, so we are idle and not going to return any devices or post any notifications.
+   *
+   * @throws CoreMidiException if something unexpected happens trying to load the native library on a Mac OS X system.
+
    */
   
-  public static boolean isLibraryLoaded() {
+  public static boolean isLibraryLoaded() throws CoreMidiException {
 
-    return libraryLoaded;
+    return Loader.isAvailable();
 
   }
 
@@ -385,20 +386,19 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
   //////////////////////////////
 
   /**
-   * Static method for loading the native library 
-   * 
+   * Static initializer for loading the native library
+   *
    */
 
   static {
 
     try {
 
-      System.loadLibrary("CoreMIDI4J");
-      libraryLoaded = true;
+      Loader.load();
 
     } catch (Throwable t) {
 
-      System.err.println("Unable to load libCoreMidi4J.dylib, CoreMIDI4J will stay inactive: " + t);
+      System.err.println("Unable to load native library, CoreMIDI4J will stay inactive: " + t);
 
     }
 
