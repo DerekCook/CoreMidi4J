@@ -19,8 +19,8 @@
 
   <licenses>
     <license>
-      <name>Gnu Lesser General Public License 3</name>
-      <url>http://www.gnu.org/licenses/lgpl-3.0.txt</url>
+      <name>Eclipse Public License 1.0</name>
+      <url>http://opensource.org/licenses/eclipse-1.0.php</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
