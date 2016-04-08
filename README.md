@@ -18,12 +18,12 @@ now considered stable enough for users to experiment with. Feedback on
 any discovered problems/issues is welcome.
 
 As of release 0.6, it is possible to
-[embed CoreMidi4J](embedding-coremidi4j) in another project and have
+[embed CoreMidi4J](#embedding-coremidi4j) in another project and have
 its native code loaded automatically on the OS X platform, so that end
 users do not need to worry about installing anything.
 
 It is also still possible to
-[download and install CoreMidi4J](standalone-coremidi4j) separately,
+[download and install CoreMidi4J](#standalone-coremidi4j) separately,
 to use it with applications that did not embed it.
 
 [![License](https://img.shields.io/badge/License-Eclipse%20Public%20License%201.0-blue.svg)](#license)
