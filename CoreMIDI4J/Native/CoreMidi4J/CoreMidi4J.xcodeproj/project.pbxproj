@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		650999561C303B4100879DFB /* libCoreMidi4J.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 65E46C1D1B89DB8200CC6075 /* libCoreMidi4J.dylib */; };
 		655485591C4172B3002975D6 /* CoreMidiSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 655485571C4172B3002975D6 /* CoreMidiSource.cpp */; };
 		6554855A1C4172B3002975D6 /* CoreMidiSource.h in Headers */ = {isa = PBXBuildFile; fileRef = 655485581C4172B3002975D6 /* CoreMidiSource.h */; };
 		6554855D1C417683002975D6 /* CoreMidiDestination.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6554855B1C417683002975D6 /* CoreMidiDestination.cpp */; };
@@ -24,19 +23,6 @@
 		65EE98381C241615000DDF1A /* CoreMidiInputPort.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65EE98361C241615000DDF1A /* CoreMidiInputPort.cpp */; };
 		65EE98391C241615000DDF1A /* CoreMidiInputPort.h in Headers */ = {isa = PBXBuildFile; fileRef = 65EE98371C241615000DDF1A /* CoreMidiInputPort.h */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		65E46C2C1B89DD2C00CC6075 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 12;
-			dstPath = /Users/derek/git/CoreMidi4J/CoreMIDI4J/Build/Release;
-			dstSubfolderSpec = 0;
-			files = (
-				650999561C303B4100879DFB /* libCoreMidi4J.dylib in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		655485571C4172B3002975D6 /* CoreMidiSource.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; name = CoreMidiSource.cpp; path = CoreMidi4J.xcodeproj/../CoreMidiSource.cpp; sourceTree = "<group>"; tabWidth = 2; };
@@ -127,10 +113,10 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 65E46C211B89DB8200CC6075 /* Build configuration list for PBXNativeTarget "CoreMidi4J" */;
 			buildPhases = (
+				38E949C91CC2CCF80041E202 /* ShellScript */,
 				65E46C191B89DB8200CC6075 /* Sources */,
 				65E46C1A1B89DB8200CC6075 /* Frameworks */,
 				65E46C1B1B89DB8200CC6075 /* Headers */,
-				65E46C2C1B89DD2C00CC6075 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -171,6 +157,22 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		38E949C91CC2CCF80041E202 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "rm java_home\nln -s `/usr/libexec/java_home` java_home";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		65E46C191B89DB8200CC6075 /* Sources */ = {
@@ -273,8 +275,8 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				EXECUTABLE_PREFIX = lib;
+				HEADER_SEARCH_PATHS = "java_home/include/**";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				"USER_HEADER_SEARCH_PATHS[arch=*]" = /Developer/SDKs/MacOSX10.7.sdk/System/Library/Frameworks/JavaVM.framework/Versions/A/Headers/;
 			};
 			name = Debug;
 		};
@@ -284,8 +286,8 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				EXECUTABLE_PREFIX = lib;
+				HEADER_SEARCH_PATHS = "java_home/include/**";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				"USER_HEADER_SEARCH_PATHS[arch=*]" = /Developer/SDKs/MacOSX10.7.sdk/System/Library/Frameworks/JavaVM.framework/Versions/A/Headers/;
 			};
 			name = Release;
 		};

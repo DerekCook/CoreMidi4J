@@ -137,7 +137,7 @@ public class Loader {
   private static String locateLibrary() throws CoreMidiException {
 
     // Check if native library is present
-    final String source = "/" + NATIVE_LIBRARY_NAME;
+    final String source = "/uk/co/xfactorylibrarians/coremidi4j/" + NATIVE_LIBRARY_NAME;
     final URL url = Loader.class.getResource(source);
 
     if (url == null) {

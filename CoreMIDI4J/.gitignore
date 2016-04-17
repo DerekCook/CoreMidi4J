@@ -1,1 +1,6 @@
 target
+bin
+Native/CoreMidi4J/build
+Native/CoreMidi4J/java_home
+Native/CoreMidi4J/CoreMidi4J.xcodeproj/xcuserdata/
+Native/CoreMidi4J/CoreMidi4J.xcodeproj/project.xcworkspace/xcuserdata/

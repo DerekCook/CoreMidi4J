@@ -1,23 +1,35 @@
 # CoreMidi4J
 Core MIDI Service Provider Interface (SPI) for Java 1.7 and above on OS X.
 
-I have created CoreMidi4J as to my knowledge there is currently no SPI
-under active development that overcomes the inherent Java MIDI SYSEX
-limitiations, which still have not been fixed in the Java Core
-software. Hopefully one day these SPIs will not be required, but until
-then one is needed.
+Derek created CoreMidi4J as to our knowledge there is currently no Mac
+Java MIDI implementation under active development that properly
+supports sending System Exclusive messages, which still have not been
+fixed in the Java core distribution.
 
-For years I have used MMJ, but that appears to longer be under
+In collaboration with James, we added support for hot-swapping MIDI
+devices (the standard JAVA MIDI implementation will only recognize
+devices which were already connected when Java started), and proper
+support for inbound and outbound MIDI event timestamps, which can
+extend over network MIDI sessions thanks to CoreMIDI&rsquo;s support
+for them.
+
+Hopefully one day third-party SPIs like
+CoreMidi4J will not be required, but until then we are making this
+available.
+
+For years we both used MMJ, but that appears to longer be under
 development and it does not work with later Java Runtimes. After
-looking around for a replacement, I decided it was necessary to create
-my own "lightweight" SPI, and that I would make it publicly available
-for others to contribute to.
+looking around for a replacement, we decided it was necessary to
+create our own &ldquo;lightweight&rdquo; SPI, which Derek accomplished
+in 2015, and that we would make it publicly available for others to
+contribute to.
 
-The current release is a stable pre-release version, which is
-now considered stable enough for users to experiment with. Feedback on
-any discovered problems/issues is welcome.
+The current release is a stable pre-release version, which has been
+heavily used in some of our own projects, and is now considered stable
+enough for users to experiment with. Feedback on any discovered
+problems/issues is welcome.
 
-As of release 0.6, it is possible to
+As of release 0.7, it is possible to
 [embed CoreMidi4J](#embedding-coremidi4j) in another project and have
 its native code loaded automatically on the OS X platform, so that end
 users do not need to worry about installing anything.
@@ -132,6 +144,10 @@ are available through
 [Maven Central](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22uk.co.xfactory-librarians%22%20AND%20a%3A%22coremidi4j%22).
 [![Maven Central](https://img.shields.io/maven-central/v/uk.co.xfactory-librarians/coremidi4j.svg)](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22uk.co.xfactory-librarians%22%20AND%20a%3A%22coremidi4j%22)
 
+> It is safe to embed CoreMidi4J in cross-platform Java projects; the
+> native library will be loaded only when needed, on Mac OS X, and the
+> Java library will remain inactive on other platforms, and not
+> attempt to provide any MIDI devices.
 
 If you are building a project with code like the examples above, you
 will need to configure CoreMidi4J as a dependency of your project.
@@ -153,3 +169,30 @@ embed it, you can download the standalone jar from the
 
 Then simply place the CoreMidi4J jar on the classpath when that
 program runs, and CoreMidi4J's devices will be available to it.
+
+### Building CoreMidi4J
+
+In order to build CoreMidi4J from source, in addition to cloning this
+repository, you will need to install Apple&rsquo;s
+[Xcode](https://developer.apple.com/xcode/download/) and Apache
+[Maven](https://maven.apache.org). (We recommend using
+[Homebrew](http://brew.sh) to install Maven: once you have followed
+Homebrew&rsquo;s own install instructions, simply run `brew install
+maven` to install Maven.)
+
+Once you have Xcode and Maven, to build CoreMidi4J `cd` into the
+directory containing the Maven project specification `pom.xml` (you
+will find it in the `CoreMidi4J` subdirectory of your clone of this
+repository), and use normal Maven build commands. To build the
+standalone jar, for example,
+
+```sh
+cd CoreMidi4J/CoreMidi4J
+mvn package
+```
+
+That will compile the Java classes, generate the JNI header, compile
+the native library, and build the standalone jar file which embeds
+everything needed at runtime, using the standard Maven location and
+naming convention of `target/coremidi4j-{version}.jar` (it also builds
+the source and javadoc jars needed for deployment to Maven Central).

@@ -3,10 +3,13 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
+  <prerequisites>
+    <maven>3.0.4</maven>
+  </prerequisites>
 
   <groupId>uk.co.xfactory-librarians</groupId>
   <artifactId>coremidi4j</artifactId>
-  <version>0.6-SNAPSHOT</version>
+  <version>0.7-SNAPSHOT</version>
 
   <packaging>jar</packaging>
 
@@ -70,26 +73,11 @@
     <sourceDirectory>src</sourceDirectory>
     <resources>
       <resource>
-        <directory>Build/Release</directory>
-        <includes>
-          <include>libCoreMidi4J.dylib</include>
-        </includes>
-      </resource>
-      <resource>
         <directory>resources</directory>
       </resource>
     </resources>
+
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-resources-plugin</artifactId>
-        <version>2.7</version>
-        <configuration>
-          <nonFilteredFileExtensions>
-            <nonFilteredFileExtension>dylib</nonFilteredFileExtension>
-          </nonFilteredFileExtensions>
-          </configuration>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -99,6 +87,82 @@
           <target>1.6</target>
         </configuration>
       </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>1.4.0</version>
+        <executions>
+          <execution>
+            <id>create-jni-header</id>
+            <phase>process-classes</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>javah</executable>
+              <arguments>
+                <argument>-o</argument>
+                <argument>Native/CoreMidi4J/CoreMidi4J.h</argument>
+                <argument>-classpath</argument>
+                <argument>target/classes</argument>
+                <argument>-force</argument>
+                <argument>-verbose</argument>
+                <argument>uk.co.xfactorylibrarians.coremidi4j.CoreMidiClient</argument>
+                <argument>uk.co.xfactorylibrarians.coremidi4j.CoreMidiDestination</argument>
+                <argument>uk.co.xfactorylibrarians.coremidi4j.CoreMidiDeviceProvider</argument>
+                <argument>uk.co.xfactorylibrarians.coremidi4j.CoreMidiInputPort</argument>
+                <argument>uk.co.xfactorylibrarians.coremidi4j.CoreMidiOutputPort</argument>
+                <argument>uk.co.xfactorylibrarians.coremidi4j.CoreMidiSource</argument>
+              </arguments>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>build-native-library</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>xcodebuild</executable>
+              <workingDirectory>Native/CoreMidi4J</workingDirectory>
+              <arguments>
+                <argument>-project</argument>
+                <argument>CoreMidi4J.xcodeproj</argument>
+              </arguments>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>2.7</version>
+        <executions>
+          <execution>
+            <id>copy-resources</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${basedir}/target/classes/uk/co/xfactorylibrarians/coremidi4j</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${basedir}/Native/CoreMidi4J/build/Release/</directory>
+                  <filtering>false</filtering>
+                  <includes>
+                    <include>libCoreMidi4J.dylib</include>
+                  </includes>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>animal-sniffer-maven-plugin</artifactId>
@@ -120,6 +184,7 @@
           </execution>
         </executions>
       </plugin>
+
       <plugin>
         <groupId>org.sonatype.plugins</groupId>
         <artifactId>nexus-staging-maven-plugin</artifactId>
@@ -131,6 +196,7 @@
           <autoReleaseAfterClose>true</autoReleaseAfterClose>
         </configuration>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
@@ -144,6 +210,7 @@
           </execution>
         </executions>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
@@ -157,6 +224,7 @@
           </execution>
         </executions>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-gpg-plugin</artifactId>
