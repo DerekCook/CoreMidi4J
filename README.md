@@ -154,10 +154,10 @@ ensure that your users only ever see MIDI devices whose
 implementations work properly, by using the `getMidiDeviceInfo()`
 method provided by
 `uk.co.xfactorylibrarians.coremidi4j.CoreMidiDeviceProvider` instead
-of the one in `javax.sound.MidiSystem`. The CoreMidi4J version works
-on any platform. If you call it on anything but a Mac, it simply gives
-you the same result you would get from the standard method. On the
-Mac, it filters out any devices which have broken SysEx
+of the one in `javax.sound.midi.MidiSystem`. The CoreMidi4J version
+works on any platform. If you call it on anything but a Mac, it simply
+gives you the same result you would get from the standard method. On
+the Mac, it filters out any devices which have broken SysEx
 implementations, and returns the CoreMidi4J versions instead.
 
 So to give your users the best experience possible, simply embed
