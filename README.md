@@ -165,10 +165,10 @@ CoreMidi4J, and use its implementation of `getMidiDeviceInfo()`
 wherever you would otherwise have used the standard one, and your
 users will always only see working MIDI devices.
 
-Here is an example of what running the Available class on a Mac, with
-CoreMidi4J in the classpath, produces. Notice that other than the
-sequencer and synthesizer, the only MIDI devices returned are the
-inputs and outputs offered by CoreMidi4J:
+Here is an example of what running the `Available` class (listed
+above) on a Mac, with CoreMidi4J in the classpath, produces. Notice
+that other than the sequencer and synthesizer, the only MIDI devices
+returned are the inputs and outputs offered by CoreMidi4J:
 
 ```
 java -cp CoreMIDI4J/target/classes/:. Available
