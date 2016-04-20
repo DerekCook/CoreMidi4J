@@ -55,85 +55,144 @@ will:
 * the list of devices available will correctly update even if you
   connect or detach devices after Java is already running.
 
-If you would like to go further and take advantage of
-CoreMidi4J&rsquo;s ability to notify your code when the MIDI
-environment changes, you will need to access some of its classes
-directly. You should use reflection to make sure that CoreMidi4J is
-available before trying to do this, however, or your application will
-fail to run on machines where CoreMidi4J has not been installed.
+### Checking CoreMidi4J's availability
 
-Here is an example of how to do that. The first class can safely be
-loaded on any system, and will check the environment to see if it is
-safe to try and load the second class:
+If you would like to go further and filter out the non-working MIDI
+devices that exist on the Mac, or take advantage of CoreMidi4J&rsquo;s
+ability to notify your code when the MIDI environment changes, you
+will need to access some of CoreMidi4J's classes directly. Unless you
+are embedding CoreMidi4J in your application and certain that you are
+running under Java 7 or later, you should use reflection to make sure
+that CoreMidi4J is available before trying to do this, or your
+application will fail to run on machines where CoreMidi4J has not been
+installed.
+
+> If you are [embedding CoreMidi4J](#embedding-coremidi4j), the only
+> reason you would need to check if it is available is if you might be
+> running in Java 6 or earlier, because CoreMidi4J requires Java 7. If
+> your project already requires Java 7 or later, and you have embedded
+> CoreMidi4J, it is safe to assume that it is present, and you can
+> skip to checking if the native library is
+> [active](#checking-if-coremidi4j-is-active), and
+> [filtering out](#filtering-out-broken-midi-devices) broken MIDI
+> device implementations.
+
+Here is an example of how to do test whether CoreMidi4J is available.
+This class can safely be loaded on any system, and will check the
+environment to see if it is safe to try and load the class in the
+section that follows:
 
 ```java
 public class Available {
 
     public static void main(String[] args) throws Exception {
-
         try {
-
-            Class deviceProviderClass =
-                Class.forName("uk.co.xfactorylibrarians.coremidi4j.CoreMidiDeviceProvider");
-            System.out.println("CoreMidi4J Java classes are available.");
-
+            Class deviceProviderClass = Class.forName("uk.co.xfactorylibrarians.coremidi4j.CoreMidiDeviceProvider");
+            System.out.println("CoreMIDI4J Java classes are available.");
+            System.out.println("Working MIDI Devices:");
+            for (javax.sound.midi.MidiDevice.Info device : Example.getWorkingDeviceInfo()) {
+                System.out.println("  " + device);
+            }
             if (Example.isCoreMidiLoaded()) {
-
-                System.out.println("CoreMidi4J native library is running.");
-
+                System.out.println("CoreMIDI4J native library is running.");
                 Example.watchForMidiChanges();
                 System.out.println("Watching for MIDI environment changes for thirty seconds.");
-
                 Thread.sleep(30000);
                 System.exit(0);
-
             } else {
-
-                System.out.println("CoreMidi4J native library is not available.");
-
+                System.out.println("CoreMIDI4J native library is not available.");
             }
         } catch (Exception e) {
-
-            System.out.println("CoreMidi4J Java classes are not available.");
-
+            System.out.println("CoreMIDI4J Java classes are not available.");
         }
     }
 }
 ```
 
+### Checking if CoreMidi4J is Active
+
 This second class cannot be instantiated on systems which lack the
-CoreMidi4J classes, but shows an example of how to check whether the
-native library is available, and if it is, to ask to be notified
-whenever there is a change in the MIDI environment (in other words, a
-new device has become available, or an existing device has been
-removed):
+CoreMidi4J classes, but shows an example of how to ask for a list of
+only properly-working MIDI devices (filtering out the broken ones
+provided by the standard Mac OS X MIDI implementation). It also shows
+how to check whether the native library is available, and if it is, to
+ask to be notified whenever there is a change in the MIDI environment
+(in other words, a new device has become available, or an existing
+device has been removed):
 
 ```java
 import uk.co.xfactorylibrarians.coremidi4j.CoreMidiDeviceProvider;
 import uk.co.xfactorylibrarians.coremidi4j.CoreMidiNotification;
 import uk.co.xfactorylibrarians.coremidi4j.CoreMidiException;
+import javax.sound.midi.MidiDevice;
 
 public class Example {
 
-    public static boolean isCoreMidiLoaded() {
-
+    public static boolean isCoreMidiLoaded() throws CoreMidiException {
         return CoreMidiDeviceProvider.isLibraryLoaded();
-
     }
 
     public static void watchForMidiChanges() throws CoreMidiException {
-
         CoreMidiDeviceProvider.addNotificationListener(new CoreMidiNotification() {
-
                 public void midiSystemUpdated() {
-
                     System.out.println("The MIDI environment has changed.");
-
                 }
             });
     }
+
+    public static MidiDevice.Info[] getWorkingDeviceInfo() {
+        return CoreMidiDeviceProvider.getMidiDeviceInfo();
+    }
 }
 ```
+
+### Filtering Out Broken MIDI Devices
+
+Whether or not your application running on a Mac, you can present the
+user with a list of only MIDI devices whose implementations work
+properly by using the `getMidiDeviceInfo()` method provided by
+`uk.co.xfactorylibrarians.coremidi4j.CoreMidiDeviceProvider` instead
+of the one in `javax.sound.MidiSystem`. The CoreMidi4J version works
+on any platform. If you call it on anything but a Mac, it simply gives
+you the same result you would get from the standard method. On the
+Mac, it filters out any devices which have broken SysEx
+implementations, and returns the CoreMidi4J versions instead.
+
+So to give your users the best experience possible, simply embed
+CoreMidi4J, and use its implementation of `getMidiDeviceInfo()`
+wherever you would otherwise have used the standard one, and your
+users will always only see working MIDI devices.
+
+Here is an example of what running the Available class on a Mac, with
+CoreMidi4J in the classpath, produces. Notice that other than the
+sequencer and synthesizer, the only MIDI devices returned are the
+inputs and outputs offered by CoreMidi4J:
+
+```
+java -cp CoreMIDI4J/target/classes/:. Available
+CoreMIDI4J Java classes are available.
+Working MIDI Devices:
+  CoreMIDI4J - Bus 1
+  CoreMIDI4J - Network
+  CoreMIDI4J - Live Port
+  CoreMIDI4J - User Port
+  CoreMIDI4J - Traktor Virtual Output
+  CoreMIDI4J - Bus 1
+  CoreMIDI4J - Network
+  CoreMIDI4J - Live Port
+  CoreMIDI4J - User Port
+  Gervill
+  Real Time Sequencer
+CoreMIDI4J native library is running.
+Watching for MIDI environment changes for thirty seconds.
+The MIDI environment has changed.
+The MIDI environment has changed.
+```
+
+During the thirty seconds the code was running, a MIDI device was
+plugged in and later unplugged, demonstrating the fact that CoreMidi4J
+can adapt to changes in the MIDI environment, and notify the host
+application about them.
 
 ### Embedding CoreMidi4J
 

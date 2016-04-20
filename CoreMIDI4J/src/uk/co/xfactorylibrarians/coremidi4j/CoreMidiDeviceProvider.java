@@ -16,8 +16,7 @@ package uk.co.xfactorylibrarians.coremidi4j;
 
 import java.util.*;
 
-import javax.sound.midi.MidiDevice;
-import javax.sound.midi.MidiDevice.Info;
+import javax.sound.midi.*;
 import javax.sound.midi.spi.MidiDeviceProvider;
 
 /**
@@ -102,7 +101,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
       devicesSeen.add(uniqueID);
 
       // If the unique ID of the end point is not in the map then create a CoreMidiSource object and add it to the map
-      if ( midiProperties.deviceMap.containsKey(uniqueID) == false ) {
+      if ( !midiProperties.deviceMap.containsKey(uniqueID) ) {
 
         midiProperties.deviceMap.put(uniqueID,new CoreMidiSource(getMidiDeviceInfo(endPointReference)));
 
@@ -121,7 +120,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
       devicesSeen.add(uniqueID);
 
       // If the unique ID of the end point is not in the map then create a CoreMidiDestination object and add it to the map
-      if ( midiProperties.deviceMap.containsKey(uniqueID) == false ) {
+      if ( !midiProperties.deviceMap.containsKey(uniqueID) ) {
 
         midiProperties.deviceMap.put(uniqueID, new CoreMidiDestination(getMidiDeviceInfo(endPointReference)));
 
@@ -204,7 +203,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
    */
 
   @Override
-  public Info[] getDeviceInfo() {
+  public MidiDevice.Info[] getDeviceInfo() {
 
     // If there are no devices in the map, then return an empty array
     if (midiProperties.deviceMap == null) {
@@ -248,9 +247,9 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
    */
 
   @Override
-  public MidiDevice getDevice(Info info) throws IllegalArgumentException {
+  public MidiDevice getDevice(MidiDevice.Info info) throws IllegalArgumentException {
 
-    if ( isDeviceSupported(info) == false ) {
+    if ( !isDeviceSupported(info) ) {
 
       throw new IllegalArgumentException();
 
@@ -377,6 +376,59 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
   public static boolean isLibraryLoaded() throws CoreMidiException {
 
     return Loader.isAvailable();
+
+  }
+
+  /**
+   * Obtains an array of information objects representing the set of all working MIDI devices available on the system.
+   * This is a replacement for javax.sound.midi.MidiSystem.getMidiDeviceInfo() which only returns fully-functional
+   * MIDI devices. If you call it on a non-Mac system, it simply delegates to the javax.sound.midi implementation.
+   * On a Mac, it calls that function, but filters out the broken devices, returning only the replacement versions
+   * that CoreMidi4J provides. So by using this method rather than the standard one, you can give your users a
+   * menu of MIDI devices which are guaranteed to properly support MIDI System Exclusive messages.
+   *
+   * A returned information object can then be used to obtain the corresponding device object,
+   * by invoking javax.sound.midi.MidiSystem.getMidiDevice().
+   */
+  public static MidiDevice.Info[] getMidiDeviceInfo() {
+
+    MidiDevice.Info[] allInfo = MidiSystem.getMidiDeviceInfo();
+
+    try {
+
+      if (isLibraryLoaded()) {
+
+        List<MidiDevice.Info> workingDevices = new ArrayList<MidiDevice.Info>(allInfo.length);
+        for (MidiDevice.Info candidate : allInfo) {
+
+          try {
+
+            MidiDevice device = MidiSystem.getMidiDevice(candidate);
+
+            if ((device instanceof Sequencer) || (device instanceof Synthesizer) ||
+                    (device instanceof CoreMidiDestination) || (device instanceof CoreMidiSource)) {
+
+              workingDevices.add(candidate);  // A working device, include it
+
+            }
+          } catch (MidiUnavailableException e) {
+
+            System.err.println("Problem obtaining MIDI device which supposedly exists:" + e.getMessage());
+
+          }
+        }
+
+        return workingDevices.toArray(new MidiDevice.Info[workingDevices.size()]);
+
+      }
+
+    } catch (CoreMidiException e) {
+
+      System.err.println("Problem trying to determine native library status:" + e.getMessage());
+
+    }
+
+    return allInfo;
 
   }
 
