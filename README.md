@@ -87,7 +87,8 @@ public class Available {
 
     public static void main(String[] args) throws Exception {
         try {
-            Class deviceProviderClass = Class.forName("uk.co.xfactorylibrarians.coremidi4j.CoreMidiDeviceProvider");
+            Class deviceProviderClass = Class.forName(
+                "uk.co.xfactorylibrarians.coremidi4j.CoreMidiDeviceProvider");
             System.out.println("CoreMIDI4J Java classes are available.");
             System.out.println("Working MIDI Devices:");
             for (javax.sound.midi.MidiDevice.Info device : Example.getWorkingDeviceInfo()) {
