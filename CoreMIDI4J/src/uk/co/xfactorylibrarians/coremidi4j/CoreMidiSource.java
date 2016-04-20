@@ -768,13 +768,21 @@ public class CoreMidiSource implements MidiDevice {
   //////////////////////////////
 
   /**
-   * Static method for loading the native library 
-   * 
+   * Static initializer for loading the native library
+   *
    */
 
   static {
 
-    System.loadLibrary("CoreMIDI4J");
+    try {
+
+      Loader.load();
+
+    } catch (Throwable t) {
+
+      System.err.println("Unable to load native library, CoreMIDI4J will stay inactive: " + t);
+
+    }
 
   }
 

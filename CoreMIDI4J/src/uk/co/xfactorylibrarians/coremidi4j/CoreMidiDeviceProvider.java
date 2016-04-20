@@ -16,8 +16,7 @@ package uk.co.xfactorylibrarians.coremidi4j;
 
 import java.util.*;
 
-import javax.sound.midi.MidiDevice;
-import javax.sound.midi.MidiDevice.Info;
+import javax.sound.midi.*;
 import javax.sound.midi.spi.MidiDeviceProvider;
 
 /**
@@ -65,7 +64,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
 
     // If the dynamic library failed to load, leave ourselves in an uninitialised state, so we simply always return
     // an empty device map.
-    if (libraryLoaded) {
+    if (isLibraryLoaded()) {
 
       // If the client has not been initialised then we need to set up the static fields in the class
       if ( midiProperties.client == null ) {
@@ -102,7 +101,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
       devicesSeen.add(uniqueID);
 
       // If the unique ID of the end point is not in the map then create a CoreMidiSource object and add it to the map
-      if ( midiProperties.deviceMap.containsKey(uniqueID) == false ) {
+      if ( !midiProperties.deviceMap.containsKey(uniqueID) ) {
 
         midiProperties.deviceMap.put(uniqueID,new CoreMidiSource(getMidiDeviceInfo(endPointReference)));
 
@@ -121,7 +120,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
       devicesSeen.add(uniqueID);
 
       // If the unique ID of the end point is not in the map then create a CoreMidiDestination object and add it to the map
-      if ( midiProperties.deviceMap.containsKey(uniqueID) == false ) {
+      if ( !midiProperties.deviceMap.containsKey(uniqueID) ) {
 
         midiProperties.deviceMap.put(uniqueID, new CoreMidiDestination(getMidiDeviceInfo(endPointReference)));
 
@@ -204,7 +203,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
    */
 
   @Override
-  public Info[] getDeviceInfo() {
+  public MidiDevice.Info[] getDeviceInfo() {
 
     // If there are no devices in the map, then return an empty array
     if (midiProperties.deviceMap == null) {
@@ -248,9 +247,9 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
    */
 
   @Override
-  public MidiDevice getDevice(Info info) throws IllegalArgumentException {
+  public MidiDevice getDevice(MidiDevice.Info info) throws IllegalArgumentException {
 
-    if ( isDeviceSupported(info) == false ) {
+    if ( !isDeviceSupported(info) ) {
 
       throw new IllegalArgumentException();
 
@@ -318,7 +317,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
   public static void addNotificationListener(CoreMidiNotification listener) throws CoreMidiException {
 
     // If the dynamic library failed to load, we cannot provide notifications
-    if (!libraryLoaded) {
+    if (!isLibraryLoaded()) {
 
       throw new CoreMidiException("libCoreMidi4J.dylib could not be loaded, CoreMIDI4J is not active.");
 
@@ -347,7 +346,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
   public static void removedNotificationListener(CoreMidiNotification listener) throws CoreMidiException {
 
     // If the dynamic library failed to load, we cannot provide notifications
-    if (!libraryLoaded) {
+    if (!isLibraryLoaded()) {
 
       throw new CoreMidiException("libCoreMidi4J.dylib could not be loaded, CoreMIDI4J is not active.");
 
@@ -364,18 +363,72 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
 
   }
 
-  private static boolean libraryLoaded;
-
   /**
    * Check whether we have been able to load the native library.
    *
    * @return true if the library was loaded successfully, and we are operational, and false if the library was
    *         not available, so we are idle and not going to return any devices or post any notifications.
+   *
+   * @throws CoreMidiException if something unexpected happens trying to load the native library on a Mac OS X system.
+
    */
   
-  public static boolean isLibraryLoaded() {
+  public static boolean isLibraryLoaded() throws CoreMidiException {
 
-    return libraryLoaded;
+    return Loader.isAvailable();
+
+  }
+
+  /**
+   * Obtains an array of information objects representing the set of all working MIDI devices available on the system.
+   * This is a replacement for javax.sound.midi.MidiSystem.getMidiDeviceInfo() which only returns fully-functional
+   * MIDI devices. If you call it on a non-Mac system, it simply delegates to the javax.sound.midi implementation.
+   * On a Mac, it calls that function, but filters out the broken devices, returning only the replacement versions
+   * that CoreMidi4J provides. So by using this method rather than the standard one, you can give your users a
+   * menu of MIDI devices which are guaranteed to properly support MIDI System Exclusive messages.
+   *
+   * A returned information object can then be used to obtain the corresponding device object,
+   * by invoking javax.sound.midi.MidiSystem.getMidiDevice().
+   */
+  public static MidiDevice.Info[] getMidiDeviceInfo() {
+
+    MidiDevice.Info[] allInfo = MidiSystem.getMidiDeviceInfo();
+
+    try {
+
+      if (isLibraryLoaded()) {
+
+        List<MidiDevice.Info> workingDevices = new ArrayList<MidiDevice.Info>(allInfo.length);
+        for (MidiDevice.Info candidate : allInfo) {
+
+          try {
+
+            MidiDevice device = MidiSystem.getMidiDevice(candidate);
+
+            if ((device instanceof Sequencer) || (device instanceof Synthesizer) ||
+                    (device instanceof CoreMidiDestination) || (device instanceof CoreMidiSource)) {
+
+              workingDevices.add(candidate);  // A working device, include it
+
+            }
+          } catch (MidiUnavailableException e) {
+
+            System.err.println("Problem obtaining MIDI device which supposedly exists:" + e.getMessage());
+
+          }
+        }
+
+        return workingDevices.toArray(new MidiDevice.Info[workingDevices.size()]);
+
+      }
+
+    } catch (CoreMidiException e) {
+
+      System.err.println("Problem trying to determine native library status:" + e.getMessage());
+
+    }
+
+    return allInfo;
 
   }
 
@@ -385,20 +438,19 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
   //////////////////////////////
 
   /**
-   * Static method for loading the native library 
-   * 
+   * Static initializer for loading the native library
+   *
    */
 
   static {
 
     try {
 
-      System.loadLibrary("CoreMIDI4J");
-      libraryLoaded = true;
+      Loader.load();
 
     } catch (Throwable t) {
 
-      System.err.println("Unable to load libCoreMidi4J.dylib, CoreMIDI4J will stay inactive: " + t);
+      System.err.println("Unable to load native library, CoreMIDI4J will stay inactive: " + t);
 
     }
 
