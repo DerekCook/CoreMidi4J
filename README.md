@@ -64,8 +64,8 @@ will need to access some of CoreMidi4J's classes directly. Unless you
 are embedding CoreMidi4J in your application and certain that you are
 running under Java 7 or later, you should use reflection to make sure
 that CoreMidi4J is available before trying to do this, or your
-application will fail to run on machines where CoreMidi4J has not been
-installed.
+application will fail to run in environments where CoreMidi4J's Java
+classes have not been loaded.
 
 > If you are [embedding CoreMidi4J](#embedding-coremidi4j), the only
 > reason you would need to check if it is available is if you might be
@@ -77,7 +77,7 @@ installed.
 > [filtering out](#filtering-out-broken-midi-devices) broken MIDI
 > device implementations.
 
-Here is an example of how to do test whether CoreMidi4J is available.
+Here is an example of how to test whether CoreMidi4J is available.
 This class can safely be loaded on any system, and will check the
 environment to see if it is safe to try and load the class in the
 section that follows:
@@ -149,9 +149,10 @@ public class Example {
 
 ### Filtering Out Broken MIDI Devices
 
-Whether or not your application running on a Mac, you can present the
-user with a list of only MIDI devices whose implementations work
-properly by using the `getMidiDeviceInfo()` method provided by
+If your application runs on Macs as well as other platforms, you can
+ensure that your users only ever see MIDI devices whose
+implementations work properly, by using the `getMidiDeviceInfo()`
+method provided by
 `uk.co.xfactorylibrarians.coremidi4j.CoreMidiDeviceProvider` instead
 of the one in `javax.sound.MidiSystem`. The CoreMidi4J version works
 on any platform. If you call it on anything but a Mac, it simply gives
@@ -207,7 +208,8 @@ are available through
 > It is safe to embed CoreMidi4J in cross-platform Java projects; the
 > native library will be loaded only when needed, on Mac OS X, and the
 > Java library will remain inactive on other platforms, and not
-> attempt to provide any MIDI devices.
+> attempt to provide any MIDI devices, and delegating to the standard
+> implementation of `getMidiDeviceInfo()`.
 
 If you are building a project with code like the examples above, you
 will need to configure CoreMidi4J as a dependency of your project.
