@@ -23,9 +23,9 @@ Nothing so far.
 
 ### Fixed
 
-- MIDI devices with null descriptons or vendors are no longer
-  considered erroneous, and instead are given default values
-  equivalent to what the standard implementations have.
+- MIDI devices with null descriptons or vendors coming from the native
+  library are no longer considered erroneous, and instead are given
+  default values equivalent to what the standard implementations have.
 
 ### Changed
 
@@ -37,7 +37,9 @@ Nothing so far.
 
 ### Fixed
 
-- Some MIDI devices were showing up with null values for their description and vendor.
+- Under certain settings for system languages, MIDI devices were
+  showing up with null values for their names, descriptions and
+  vendors.
 
 ## [0.4] - 2016-01-18
 
