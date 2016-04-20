@@ -207,9 +207,9 @@ are available through
 
 > It is safe to embed CoreMidi4J in cross-platform Java projects; the
 > native library will be loaded only when needed, on Mac OS X, and the
-> Java library will remain inactive on other platforms, and not
-> attempt to provide any MIDI devices, and delegating to the standard
-> implementation of `getMidiDeviceInfo()`.
+> Java library will remain inactive on other platforms: it will not
+> attempt to provide any MIDI devices, and its implementation of
+> `getMidiDeviceInfo()` will simply delegate to the standard one.
 
 If you are building a project with code like the examples above, you
 will need to configure CoreMidi4J as a dependency of your project.
