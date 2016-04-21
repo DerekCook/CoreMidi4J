@@ -370,7 +370,6 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
    *         not available, so we are idle and not going to return any devices or post any notifications.
    *
    * @throws CoreMidiException if something unexpected happens trying to load the native library on a Mac OS X system.
-
    */
   
   public static boolean isLibraryLoaded() throws CoreMidiException {
@@ -381,7 +380,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
 
   /**
    * Obtains an array of information objects representing the set of all working MIDI devices available on the system.
-   * This is a replacement for javax.sound.midi.MidiSystem.getMidiDeviceInfo() which only returns fully-functional
+   * This is a replacement for javax.sound.midi.MidiSystem.getMidiDeviceInfo(), and only returns fully-functional
    * MIDI devices. If you call it on a non-Mac system, it simply delegates to the javax.sound.midi implementation.
    * On a Mac, it calls that function, but filters out the broken devices, returning only the replacement versions
    * that CoreMidi4J provides. So by using this method rather than the standard one, you can give your users a
@@ -389,7 +388,13 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
    *
    * A returned information object can then be used to obtain the corresponding device object,
    * by invoking javax.sound.midi.MidiSystem.getMidiDevice().
+   *
+   * @return an array of MidiDevice.Info objects, one for each installed and fully-functional MIDI device.
+   *         If no such devices are installed, an array of length 0 is returned.
+   *
+   * @throws CoreMidiException if something unexpected happens trying to load the native library on a Mac OS X system.
    */
+
   public static MidiDevice.Info[] getMidiDeviceInfo() {
 
     MidiDevice.Info[] allInfo = MidiSystem.getMidiDeviceInfo();
