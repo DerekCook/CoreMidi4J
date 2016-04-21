@@ -9,7 +9,7 @@
 
   <groupId>uk.co.xfactory-librarians</groupId>
   <artifactId>coremidi4j</artifactId>
-  <version>0.7</version>
+  <version>0.8-SNAPSHOT</version>
 
   <packaging>jar</packaging>
 
