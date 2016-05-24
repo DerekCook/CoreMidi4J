@@ -6,7 +6,11 @@ This change log follows the conventions of
 
 ## [Unreleased][unreleased]
 
-Nothing so far.
+### Fixed
+
+- The method name `removeNotificationListener()` in
+  `CoreMidiDeviceProvider` was previously
+  `removedNotificationListener()`, which was inaccurate.
 
 ## [0.7] - 2016-04-20
 

@@ -24,7 +24,7 @@ public interface CoreMidiNotification {
   /**
    * Called when a notification occurs
    * 
-   * @throws CoreMidiException
+   * @throws CoreMidiException if there is a problem handling the notification
    * 
    */
 

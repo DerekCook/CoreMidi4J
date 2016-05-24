@@ -82,7 +82,7 @@ public class CoreMidiSource implements MidiDevice {
   /**
    * Opens the Core MIDI Device
    *
-   * @throws MidiUnavailableException
+   * @throws MidiUnavailableException if the MIDI system cannot be used
    * 
    */
 
@@ -428,7 +428,7 @@ public class CoreMidiSource implements MidiDevice {
    * @param packetlength   The length of the packet of messages
    * @param data           The data array that holds the messages
    * 
-   * @throws InvalidMidiDataException
+   * @throws InvalidMidiDataException if the message contained values that could not be interpreted as valid MIDI
    * 
    */
 

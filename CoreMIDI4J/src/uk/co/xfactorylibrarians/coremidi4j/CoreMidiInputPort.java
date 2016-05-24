@@ -47,7 +47,7 @@ public class CoreMidiInputPort {
    * 
    * @param sourceDevice		The source device that wishes to connect to the port
    * 
-   * @throws 								CoreMidiException
+   * @throws 								CoreMidiException if there is a problem establishing the connection
    * 
    */
 
@@ -62,7 +62,7 @@ public class CoreMidiInputPort {
    * 
    * @param sourceDevice	The source device that wishes to disconnect from the port
    * 
-   * @throws 							CoreMidiException
+   * @throws 							CoreMidiException if there is a problem removing the connection
    * 
    */
 

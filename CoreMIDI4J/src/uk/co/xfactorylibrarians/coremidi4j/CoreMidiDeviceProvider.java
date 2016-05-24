@@ -56,7 +56,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
   /**
    * Class constructor
    * 
-   * @throws CoreMidiException
+   * @throws CoreMidiException if there is a problem initializing the provider
    * 
    */
 
@@ -240,7 +240,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
    * 
    * @return			The required MidiDevice
    * 
-   * @throws			IllegalArgumentException
+   * @throws			IllegalArgumentException if the device is not one that we provided
    * 
    * @see javax.sound.midi.spi.MidiDeviceProvider#getDevice(javax.sound.midi.MidiDevice.Info)
    * 
@@ -292,9 +292,9 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
   }
 
   /**
-   * Called when a notification occurs
+   * Called when a change in the MIDI environment occurs
    * 
-   * @throws CoreMidiException
+   * @throws CoreMidiException if a problem occurs rebuilding the map of available MIDI devices
    * 
    */
 
@@ -310,7 +310,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
    * 
    * @param listener	The CoreMidiNotification listener to add
    * 
-   * @throws 					CoreMidiException 
+   * @throws 					CoreMidiException if it is not possible to provide change notifications
    * 
    */
 
@@ -339,11 +339,11 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
    * 
    * @param listener	The CoreMidiNotification listener to remove
    * 
-   * @throws 					CoreMidiException 
+   * @throws 					CoreMidiException when we are unable to offer change notifications
    * 
    */
 
-  public static void removedNotificationListener(CoreMidiNotification listener) throws CoreMidiException {
+  public static void removeNotificationListener(CoreMidiNotification listener) throws CoreMidiException {
 
     // If the dynamic library failed to load, we cannot provide notifications
     if (!isLibraryLoaded()) {
@@ -391,8 +391,6 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
    *
    * @return an array of MidiDevice.Info objects, one for each installed and fully-functional MIDI device.
    *         If no such devices are installed, an array of length 0 is returned.
-   *
-   * @throws CoreMidiException if something unexpected happens trying to load the native library on a Mac OS X system.
    */
 
   public static MidiDevice.Info[] getMidiDeviceInfo() {

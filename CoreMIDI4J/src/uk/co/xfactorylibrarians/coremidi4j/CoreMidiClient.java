@@ -33,7 +33,7 @@ public class CoreMidiClient {
    * 
    * @param name 	The name of the client		
    * 
-   * @throws 			CoreMidiException
+   * @throws 			CoreMidiException if the client cannot be initialized
    * 
    */
 
@@ -50,7 +50,7 @@ public class CoreMidiClient {
    * 
    * @return			A new CoreMidiInputPort
    * 
-   * @throws 			CoreMidiException
+   * @throws 			CoreMidiException if the port cannot be created
    * 
    */
 
@@ -67,7 +67,7 @@ public class CoreMidiClient {
    * 
    * @return			A new CoreMidiOutputPort
    * 
-   * @throws 			CoreMidiException 
+   * @throws 			CoreMidiException if the port cannot be created
    * 
    */
 
@@ -80,7 +80,7 @@ public class CoreMidiClient {
   /**
    * The message callback for receiving notifications about changes in the MIDI environment from the JNI code
    * 
-   * @throws CoreMidiException 
+   * @throws CoreMidiException if a problem occurs passing along the notification
    * 
    */
 
@@ -167,7 +167,8 @@ public class CoreMidiClient {
    * 
    * @return										A reference to the MIDI client
    * 
-   * @throws CoreMidiException	Thrown if the client cannot be created
+   * @throws CoreMidiException	if the client cannot be created
+   *
    */
 
   private native int createClient(String clientName) throws CoreMidiException;
@@ -177,7 +178,7 @@ public class CoreMidiClient {
    * 
    * @param clientReference		The reference of the client to dispose of
    * 
-   * @throws 									CoreMidiException 
+   * @throws 									CoreMidiException if there is a problem disposing of the client
    * 
    */
 

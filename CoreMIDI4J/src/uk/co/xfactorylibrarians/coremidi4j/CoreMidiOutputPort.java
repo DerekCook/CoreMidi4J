@@ -31,7 +31,7 @@ public class CoreMidiOutputPort {
    * @param clientReference	The client reference
    * @param portName				The name of the port
    *  
-   * @throws 								CoreMidiException 
+   * @throws 								CoreMidiException if there is a problem creating the port
    * 
    */
 
@@ -49,7 +49,7 @@ public class CoreMidiOutputPort {
    * @param timestamp                     The time at which the message should take effect, in microseconds since the
    *                                      system booted, with 0 meaning "immediately".
    * 
-   * @throws 															CoreMidiException
+   * @throws 															CoreMidiException if there is a problem sending the message
    */
 
   public void send(int destinationEndPointReference, MidiMessage message, long timestamp) throws CoreMidiException {

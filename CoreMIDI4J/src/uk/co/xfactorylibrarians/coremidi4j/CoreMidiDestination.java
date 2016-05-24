@@ -65,7 +65,7 @@ public class CoreMidiDestination implements MidiDevice {
   /**
    * Opens the Core MIDI Device
    * 
-   * @throws MidiUnavailableException
+   * @throws MidiUnavailableException if the MIDI system cannot be accessed
    * 
    */
 
