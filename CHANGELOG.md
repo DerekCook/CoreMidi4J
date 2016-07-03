@@ -6,11 +6,20 @@ This change log follows the conventions of
 
 ## [Unreleased][unreleased]
 
+Nothing so far.
+
+## [0.8] - 2016-07-03
+
 ### Fixed
 
 - The method name `removeNotificationListener()` in
   `CoreMidiDeviceProvider` was previously
   `removedNotificationListener()`, which was inaccurate.
+- A variety of gaps in the API documentation were addressed.
+
+### Changed
+
+- Dependencies and build tools were updated to their latest releases.
 
 ## [0.7] - 2016-04-20
 
@@ -88,7 +97,8 @@ This change log follows the conventions of
 - Initial Public Release
 
 
-[unreleased]: https://github.com/DerekCook/CoreMidi4J/compare/v0.7...HEAD
+[unreleased]: https://github.com/DerekCook/CoreMidi4J/compare/v0.8...HEAD
+[0.8]: https://github.com/DerekCook/CoreMidi4J/compare/V0.7...v0.8
 [0.7]: https://github.com/DerekCook/CoreMidi4J/compare/V0.5...v0.7
 [0.5]: https://github.com/DerekCook/CoreMidi4J/compare/V0.4...V0.5
 [0.4]: https://github.com/DerekCook/CoreMidi4J/compare/V0.3...V0.4
