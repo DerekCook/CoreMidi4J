@@ -6,7 +6,10 @@ This change log follows the conventions of
 
 ## [Unreleased][unreleased]
 
-Nothing so far.
+- Added the static method `getLibraryVersion()` to
+  `CoreMidiDeviceProvider` so that client software can determine the
+  version of CoreMIDI4J which is in use. (If this method is not found,
+  then the version is unknown, but must be 0.8 or earlier.)
 
 ## [0.8] - 2016-07-03
 

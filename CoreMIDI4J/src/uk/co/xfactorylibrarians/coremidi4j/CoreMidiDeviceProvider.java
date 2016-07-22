@@ -379,6 +379,18 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
   }
 
   /**
+   * Determine the version of the library which is being used.
+   *
+   * @return the implementation version of the library, as compiled into the JAR manifest.
+   */
+
+  public static String getLibraryVersion() {
+
+    return Package.getPackage("uk.co.xfactorylibrarians.coremidi4j").getImplementationVersion();
+
+  }
+
+  /**
    * Obtains an array of information objects representing the set of all working MIDI devices available on the system.
    * This is a replacement for javax.sound.midi.MidiSystem.getMidiDeviceInfo(), and only returns fully-functional
    * MIDI devices. If you call it on a non-Mac system, it simply delegates to the javax.sound.midi implementation.
