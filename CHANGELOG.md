@@ -106,9 +106,9 @@ Nothing so far.
 - Initial Public Release
 
 
-[unreleased]: https://github.com/DerekCook/CoreMidi4J/compare/v0.9...HEAD
-[0.9]: https://github.com/DerekCook/CoreMidi4J/compare/V0.8...v0.9
-[0.8]: https://github.com/DerekCook/CoreMidi4J/compare/V0.7...v0.8
+[unreleased]: https://github.com/DerekCook/CoreMidi4J/compare/V0.9...HEAD
+[0.9]: https://github.com/DerekCook/CoreMidi4J/compare/V0.8...V0.9
+[0.8]: https://github.com/DerekCook/CoreMidi4J/compare/v0.7...V0.8
 [0.7]: https://github.com/DerekCook/CoreMidi4J/compare/V0.5...v0.7
 [0.5]: https://github.com/DerekCook/CoreMidi4J/compare/V0.4...V0.5
 [0.4]: https://github.com/DerekCook/CoreMidi4J/compare/V0.3...V0.4
