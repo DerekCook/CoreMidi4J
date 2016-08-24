@@ -382,6 +382,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
    * Determine the version of the library which is being used.
    *
    * @return the implementation version of the library, as compiled into the JAR manifest.
+   * @since 0.9
    */
 
   public static String getLibraryVersion() {

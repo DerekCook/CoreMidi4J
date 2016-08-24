@@ -6,7 +6,13 @@ This change log follows the conventions of
 
 ## [Unreleased][unreleased]
 
-- Added the static method `getLibraryVersion()` to
+Nothing so far.
+
+## [0.9] - 2016-08-23
+
+### Added
+
+- A new static method `getLibraryVersion()` in
   `CoreMidiDeviceProvider` so that client software can determine the
   version of CoreMIDI4J which is in use. (If this method is not found,
   then the version is unknown, but must be 0.8 or earlier.)
@@ -100,7 +106,8 @@ This change log follows the conventions of
 - Initial Public Release
 
 
-[unreleased]: https://github.com/DerekCook/CoreMidi4J/compare/v0.8...HEAD
+[unreleased]: https://github.com/DerekCook/CoreMidi4J/compare/v0.9...HEAD
+[0.9]: https://github.com/DerekCook/CoreMidi4J/compare/V0.8...v0.9
 [0.8]: https://github.com/DerekCook/CoreMidi4J/compare/V0.7...v0.8
 [0.7]: https://github.com/DerekCook/CoreMidi4J/compare/V0.5...v0.7
 [0.5]: https://github.com/DerekCook/CoreMidi4J/compare/V0.4...V0.5
