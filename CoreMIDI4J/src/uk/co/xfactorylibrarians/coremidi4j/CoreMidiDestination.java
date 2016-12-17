@@ -200,6 +200,7 @@ public class CoreMidiDestination implements MidiDevice {
 
     // We do not maintain a list of receivers, as they tend to be transitory context
     return null;
+    
   }
 
   /**

@@ -314,7 +314,7 @@ public class CoreMidiSource implements MidiDevice {
    */
   private boolean isRealTimeMessage(byte status) {
 
-    switch (status) {
+    switch ( status ) {
 
       case (byte) ShortMessage.TIMING_CLOCK:
       case (byte) ShortMessage.START:
@@ -342,7 +342,7 @@ public class CoreMidiSource implements MidiDevice {
    */
   private boolean isRunningStatusMessage (int status) {
 
-    switch(status & 0xF0) {
+    switch( status & 0xF0 ) {
 
       case ShortMessage.NOTE_OFF:
       case ShortMessage.NOTE_ON: 
@@ -373,7 +373,7 @@ public class CoreMidiSource implements MidiDevice {
 
     // system common and system real-time messages
 
-    switch(status &0xFF) {
+    switch( status &0xFF ) {
 
       case ShortMessage.TUNE_REQUEST:
       case ShortMessage.END_OF_EXCLUSIVE:
@@ -401,7 +401,7 @@ public class CoreMidiSource implements MidiDevice {
     }
 
     // channel voice and mode messages
-    switch(status & 0xF0) {
+    switch( status & 0xF0 ) {
 
       case ShortMessage.NOTE_OFF: 
       case ShortMessage.NOTE_ON:  
@@ -476,7 +476,9 @@ public class CoreMidiSource implements MidiDevice {
             // We have just received the first data byte of a message which needs two.
             firstDataByte = data[offset++];
             wasFirstByteReceived = true;
+            
           }
+          
         }
 
       } else {

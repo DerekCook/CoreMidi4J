@@ -22,41 +22,56 @@ public class Loader {
   /**
    * How large a buffer should be used for copying the dynamic library out of the jar.
    */
+  
   private static final int BUFFER_SIZE = 8192;
 
   /**
    * The file name of our native library.
    */
+  
   public static final String NATIVE_LIBRARY_NAME = "libCoreMidi4J.dylib";
 
   /**
    * Prevent instantiation.
    */
+  
   private Loader() {
+    
     // Nothing to do here
+    
   }
 
   /**
    * Check that we are running on Mac OS X.
+   * 
+   * @return true if thr OS is OS X, otherwise false
+   * 
    */
+  
   private static boolean isMacOSX() {
+    
     final String os = System.getProperty("os.name").toLowerCase().replace(" ", "");
+    
     return (os.equals("osx") || os.equals("macosx"));
+    
   }
 
   /**
    * The temporary directory we will use to extract the native library.
    */
+  
   private static File tempDir;
 
   /**
    * Indicates whether we have tried to load the library.
    */
+  
   private static boolean loaded = false;
 
   /**
    * Indicates whether the library was successfully loaded, which implies we are on a Mac and ready to operate.
    */
+  
   private static boolean available = false;
 
   /**
@@ -64,7 +79,11 @@ public class Loader {
    * This directory is marked to be deleted when the JVM exits.
    *
    * @return The temporary directory for the native library.
+   * 
+   * @throws CoreMidiException 
+   * 
    */
+  
   private static File createTempDirectory() throws CoreMidiException {
 
     if (tempDir != null) {
@@ -74,8 +93,7 @@ public class Loader {
 
     }
 
-    try
-    {
+    try {
 
       tempDir = File.createTempFile("coreMidi4J", null);
 
@@ -97,6 +115,7 @@ public class Loader {
       throw new CoreMidiException("Unable to create temporary directory for CoreMidi4J library: " + e, e);
 
     }
+
   }
 
   /**
@@ -116,7 +135,7 @@ public class Loader {
 
       int read;
 
-      while ((read = input.read(buffer)) != -1) {
+      while ( ( read = input.read(buffer) ) != -1 ) {
 
         stream.write(buffer, 0, read);
 
@@ -127,27 +146,31 @@ public class Loader {
       stream.close();
 
     }
+    
   }
 
   /**
-   * Locates the native library, extracting a temporary copy from our jar it does not already exist in the filesystem.
+   * Locates the native library, extracting a temporary copy from our jar it does not already exist in the file system.
    *
    * @return The absolute path to the existing or extracted library.
+   * 
+   * @throws CoreMidiException 
    */
+  
   private static String locateLibrary() throws CoreMidiException {
 
     // Check if native library is present
     final String source = "/uk/co/xfactorylibrarians/coremidi4j/" + NATIVE_LIBRARY_NAME;
     final URL url = Loader.class.getResource(source);
 
-    if (url == null) {
+    if  (url == null ) {
 
       throw new CoreMidiException("Native library " + source + " not found in classpath.");
 
     }
 
     // If the native library was found as an actual file, there is no need to extract a copy from our jar.
-    if ("file".equals(url.getProtocol())) {
+    if ( "file".equals(url.getProtocol()) ) {
 
       try {
 
@@ -158,7 +181,9 @@ public class Loader {
         // In theory this can't happen because we are not constructing the URI manually.
         // But even if it happens, we can fall back to extracting the library.
         System.err.println("Problem trying to obtain File from dynamic library: " + e);
+        
       }
+      
     }
 
     // Extract the library and return the path to the extracted file.
@@ -167,6 +192,7 @@ public class Loader {
     try {
 
       final InputStream stream = Loader.class.getResourceAsStream(source);
+      
       if (stream == null) {
 
         throw new CoreMidiException("Unable to find " + source + " in the classpath");
@@ -193,16 +219,18 @@ public class Loader {
     dest.deleteOnExit();
 
     return dest.getAbsolutePath();
+    
   }
 
   /**
-   * Tries to load our native library. Can be safely called multiple times; duplicate attemtps are ignored.
+   * Tries to load our native library. Can be safely called multiple times; duplicate attempts are ignored.
    * This method is automatically called whenever any CoreMidi4J class that relies on JNI is loaded. If you
    * need to do it earlier (to catch exceptions for example, or check whether the native library can be used),
    * simply call this method manually.
    *
    * @throws CoreMidiException if something unexpected happens trying to load the native library on a Mac OS X system.
    */
+  
   public static synchronized void load() throws CoreMidiException {
 
     // Do nothing if this is a redundant call
@@ -214,7 +242,7 @@ public class Loader {
 
     loaded = true;
 
-    if (isMacOSX()) {
+    if ( isMacOSX() ) {
 
       System.load(locateLibrary());
       available = true;
