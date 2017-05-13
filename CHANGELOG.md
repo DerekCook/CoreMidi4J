@@ -6,7 +6,15 @@ This change log follows the conventions of
 
 ## [Unreleased][unreleased]
 
-Nothing so far.
+### Fixed
+
+- A long-standing crash or hang when trying to use CoreMidi4J from
+  JavaFX was fixed by @SMerrony.
+- A potentially uninitialized variable was fixed in the native code.
+
+### Changed
+
+- Dependencies and build tools were updated to their latest releases.
 
 ## [0.9] - 2016-08-23
 
