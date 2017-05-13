@@ -9,7 +9,7 @@ This change log follows the conventions of
 ### Fixed
 
 - A long-standing crash or hang when trying to use CoreMidi4J from
-  JavaFX was fixed by @SMerrony.
+  JavaFX was fixed by [@SMerrony](https://github.com/SMerrony).
 - A potentially uninitialized variable was fixed in the native code.
 
 ### Changed
