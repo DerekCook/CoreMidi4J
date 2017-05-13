@@ -97,7 +97,7 @@ JNIEXPORT void JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiOutputPo
 
   }
 
-  OSStatus status;
+  OSStatus status = 0;
 
   int messageLength;
   int bufferLength;
