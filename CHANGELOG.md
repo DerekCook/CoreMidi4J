@@ -6,6 +6,10 @@ This change log follows the conventions of
 
 ## [Unreleased][unreleased]
 
+Nothing so far.
+
+## [1.0] - 2017-05-14
+
 ### Fixed
 
 - A long-standing
@@ -121,7 +125,8 @@ This change log follows the conventions of
 - Initial Public Release
 
 
-[unreleased]: https://github.com/DerekCook/CoreMidi4J/compare/V0.9...HEAD
+[unreleased]: https://github.com/DerekCook/CoreMidi4J/compare/V1.0...HEAD
+[1.0]: https://github.com/DerekCook/CoreMidi4J/compare/V0.9...V1.0
 [0.9]: https://github.com/DerekCook/CoreMidi4J/compare/V0.8...V0.9
 [0.8]: https://github.com/DerekCook/CoreMidi4J/compare/v0.7...V0.8
 [0.7]: https://github.com/DerekCook/CoreMidi4J/compare/V0.5...v0.7
