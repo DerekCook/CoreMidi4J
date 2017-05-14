@@ -59,7 +59,7 @@ void notifyCallback(const MIDINotification *message, void *notifyRefCon) {
     MIDI_CALLBACK_PARAMETERS *callbackParameters = (MIDI_CALLBACK_PARAMETERS *) notifyRefCon;
 
     // Attach this thread to the JVM
-    int attachResult = callbackParameters->jvm->AttachCurrentThread((void**) &env, NULL);
+    int attachResult = callbackParameters->jvm->AttachCurrentThreadAsDaemon((void**) &env, NULL);
 
     // DEBUG Code, uncomment to view parameters
     //std::cout << "** javaNotifyCallback: AttachCurrentThread: ";
@@ -76,9 +76,6 @@ void notifyCallback(const MIDINotification *message, void *notifyRefCon) {
         env->ExceptionDescribe();
 
       }
-
-      // TODO Calling this function crashes the JVM!!!
-      //			callbackParameters->jvm->DetachCurrentThread();
 
     } else {
 

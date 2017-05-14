@@ -11,8 +11,12 @@ This change log follows the conventions of
 - A long-standing
   [crash or hang](https://github.com/DerekCook/CoreMidi4J/issues/10)
   when trying to use CoreMidi4J from JavaFX was
-  [fixed](https://github.com/DerekCook/CoreMidi4J/issues/18) by
+  [fixed](https://github.com/DerekCook/CoreMidi4J/pull/18) by
   [@mpsalisbury](https://github.com/mpsalisbury).
+- You no longer
+ [need to call](https://github.com/DerekCook/CoreMidi4J/issues/9)
+ `System.exit()` to end your program even when
+  MIDI environment changes have occurred while it was running.
 - A potentially uninitialized variable was fixed in the native code.
 
 ### Changed
