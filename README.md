@@ -24,19 +24,22 @@ create our own &ldquo;lightweight&rdquo; SPI, which Derek accomplished
 in 2015, and that we would make it publicly available for others to
 contribute to.
 
-The current release is a stable pre-release version, which has been
-heavily used in some of our own projects, and is now considered stable
-enough for users to experiment with. Feedback on any discovered
-problems/issues is welcome.
+CoreMidi4J has been heavily used in some of our own projects for over
+a year, and we have recently resolved the last known outstanding
+issue, so we have labeled it version 1.0. Feedback on any new
+problems or issues is always welcome.
 
-As of release 0.7, it is possible to
-[embed CoreMidi4J](#embedding-coremidi4j) in another project and have
-its native code loaded automatically on the OS X platform, so that end
+## Installation
+
+The recommended approach for use as a library is to
+[embed CoreMidi4J](#embedding-coremidi4j) in your project and have its
+native code loaded automatically when on the OS X platform, so that end
 users do not need to worry about installing anything.
 
 It is also still possible to
 [download and install CoreMidi4J](#standalone-coremidi4j) separately,
-to use it with applications that did not embed it.
+to use it with applications that did not embed it (or if your
+own project does not use the Maven dependency-management ecosystem).
 
 [![License](https://img.shields.io/badge/License-Eclipse%20Public%20License%201.0-blue.svg)](#license)
 
@@ -50,7 +53,7 @@ them because their names will begin with `CoreMidi4J -`. These devices
 will:
 
 * properly support System Exclusive messages,
-* provide, translate, and honor CoreMidi timestamps on MIDI events,
+* provide, translate, and respect CoreMidi timestamps on MIDI events,
   and
 * the list of devices available will correctly update even if you
   connect or detach devices after Java is already running.
@@ -80,7 +83,7 @@ classes have not been loaded.
 Here is an example of how to test whether CoreMidi4J is available.
 This class can safely be loaded on any system, and will check the
 environment to see if it is safe to try and load the class in the
-section that follows:
+example that follows:
 
 ```java
 public class Available {
@@ -99,7 +102,6 @@ public class Available {
                 Example.watchForMidiChanges();
                 System.out.println("Watching for MIDI environment changes for thirty seconds.");
                 Thread.sleep(30000);
-                System.exit(0);
             } else {
                 System.out.println("CoreMIDI4J native library is not available.");
             }
@@ -112,7 +114,7 @@ public class Available {
 
 ### Checking if CoreMidi4J is Active
 
-This second class cannot be instantiated on systems which lack the
+This second class cannot be loaded on systems which lack the
 CoreMidi4J classes, but shows an example of how to ask for a list of
 only properly-working MIDI devices (filtering out the broken ones
 provided by the standard Mac OS X MIDI implementation). It also shows
@@ -171,7 +173,7 @@ that other than the sequencer and synthesizer, the only MIDI devices
 returned are the inputs and outputs offered by CoreMidi4J:
 
 ```
-java -cp CoreMIDI4J/target/classes/:. Available
+java -cp coremidi4j-1.0.jar:. Available
 CoreMIDI4J Java classes are available.
 Working MIDI Devices:
   CoreMIDI4J - Bus 1
@@ -225,7 +227,9 @@ Leiningen, or your build tool of choice.
 ### Standalone CoreMidi4J
 
 If you want to use CoreMidi4J with another Java program that does not
-embed it, you can download the standalone jar from the
+embed it, or in a project of your own that does not use the Maven
+dependency management approach, you can download the standalone jar
+from the
 [releases](https://github.com/DerekCook/CoreMidi4J/releases) page.
 [![jar](https://img.shields.io/github/downloads/DerekCook/CoreMidi4J/total.svg)](https://github.com/DerekCook/CoreMidi4J/releases)
 
