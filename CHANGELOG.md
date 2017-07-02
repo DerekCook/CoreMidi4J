@@ -13,6 +13,8 @@ This change log follows the conventions of
   same block of memory is attempted to be freed more than once.
 - Implemented the rest of the MIDI SPI contract for tracking and
   closing transmitters and receivers.
+- We now close any devices (and their transmitters or receivers) when
+  the underlying CoreMIDI device disappears.
 
 
 ## [1.0] - 2017-05-14

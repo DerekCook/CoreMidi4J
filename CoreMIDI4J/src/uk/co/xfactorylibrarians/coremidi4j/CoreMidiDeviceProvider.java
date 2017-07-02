@@ -32,7 +32,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
 
     private CoreMidiClient client;
     private CoreMidiOutputPort output;
-    private final Map<Integer, MidiDevice> deviceMap = new LinkedHashMap<Integer, MidiDevice>(DEVICE_MAP_SIZE);
+    private final Map<Integer, MidiDevice> deviceMap = new LinkedHashMap<>(DEVICE_MAP_SIZE);
 
   }
 
@@ -88,7 +88,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
 
   private void buildDeviceMap() throws CoreMidiException {
 
-    Set<Integer> devicesSeen = new HashSet<Integer>();
+    Set<Integer> devicesSeen = new HashSet<>();
 
     // Iterate through the sources
     for (int i = 0; i < getNumberOfSources(); i++) {
@@ -128,14 +128,34 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
 
     }
 
-    // Finally, remove any devices from the map which were no longer available according to CoreMIDI.
-    Set<Integer> devicesInMap = new HashSet<Integer>(midiProperties.deviceMap.keySet());
+    // Finally, remove any devices from the map which were no longer available according to CoreMIDI, and close them
+    // appropriately as needed.
+    Set<Integer> devicesInMap = new HashSet<>(midiProperties.deviceMap.keySet());
 
     for (Integer uniqueID : devicesInMap) {
 
       if ( !devicesSeen.contains(uniqueID) ) {
 
-        midiProperties.deviceMap.remove(uniqueID);
+        MidiDevice vanishedDevice = midiProperties.deviceMap.remove(uniqueID);
+
+        try {
+
+          if (vanishedDevice instanceof CoreMidiSource) {
+
+            // Must handle specially to avoid trying to interact with defunct CoreMIDI device
+            ((CoreMidiSource) vanishedDevice).deviceDisappeared();
+
+          } else {
+
+            vanishedDevice.close();  // CoreMidiDestination close is safe to call even after the device is gone
+
+          }
+
+        } catch (Exception e) {
+
+          System.err.println("Problem trying to clean up vanished MIDI device " + vanishedDevice + ": " + e);
+          e.printStackTrace();
+        }
 
       }
 
@@ -414,7 +434,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
 
       if (isLibraryLoaded()) {
 
-        List<MidiDevice.Info> workingDevices = new ArrayList<MidiDevice.Info>(allInfo.length);
+        List<MidiDevice.Info> workingDevices = new ArrayList<>(allInfo.length);
         for (MidiDevice.Info candidate : allInfo) {
 
           try {

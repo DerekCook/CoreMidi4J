@@ -161,6 +161,18 @@ public class CoreMidiSource implements MidiDevice {
   }
 
   /**
+   * Forcibly close because the underlying CoreMIDI device has disappeared. Behaves like {@link #close()} without
+   * attempting to detach from the now-nonexistent underlying device.
+   */
+
+  void deviceDisappeared() {
+
+    input.set(null);
+    close();
+
+  }
+
+  /**
    * Checks to see if the MIDI Device is open
    *
    * @return true if the device is open, otherwise false;
