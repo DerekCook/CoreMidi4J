@@ -1,4 +1,4 @@
-/**
+/*
  * Title:        CoreMIDI4J
  * Description:  Core MIDI Device Provider for Java on OS X
  * Copyright:    Copyright (c) 2015-2016
@@ -41,7 +41,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
   /**
    * Initialises the system
    * 
-   * @throws CoreMidiException 
+   * @throws CoreMidiException if there is a problem communicating with CoreMIDI
    * 
    */
 
@@ -82,7 +82,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
   /**
    * Builds the device map
    * 
-   * @throws CoreMidiException
+   * @throws CoreMidiException if there is a problem communicating with CoreMIDI
    * 
    */
 
@@ -148,7 +148,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
    * 
    * @return	The CoreMidiClient object 
    * 
-   * @throws 	CoreMidiException
+   * @throws 	CoreMidiException if there is a problem communicating with CoreMIDI
    * 
    */
 
@@ -453,7 +453,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
   ///// JNI Interfaces
   //////////////////////////////
 
-  /**
+  /*
    * Static initializer for loading the native library
    *
    */
@@ -523,7 +523,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
    * 
    * @return						The UID of the referenced object
    * 
-   * @throws 						CoreMidiException 
+   * @throws 						CoreMidiException if there is a problem communicating with CoreMIDI
    * 
    */
 

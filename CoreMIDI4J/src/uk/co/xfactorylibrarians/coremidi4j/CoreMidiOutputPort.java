@@ -1,4 +1,4 @@
-/**
+/*
  * Title:        CoreMIDI4J
  * Description:  Core MIDI Device Provider for Java on OS X
  * Copyright:    Copyright (c) 2015-2016
@@ -62,7 +62,7 @@ public class CoreMidiOutputPort {
   ///// JNI Interfaces
   //////////////////////////////
 
-  /**
+  /*
    * Static initializer for loading the native library
    *
    */
@@ -104,7 +104,7 @@ public class CoreMidiOutputPort {
    * @param timestamp                      The time at which the message should take effect, in microseconds since the
    *                                       system booted, with zero meaning immediately.
    *
-   * @throws 																CoreMidiException
+   * @throws 																CoreMidiException if there is a problem sending the message
    * 
    */
 

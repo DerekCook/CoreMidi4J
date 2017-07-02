@@ -1,4 +1,4 @@
-/**
+/*
  * Title:        CoreMIDI4J
  * Description:  Core MIDI Device Provider for Java on OS X
  * Copyright:    Copyright (c) 2015-2016

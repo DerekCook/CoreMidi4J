@@ -1,4 +1,4 @@
-/**
+/*
  * Title:        CoreMIDI4J
  * Description:  Core MIDI Device Provider for Java on OS X
  * Copyright:    Copyright (c) 2015-2016
@@ -76,7 +76,7 @@ public class CoreMidiInputPort {
   ///// JNI Interfaces
   //////////////////////////////
 
-  /**
+  /*
    * Static initializer for loading the native library
    *
    */
@@ -117,7 +117,7 @@ public class CoreMidiInputPort {
    * 
    * @return												A memory handle for the parameters the native side has associated with this call 
    * 
-   * @throws 												CoreMidiException 
+   * @throws 												CoreMidiException if there is a problem connecting the source
    * 
    */
 
@@ -130,7 +130,7 @@ public class CoreMidiInputPort {
    * @param memoryReference 				The memory handle that can now be released.
    * @param sourceDevice						The source device that wishes to disconnect from the port
    * 
-   * @throws 												CoreMidiException 
+   * @throws 												CoreMidiException if there is a problem disconnecting the source
    * 
    */
 

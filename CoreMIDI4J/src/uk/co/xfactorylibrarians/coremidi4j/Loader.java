@@ -80,7 +80,7 @@ public class Loader {
    *
    * @return The temporary directory for the native library.
    * 
-   * @throws CoreMidiException 
+   * @throws CoreMidiException if there is a problem communicating with CoreMIDI
    * 
    */
   
@@ -149,7 +149,7 @@ public class Loader {
    *
    * @return The absolute path to the existing or extracted library.
    * 
-   * @throws CoreMidiException 
+   * @throws CoreMidiException if there is a problem finding the library
    */
   
   private static String locateLibrary() throws CoreMidiException {
