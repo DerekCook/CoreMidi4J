@@ -1,10 +1,10 @@
-/**
+/*
  * Title:        CoreMIDI4J
  * Description:  Core MIDI Device Provider for Java on OS X
  * Copyright:    Copyright (c) 2015-2016
  * Company:      x.factory Librarians
  *
- * @author Derek Cook
+ * @author Derek Cook, James Elliott
  * 
  * CoreMIDI4J is an open source Service Provider Interface for supporting external MIDI devices on MAC OS X
  * 
@@ -14,8 +14,13 @@
 
 package uk.co.xfactorylibrarians.coremidi4j;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiUnavailableException;
@@ -30,9 +35,9 @@ import javax.sound.midi.Transmitter;
 public class CoreMidiDestination implements MidiDevice {
 
   private final CoreMidiDeviceInfo info;
-
-  private boolean isOpen;
-  private long startTime;  // The system time in microseconds when the port was opened
+  private final AtomicBoolean isOpen;  // Tracks whether we are conneted to CoreMIDI and can be used
+  private final AtomicLong startTime;  // The system time in microseconds when the port was opened
+  private final Set<CoreMidiReceiver> receivers;
 
   /**
    * Default constructor. 
@@ -44,8 +49,9 @@ public class CoreMidiDestination implements MidiDevice {
   CoreMidiDestination(final CoreMidiDeviceInfo info) {
 
     this.info = info;
-
-    this.isOpen = false;
+    isOpen = new AtomicBoolean(false);
+    startTime = new AtomicLong(0);
+    receivers = Collections.newSetFromMap(new ConcurrentHashMap<CoreMidiReceiver, Boolean>());
 
   }
 
@@ -73,23 +79,37 @@ public class CoreMidiDestination implements MidiDevice {
   @Override
   public void open() throws MidiUnavailableException {
 
-    isOpen = true;
-  
-    // Get the system time in microseconds
-    startTime = this.getMicroSecondTime();
+    if (isOpen.compareAndSet(false, true)) {
+
+      // Track the system time in microseconds
+      startTime.set(getMicroSecondTime());
+
+    }
 
   }
 
   /**
-   * Closes the Core MIDI Device
+   * Closes the Core MIDI Device, which also closes all of its receivers
    * 
    */
 
   @Override
   public void close() {
 
-    // Reset the context data
-    isOpen = false;
+    if (isOpen.compareAndSet(true, false)) {
+
+      // Reset the context data
+      startTime.set(0);
+
+      // Close all our receivers, which will also clear the list.
+      // We iterate on a copy of the receiver list to avoid issues with concurrent modification.
+      for (Receiver receiver : getReceivers()) {
+
+        receiver.close();
+
+      }
+
+    }
 
   }
 
@@ -105,7 +125,7 @@ public class CoreMidiDestination implements MidiDevice {
   @Override
   public boolean isOpen() {
 
-    return isOpen;
+    return isOpen.get();
 
   }
 
@@ -122,7 +142,7 @@ public class CoreMidiDestination implements MidiDevice {
   public long getMicrosecondPosition() {
 
     // Return the elapsed time in Microseconds
-    return this.getMicroSecondTime() - startTime;
+    return getMicroSecondTime() - startTime.get();
 
   }
 
@@ -134,7 +154,7 @@ public class CoreMidiDestination implements MidiDevice {
 
   public long getStartTime() {
 
-    return startTime;
+    return startTime.get();
 
   }
 
@@ -183,7 +203,14 @@ public class CoreMidiDestination implements MidiDevice {
   @Override
   public Receiver getReceiver() throws MidiUnavailableException {
 
-    return (Receiver) new CoreMidiReceiver(this);
+    // Create a new receiver
+    CoreMidiReceiver receiver =  new CoreMidiReceiver(this);
+
+    // Add it to the set of open receivers
+    receivers.add(receiver);
+
+    // Finally return it
+    return receiver;
 
   }
 
@@ -192,16 +219,28 @@ public class CoreMidiDestination implements MidiDevice {
    * 
    * @see javax.sound.midi.MidiDevice#getReceivers()
    * 
-   * @return an empty list - we do not maintain a list of receivers
+   * @return the list of receivers that have been created from this device that are still open
    * 
    */
 
   @Override
   public List<Receiver> getReceivers() {
 
-    // We do not maintain a list of receivers, as they tend to be transitory context
-    return Collections.emptyList();
+    // Return an immutable copy of our current set of open receivers
+    return Collections.unmodifiableList(new ArrayList<Receiver>(receivers));
     
+  }
+
+  /**
+   * Reacts to the closing of a receiver by removing it from the set of active receivers
+   *
+   * @param receiver the transmitter which is reporting itself as having closed
+   */
+
+  void receiverClosed(CoreMidiReceiver receiver) {
+
+    receivers.remove(receiver);
+
   }
 
   /**
@@ -241,7 +280,7 @@ public class CoreMidiDestination implements MidiDevice {
   ///// JNI Interfaces
   //////////////////////////////
 
-  /**
+  /*
    * Static initializer for loading the native library
    *
    */

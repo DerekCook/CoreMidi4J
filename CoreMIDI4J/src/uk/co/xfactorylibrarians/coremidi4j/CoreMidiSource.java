@@ -1,4 +1,4 @@
-/**
+/*
  * Title:        CoreMIDI4J
  * Description:  Core MIDI Device Provider for Java on OS X
  * Copyright:    Copyright (c) 2015-2016
@@ -15,7 +15,9 @@
 package uk.co.xfactorylibrarians.coremidi4j;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiDevice;
@@ -35,8 +37,8 @@ public class CoreMidiSource implements MidiDevice {
 
   private final CoreMidiDeviceInfo info;
   private final AtomicBoolean isOpen;
-  private CoreMidiInputPort input = null;
-  private final List<Transmitter> transmitters;
+  private final AtomicReference<CoreMidiInputPort> input;
+  private final Set<CoreMidiTransmitter> transmitters;
 
   private int currentMessage = 0;  								// Will contain the status byte (> 127) while gathering a multi-byte message.
   private boolean currentDataIsSingleByte;  			// Is true if currentMessage only needs one byte of data.
@@ -55,8 +57,9 @@ public class CoreMidiSource implements MidiDevice {
   CoreMidiSource(CoreMidiDeviceInfo info) {
 
     this.info = info;
-    this.isOpen = new AtomicBoolean(false);
-    transmitters = new ArrayList<Transmitter>();
+    input = new AtomicReference<>();
+    isOpen = new AtomicBoolean(false);
+    transmitters = Collections.newSetFromMap(new ConcurrentHashMap<CoreMidiTransmitter, Boolean>());
 
   }
 
@@ -89,14 +92,14 @@ public class CoreMidiSource implements MidiDevice {
       try {
 
         // Create the input port if not already created
-        if (this.input == null) {
+        if (input.get() == null) {
 
-          this.input = CoreMidiDeviceProvider.getMIDIClient().inputPortCreate("Core Midi Provider Input");
+          input.set(CoreMidiDeviceProvider.getMIDIClient().inputPortCreate("Core Midi Provider Input"));
 
         }
 
         // And connect to it
-        this.input.connectSource(this);
+        input.get().connectSource(this);
 
         // Get the system time in microseconds
         startTime = this.getMicroSecondTime();
@@ -113,7 +116,7 @@ public class CoreMidiSource implements MidiDevice {
   }
 
   /**
-   * Closes the Core MIDI Device
+   * Closes the Core MIDI Device, which also closes all its transmitters
    * 
    */
 
@@ -125,24 +128,25 @@ public class CoreMidiSource implements MidiDevice {
       try {
 
         // If the port is created then disconnect from it
-        if (this.input != null) {
+        if (input.get() != null) {
 
           try {
 
-            this.input.disconnectSource(this);
+            input.get().disconnectSource(this);
 
           } finally {
 
-            this.input = null;
+            input.set(null);
 
           }
 
         }
 
-        // Clear the transmitter list
-        synchronized (transmitters) {
+        // Close all our transmitters, which will also clear the list.
+        // We iterate on a copy of the transmitter list to avoid issues with concurrent modification.
+        for (Transmitter transmitter : getTransmitters()) {
 
-          transmitters.clear();
+          transmitter.close();
 
         }
 
@@ -269,14 +273,10 @@ public class CoreMidiSource implements MidiDevice {
   public Transmitter getTransmitter() throws MidiUnavailableException {
 
     // Create the transmitter
-    Transmitter transmitter = new CoreMidiTransmitter(this);
+    CoreMidiTransmitter transmitter = new CoreMidiTransmitter(this);
 
-    // Add it to the list
-    synchronized (transmitters) {
-
-      transmitters.add(transmitter);
-
-    }
+    // Add it to the set of open transmitters
+    transmitters.add(transmitter);
 
     // Finally return it
     return transmitter;
@@ -284,9 +284,21 @@ public class CoreMidiSource implements MidiDevice {
   }
 
   /**
+   * Reacts to the closing of a transmitter by removing it from the set of active transmitters
+   *
+   * @param transmitter the transmitter which is reporting itself as having closed
+   */
+
+  void transmitterClosed(CoreMidiTransmitter transmitter) {
+
+    transmitters.remove(transmitter);
+
+  }
+
+  /**
    * Gets the list of transmitters registered with this MIDI device
    *
-   * @return The list of transmitters registered with this MIDI device
+   * @return The list of transmitters created from this MIDI device that are still open
    * 
    * @see javax.sound.midi.MidiDevice#getTransmitters()
    * 
@@ -295,14 +307,8 @@ public class CoreMidiSource implements MidiDevice {
   @Override
   public List<Transmitter> getTransmitters() {
 
-    // Create and return a list of transmitters
-    synchronized (transmitters) {
-
-      final List<Transmitter> list = new ArrayList<Transmitter>(transmitters);
-
-      return Collections.unmodifiableList(list);
-
-    }
+    // Return an immutable copy of our current set of open transmitters
+    return Collections.unmodifiableList(new ArrayList<Transmitter>(transmitters));
 
   }
 
@@ -315,6 +321,7 @@ public class CoreMidiSource implements MidiDevice {
    * @return true if the status byte represents a standalone real-time message which should be passed on without
    *         interrupting any other message being gathered.
    */
+
   private boolean isRealTimeMessage(byte status) {
 
     switch ( status ) {
@@ -511,7 +518,7 @@ public class CoreMidiSource implements MidiDevice {
           // We are starting to gather a SYSEX message.
           currentMessage = SysexMessage.SYSTEM_EXCLUSIVE;
           sysexMessageLength = 0;
-          sysexMessageData = new Vector<byte[]>();
+          sysexMessageData = new Vector<>();
           offset += processSysexData(packetlength, data, offset, timestamp);
 
         } else {
@@ -555,7 +562,7 @@ public class CoreMidiSource implements MidiDevice {
    *
    * @return The constructed SYSEX message
    * 
-   * @throws InvalidMidiDataException
+   * @throws InvalidMidiDataException if the data is not properly formed
    * 
    */
 
@@ -566,11 +573,9 @@ public class CoreMidiSource implements MidiDevice {
     int index = 0;
 
     // Iterate through the partial messages
-    for (int i = 0; i < sysexMessageData.size(); i += 1) {
+    for (byte[] sourceData : sysexMessageData) {
 
       // Get the partial message
-      byte sourceData[] = sysexMessageData.get(i);
-
       // Copy the partial message into the array
       System.arraycopy(sourceData, 0, data, index, sourceData.length);
 
@@ -603,9 +608,9 @@ public class CoreMidiSource implements MidiDevice {
    * @param startOffset  	The position within the packet where the current message began
    * @param timestamp 		The message timestamp
    *
-   * @return 							The number of bytes consumed from the packet by the SYSEX message.
+   * @return 							The number of bytes consumed from the packet by the SYSEX message
    * 
-   * @throws 							InvalidMidiDataException 
+   * @throws 							InvalidMidiDataException if the data is not properly formed
    * 
    */
 
@@ -710,30 +715,15 @@ public class CoreMidiSource implements MidiDevice {
     //
     //		}
 
-    synchronized (transmitters) {
+    // Iterate over a snapshot of our transmitters to avoid issues with concurrent modification
+    for (Transmitter transmitter : getTransmitters()) {
 
-      // Get the iterators from the transmitters collection
-      final Iterator<Transmitter> iterator = transmitters.iterator();
+      final Receiver receiver = transmitter.getReceiver();
 
-      // Loop through the transmitters
-      while (iterator.hasNext()) {
+      // If the transmitter has a non-null receiver, then send the message
+      if (receiver != null) {
 
-        // Get the next transmitter
-        final Transmitter transmitter = iterator.next();
-
-        // If the transmitter is not null then get the receiver
-        if (transmitter != null) {
-
-          final Receiver receiver = transmitter.getReceiver();
-
-          // If the receiver is not null then get send the message
-          if (receiver != null) {
-
-            receiver.send(message, timestamp);
-
-          }
-
-        }
+        receiver.send(message, timestamp);
 
       }
 
@@ -744,22 +734,23 @@ public class CoreMidiSource implements MidiDevice {
   /**
    * Formats the provided data into a HEX string, which is useful for debugging
    *
-   * @param aByte The data to format
+   * @param aByteArray The data to format
    * 
    * @return The formatted HEX string
    * 
    */
 
-  private String getHexString(byte[] aByte) {
+  @SuppressWarnings("unused")
+  private String getHexString(byte[] aByteArray) {
 
-    StringBuffer sbuf = new StringBuffer(aByte.length * 3 + 2);
+    StringBuffer sbuf = new StringBuffer(aByteArray.length * 3 + 2);
 
-    for (int i = 0; i < aByte.length; i++) {
+    for (byte aByte : aByteArray) {
 
       sbuf.append(' ');
-      byte bhigh = (byte) ((aByte[i] & 0xf0) >> 4);
+      byte bhigh = (byte) ((aByte & 0xf0) >> 4);
       sbuf.append((char) (bhigh > 9 ? bhigh + 'A' - 10 : bhigh + '0'));
-      byte blow = (byte) (aByte[i] & 0x0f);
+      byte blow = (byte) (aByte & 0x0f);
       sbuf.append((char) (blow > 9 ? blow + 'A' - 10 : blow + '0'));
 
     }
@@ -772,7 +763,7 @@ public class CoreMidiSource implements MidiDevice {
   ///// JNI Interfaces
   //////////////////////////////
 
-  /**
+  /*
    * Static initializer for loading the native library
    *
    */

@@ -32,7 +32,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
 
     private CoreMidiClient client;
     private CoreMidiOutputPort output;
-    private Map<Integer, MidiDevice> deviceMap = new LinkedHashMap<Integer, MidiDevice>(DEVICE_MAP_SIZE);
+    private final Map<Integer, MidiDevice> deviceMap = new LinkedHashMap<Integer, MidiDevice>(DEVICE_MAP_SIZE);
 
   }
 
@@ -223,7 +223,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
 
       final MidiDevice device = iterator.next();
 
-      info[counter] = (CoreMidiDeviceInfo) device.getDeviceInfo();
+      info[counter] = device.getDeviceInfo();
 
       counter += 1;
 
@@ -255,7 +255,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
 
     }
 
-    return (MidiDevice) midiProperties.deviceMap.get(((CoreMidiDeviceInfo) info).getUniqueID());
+    return midiProperties.deviceMap.get(((CoreMidiDeviceInfo) info).getUniqueID());
 
   }
 

@@ -9,8 +9,11 @@ This change log follows the conventions of
 ### Fixed
 
 - Calling `close()` more than once on a `CoreMidiSource` would lead to
-  a crash as the same block of memory is attempted to be freed more
-  than once.
+  a [crash](https://github.com/DerekCook/CoreMidi4J/issues/19) as the
+  same block of memory is attempted to be freed more than once.
+- Implemented the rest of the MIDI SPI contract for tracking and
+  closing transmitters and receivers.
+
 
 ## [1.0] - 2017-05-14
 

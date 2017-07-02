@@ -1,4 +1,4 @@
-/**
+/*
  * Title:        CoreMIDI4J
  * Description:  Core MIDI Device Provider for Java on OS X
  * Copyright:    Copyright (c) 2015-2016
@@ -17,6 +17,7 @@ package uk.co.xfactorylibrarians.coremidi4j;
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiDeviceReceiver;
 import javax.sound.midi.MidiMessage;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * CoreMidiReceiver - used to receive data from the application and send it to the connected device.
@@ -26,6 +27,8 @@ import javax.sound.midi.MidiMessage;
 public class CoreMidiReceiver implements MidiDeviceReceiver {
 
   private final CoreMidiDestination device;
+  private final AtomicBoolean closed = new AtomicBoolean(false);
+
 
   /**
    * CoreMidiReceicer constructor
@@ -33,7 +36,7 @@ public class CoreMidiReceiver implements MidiDeviceReceiver {
    * @param device	The MIDI device that contains the information required to send MIDI data via OSX core MIDI
    */
 
-  public CoreMidiReceiver(final CoreMidiDestination device) {
+  CoreMidiReceiver(final CoreMidiDestination device) {
 
     this.device = device;
 
@@ -48,6 +51,19 @@ public class CoreMidiReceiver implements MidiDeviceReceiver {
 
   @Override
   public void send(MidiMessage message, long timeStamp) {
+
+    if (closed.get()) {
+
+      throw new IllegalStateException("Can't call send() with a closed receiver");
+
+    }
+
+    if (!device.isOpen()) {
+
+      throw new IllegalStateException("Can't call send with a receiver attached to a device that is not open: " +
+              device);
+
+    }
 
     try {
 
@@ -75,7 +91,11 @@ public class CoreMidiReceiver implements MidiDeviceReceiver {
   @Override
   public void close() {
 
-    // Do nothing. No close action required, but this method must be implemented.
+    if (closed.compareAndSet(false, true)) {
+
+      device.receiverClosed(this);
+
+    }
 
   }
 

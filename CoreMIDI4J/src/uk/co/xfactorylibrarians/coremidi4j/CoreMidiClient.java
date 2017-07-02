@@ -26,7 +26,7 @@ public class CoreMidiClient {
 
   private final int midiClientReference;
 
-  private List<CoreMidiNotification> notificationListeners = new ArrayList<CoreMidiNotification>();
+  private final List<CoreMidiNotification> notificationListeners = new ArrayList<CoreMidiNotification>();
 
   /**
    * Constructor for class

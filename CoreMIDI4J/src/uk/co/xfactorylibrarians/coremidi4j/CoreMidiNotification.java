@@ -28,6 +28,6 @@ public interface CoreMidiNotification {
    * 
    */
 
-  public void midiSystemUpdated() throws CoreMidiException;
+  void midiSystemUpdated() throws CoreMidiException;
 
 }
