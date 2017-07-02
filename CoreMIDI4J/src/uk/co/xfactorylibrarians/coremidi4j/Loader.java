@@ -129,21 +129,16 @@ public class Loader {
   private static void copy(final InputStream input, final File output) throws IOException {
 
     final byte[] buffer = new byte[BUFFER_SIZE];
-    final FileOutputStream stream = new FileOutputStream(output);
 
-    try {
+    try (FileOutputStream stream = new FileOutputStream(output)) {
 
       int read;
 
-      while ( ( read = input.read(buffer) ) != -1 ) {
+      while ((read = input.read(buffer)) != -1) {
 
         stream.write(buffer, 0, read);
 
       }
-
-    } finally {
-
-      stream.close();
 
     }
     
