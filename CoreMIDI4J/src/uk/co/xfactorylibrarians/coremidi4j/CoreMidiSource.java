@@ -14,10 +14,7 @@
 
 package uk.co.xfactorylibrarians.coremidi4j;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.sound.midi.InvalidMidiDataException;
