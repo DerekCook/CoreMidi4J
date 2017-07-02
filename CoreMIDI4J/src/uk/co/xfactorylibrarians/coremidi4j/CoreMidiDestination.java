@@ -14,6 +14,7 @@
 
 package uk.co.xfactorylibrarians.coremidi4j;
 
+import java.util.Collections;
 import java.util.List;
 
 import javax.sound.midi.MidiDevice;
@@ -191,7 +192,7 @@ public class CoreMidiDestination implements MidiDevice {
    * 
    * @see javax.sound.midi.MidiDevice#getReceivers()
    * 
-   * @return NULL - we do not maintain a list of receivers 
+   * @return an empty list - we do not maintain a list of receivers
    * 
    */
 
@@ -199,7 +200,7 @@ public class CoreMidiDestination implements MidiDevice {
   public List<Receiver> getReceivers() {
 
     // We do not maintain a list of receivers, as they tend to be transitory context
-    return null;
+    return Collections.emptyList();
     
   }
 
@@ -232,7 +233,7 @@ public class CoreMidiDestination implements MidiDevice {
   public List<Transmitter> getTransmitters() {
 
     // A CoreMIDI Destination has no transmitters
-    return null;
+    return Collections.emptyList();
 
   }
 

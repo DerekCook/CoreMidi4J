@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiDevice;
@@ -36,7 +37,7 @@ import javax.sound.midi.Transmitter;
 public class CoreMidiSource implements MidiDevice {
 
   private final CoreMidiDeviceInfo info;
-  private boolean isOpen;
+  private final AtomicBoolean isOpen;
   private CoreMidiInputPort input = null;
   private final List<Transmitter> transmitters;
 
@@ -52,15 +53,12 @@ public class CoreMidiSource implements MidiDevice {
    * Default constructor.
    *
    * @param info a CoreMidiDeviceInfo object providing details of the MIDI interface
-   * 
-   * @throws CoreMidiException
-   * 
    */
 
-  CoreMidiSource(CoreMidiDeviceInfo info) throws CoreMidiException {
+  CoreMidiSource(CoreMidiDeviceInfo info) {
 
     this.info = info;
-    this.isOpen = false;
+    this.isOpen = new AtomicBoolean(false);
     transmitters = new ArrayList<Transmitter>();
 
   }
@@ -89,26 +87,29 @@ public class CoreMidiSource implements MidiDevice {
   @Override
   public void open() throws MidiUnavailableException {
 
-    try {
+    if (isOpen.compareAndSet(false, true)) {
 
-      // Create the input port if not already created
-      if (this.input == null) {
+      try {
 
-        this.input = CoreMidiDeviceProvider.getMIDIClient().inputPortCreate("Core Midi Provider Input");
+        // Create the input port if not already created
+        if (this.input == null) {
+
+          this.input = CoreMidiDeviceProvider.getMIDIClient().inputPortCreate("Core Midi Provider Input");
+
+        }
+
+        // And connect to it
+        this.input.connectSource(this);
+
+        // Get the system time in microseconds
+        startTime = this.getMicroSecondTime();
+
+      } catch (CoreMidiException e) {
+
+        e.printStackTrace();
+        throw new MidiUnavailableException(e.getMessage());
 
       }
-
-      // And connect to it
-      this.input.connectSource(this);
-      isOpen = true;
-      
-      // Get the system time in microseconds
-      startTime = this.getMicroSecondTime();
-
-    } catch (CoreMidiException e) {
-
-      e.printStackTrace();
-      throw new MidiUnavailableException(e.getMessage());
 
     }
 
@@ -122,30 +123,37 @@ public class CoreMidiSource implements MidiDevice {
   @Override
   public void close() {
 
-    try {
+    if (isOpen.compareAndSet(true, false)) {
 
-      // If the port is created then disconnect from it
-      if (this.input != null) {
+      try {
 
-        this.input.disconnectSource(this);
+        // If the port is created then disconnect from it
+        if (this.input != null) {
+
+          try {
+
+            this.input.disconnectSource(this);
+
+          } finally {
+
+            this.input = null;
+
+          }
+
+        }
+
+        // Clear the transmitter list
+        synchronized (transmitters) {
+
+          transmitters.clear();
+
+        }
+
+      } catch (CoreMidiException e) {
+
+        e.printStackTrace();
 
       }
-
-      // Clear the transmitter list
-      synchronized (transmitters) {
-
-        transmitters.clear();
-
-      }
-
-    } catch (CoreMidiException e) {
-
-      e.printStackTrace();
-
-    } finally {
-
-      // Reset the context data
-      isOpen = false;
 
     }
 
@@ -163,7 +171,7 @@ public class CoreMidiSource implements MidiDevice {
   @Override
   public boolean isOpen() {
 
-    return isOpen;
+    return isOpen.get();
 
   }
 
@@ -237,7 +245,7 @@ public class CoreMidiSource implements MidiDevice {
   /**
    * Gets a list of receivers connected to the device
    *
-   * @return NULL - we do not maintain a list of receivers
+   * @return an empty list - we do not maintain a list of receivers
    * 
    * @see javax.sound.midi.MidiDevice#getReceivers()
    * 
@@ -247,12 +255,12 @@ public class CoreMidiSource implements MidiDevice {
   public List<Receiver> getReceivers() {
 
     // A CoreMidiSource has no receivers
-    return null;
+    return Collections.emptyList();
 
   }
 
   /**
-   * Gets a transmitter for this device (which is also added to the internal list
+   * Gets a transmitter for this device (which is also added to the internal list)
    *
    * @return a transmitter for this device
    * 
@@ -293,11 +301,9 @@ public class CoreMidiSource implements MidiDevice {
     // Create and return a list of transmitters
     synchronized (transmitters) {
 
-      final List<Transmitter> list = new ArrayList<Transmitter>();
+      final List<Transmitter> list = new ArrayList<Transmitter>(transmitters);
 
-      list.addAll(transmitters);
-
-      return list;
+      return Collections.unmodifiableList(list);
 
     }
 

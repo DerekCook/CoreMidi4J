@@ -6,7 +6,11 @@ This change log follows the conventions of
 
 ## [Unreleased][unreleased]
 
-Nothing so far.
+### Fixed
+
+- Calling `close()` more than once on a `CoreMidiSource` would lead to
+  a crash as the same block of memory is attempted to be freed more
+  than once.
 
 ## [1.0] - 2017-05-14
 

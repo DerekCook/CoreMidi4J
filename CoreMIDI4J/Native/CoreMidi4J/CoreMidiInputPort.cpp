@@ -252,8 +252,10 @@ JNIEXPORT void JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiInputPor
   // Disconnect this input port from the end port
   status = MIDIPortDisconnectSource(inputPortReference, sourceEndPointReference);
 
-  // Delete the globsal reference to the Java CoreMidiInputPort object
+  // Delete the global reference to the Java CoreMidiInputPort object
   env->DeleteGlobalRef(((MIDI_CALLBACK_PARAMETERS *) memoryReference)->object);
+
+  //std::cout << "Trying to release " << memoryReference << std::endl;
 
   // Release the memory block that Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiInputPort_midiPortConnectSource allocated
   free((void *) memoryReference);
