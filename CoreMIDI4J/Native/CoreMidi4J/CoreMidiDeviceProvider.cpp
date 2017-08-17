@@ -182,7 +182,7 @@ JNIEXPORT jobject JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDevic
   CFMutableStringRef buildName = CFStringCreateMutable(NULL, 0);
 
   // Add "CoreMIDI4J - " to the start of our device name if we can
-  if (buildName) {
+  if ( buildName != NULL ) {
 
     CFStringAppend(buildName, CFSTR("CoreMIDI4J - "));
     CFStringAppend(buildName, name);

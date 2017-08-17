@@ -138,13 +138,19 @@ JNIEXPORT jint JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiClient_c
 
   // Setup the client on the main thread - this will allow it to receive notifications
   if ( pthread_main_np() ) {
+    
     // Already on main thread
     status = MIDIClientCreate(cfClientName, &notifyCallback, g_callbackParameters, &client);
+    
   } else {
+    
     // Dispatch to main thread
     dispatch_sync(dispatch_get_main_queue(), ^{
+      
       status = MIDIClientCreate(cfClientName, &notifyCallback, g_callbackParameters, &client);
+      
     });
+    
   }
 
   // If status is non-zero then throw an exception

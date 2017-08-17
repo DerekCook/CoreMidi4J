@@ -52,16 +52,15 @@ public class CoreMidiReceiver implements MidiDeviceReceiver {
   @Override
   public void send(MidiMessage message, long timeStamp) {
 
-    if (closed.get()) {
+    if ( closed.get() == true ) {
 
       throw new IllegalStateException("Can't call send() with a closed receiver");
 
     }
 
-    if (!device.isOpen()) {
+    if ( device.isOpen() == false ) {
 
-      throw new IllegalStateException("Can't call send with a receiver attached to a device that is not open: " +
-              device);
+      throw new IllegalStateException("Can't call send with a receiver attached to a device that is not open: " + device);
 
     }
 
@@ -91,7 +90,7 @@ public class CoreMidiReceiver implements MidiDeviceReceiver {
   @Override
   public void close() {
 
-    if (closed.compareAndSet(false, true)) {
+    if ( closed.compareAndSet(false, true) == true ) {
 
       device.receiverClosed(this);
 

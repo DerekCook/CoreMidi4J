@@ -752,7 +752,6 @@ public class CoreMidiSource implements MidiDevice {
    * 
    */
 
-  @SuppressWarnings("unused")
   private String getHexString(byte[] aByteArray) {
 
     StringBuffer sbuf = new StringBuffer(aByteArray.length * 3 + 2);

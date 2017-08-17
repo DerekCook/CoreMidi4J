@@ -155,6 +155,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
 
           System.err.println("Problem trying to clean up vanished MIDI device " + vanishedDevice + ": " + e);
           e.printStackTrace();
+          
         }
 
       }
@@ -435,23 +436,28 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
       if (isLibraryLoaded()) {
 
         List<MidiDevice.Info> workingDevices = new ArrayList<>(allInfo.length);
+        
         for (MidiDevice.Info candidate : allInfo) {
 
           try {
 
             MidiDevice device = MidiSystem.getMidiDevice(candidate);
 
-            if ((device instanceof Sequencer) || (device instanceof Synthesizer) ||
-                    (device instanceof CoreMidiDestination) || (device instanceof CoreMidiSource)) {
+            if ( (device instanceof Sequencer) || 
+                 (device instanceof Synthesizer) ||
+                 (device instanceof CoreMidiDestination) || 
+                 (device instanceof CoreMidiSource) ) {
 
               workingDevices.add(candidate);  // A working device, include it
 
             }
+          
           } catch (MidiUnavailableException e) {
 
             System.err.println("Problem obtaining MIDI device which supposedly exists:" + e.getMessage());
 
           }
+       
         }
 
         return workingDevices.toArray(new MidiDevice.Info[workingDevices.size()]);

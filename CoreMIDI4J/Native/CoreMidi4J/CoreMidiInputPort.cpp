@@ -51,7 +51,7 @@ void MIDIInput(const MIDIPacketList *packets, void *readProcRefCon, void *srcCon
   int getEnvStat = callbackParameters->jvm->GetEnv((void **) &env, NULL);
 
   // If the ENV is not attached to the current thread then attach it
-  if (getEnvStat == JNI_EDETACHED) {
+  if ( getEnvStat == JNI_EDETACHED ) {
 
     if ( callbackParameters->jvm->AttachCurrentThread((void **) &env, NULL) != 0) {
 
@@ -60,7 +60,7 @@ void MIDIInput(const MIDIPacketList *packets, void *readProcRefCon, void *srcCon
 
     }
 
-  } else if (getEnvStat == JNI_EVERSION) {
+  } else if ( getEnvStat == JNI_EVERSION ) {
 
     std::cout << "GetEnv: version not supported" << std::endl;
     ThrowException(env,CFSTR("MIDIInput - GetEnv: version not supported"),-1);
@@ -70,7 +70,7 @@ void MIDIInput(const MIDIPacketList *packets, void *readProcRefCon, void *srcCon
   // Loop over all the packets we have received, calling the Java callback for each one.
   MIDIPacket *packet = (MIDIPacket *) &packets->packet[0];
 
-  for (int i = 0; i < packets->numPackets; i += 1 ) {
+  for ( int i = 0; i < packets->numPackets; i += 1 ) {
 
     // Convert the CoreMIDI timestamp from Mach Absolute Time Units to microseconds,
     // as expected by Java MIDI, unless the value was zero, which means "now".

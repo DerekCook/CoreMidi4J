@@ -79,7 +79,7 @@ public class CoreMidiDestination implements MidiDevice {
   @Override
   public void open() throws MidiUnavailableException {
 
-    if (isOpen.compareAndSet(false, true)) {
+    if ( isOpen.compareAndSet(false, true) ) {
 
       // Track the system time in microseconds
       startTime.set(getMicroSecondTime());
@@ -96,14 +96,14 @@ public class CoreMidiDestination implements MidiDevice {
   @Override
   public void close() {
 
-    if (isOpen.compareAndSet(true, false)) {
+    if ( isOpen.compareAndSet(true, false) ) {
 
       // Reset the context data
       startTime.set(0);
 
       // Close all our receivers, which will also clear the list.
       // We iterate on a copy of the receiver list to avoid issues with concurrent modification.
-      for (Receiver receiver : getReceivers()) {
+      for ( Receiver receiver : getReceivers() ) {
 
         receiver.close();
 

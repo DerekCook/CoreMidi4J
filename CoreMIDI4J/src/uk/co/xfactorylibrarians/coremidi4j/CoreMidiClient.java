@@ -92,7 +92,7 @@ public class CoreMidiClient {
     synchronized(this) {
 
       // Iterate through the listeners (if any) and call them to advise that the environment has changed    	
-      for (CoreMidiNotification listener : notificationListeners) {
+      for ( CoreMidiNotification listener : notificationListeners ) {
 
         listener.midiSystemUpdated();
 
