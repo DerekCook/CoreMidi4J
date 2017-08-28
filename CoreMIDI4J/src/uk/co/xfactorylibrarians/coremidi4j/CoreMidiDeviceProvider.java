@@ -276,7 +276,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
 
     }
 
-    return midiProperties.deviceMap.get(((CoreMidiDeviceInfo) info).getUniqueID());
+    return midiProperties.deviceMap.get(((CoreMidiDeviceInfo) info).getEndPointUniqueID());
 
   }
 
@@ -300,7 +300,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
     if ( ( midiProperties.deviceMap != null ) && ( info instanceof CoreMidiDeviceInfo ) ) {
 
       // Search for the device info UID within the device map
-      if (midiProperties.deviceMap.containsKey(((CoreMidiDeviceInfo)info).getUniqueID())) {
+      if (midiProperties.deviceMap.containsKey(((CoreMidiDeviceInfo)info).getEndPointUniqueID())) {
 
         foundDevice = true;
 

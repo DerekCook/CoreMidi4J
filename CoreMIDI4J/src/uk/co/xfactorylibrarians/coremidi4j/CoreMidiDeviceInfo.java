@@ -23,8 +23,17 @@ import javax.sound.midi.MidiDevice;
 
 public class CoreMidiDeviceInfo extends MidiDevice.Info {
 
-  private final int endPointReference; // OS X Endpoint
-  private final int uid; 							 // OS X UID
+  private final String deviceName;   // OS X Device Name
+  private final int deviceReference; // OS X Device Reference
+  private final int deviceUniqueID;  // OS X Device UID
+
+  private final String entityName;   // OS X Entity Name
+  private final int entityReference; // OS X Entity Reference
+  private final int entityUniqueID;  // OS X Entity UID
+
+  private final String endPointName;   // OS X Endpoint Name
+  private final int endPointReference; // OS X Endpoint Reference
+  private final int endPointUniqueID;  // OS X Endpoint UID
 
   /**
    * Substitutes a default value if the value is null
@@ -55,30 +64,44 @@ public class CoreMidiDeviceInfo extends MidiDevice.Info {
    * @param vendor						The manufacturer of the device
    * @param description				A description of the device
    * @param version						The version number of the device driver
+   * @param deviceName        The raw name of the device 
+   * @param deviceReference   The device reference
+   * @param deviceUniqueID    The OS X unique identifier for the device
+   * @param entityName        The raw name of the entity 
+   * @param entityReference   The entity reference
+   * @param entityUniqueID    The OS X unique identifier for the entity 
+   * @param endPointName      The raw name of the end point 
    * @param endPointReference The end point reference
-   * @param uid								The OS X unique identifier for the device 
+   * @param endPointUniqueID  The OS X unique identifier for the end point 
    * 
    */
 
-  public CoreMidiDeviceInfo(final String name, final String vendor, final String description, final int version, final int endPointReference, final int uid) {
+  public CoreMidiDeviceInfo(final String name, 
+                            final String vendor, 
+                            final String description, 
+                            final String version, 
+                            final String deviceName, 
+                            final int deviceReference, 
+                            final int deviceUniqueID, 
+                            final String entityName, 
+                            final int entityReference, 
+                            final int entityUniqueID, 
+                            final String endPointName, 
+                            final int endPointReference, 
+                            final int endPointUniqueID) {
 
-    super(name, defaultForNull(vendor, "Unknown vendor"), defaultForNull(description, name), Integer.toString(version));
+    super("CoreMIDI4J - " + name, defaultForNull(vendor, "Unknown vendor"), defaultForNull(description, name), version);
+
+    this.deviceName        = deviceName;
+    this.deviceReference   = deviceReference;
+    this.deviceUniqueID    = deviceUniqueID;   
+    this.entityName        = entityName;
+    this.entityReference   = entityReference;
+    this.entityUniqueID    = entityUniqueID;  
+    this.endPointName      = endPointName;
     this.endPointReference = endPointReference;
-    this.uid = uid;
-
-  }
-
-  /**
-   * Gets the OS X unique identifier for the device
-   * 
-   * @return	The OS X unique identifier for the device
-   * 
-   */
-
-  public int getUniqueID() {
-
-    return uid;
-
+    this.endPointUniqueID  = endPointUniqueID;
+       
   }
 
   /**
@@ -95,6 +118,19 @@ public class CoreMidiDeviceInfo extends MidiDevice.Info {
   }
 
   /**
+   * Gets the endPoint name
+   *
+   * @return the endPoint name
+   *
+   */
+
+  public String getEndPointName() {
+
+    return endPointName;
+    
+  }
+  
+  /**
    * Gets the endPointReference value
    *
    * @return the endPointReference value
@@ -105,6 +141,97 @@ public class CoreMidiDeviceInfo extends MidiDevice.Info {
 
     return endPointReference;
     
+  }
+  
+  /**
+   * Gets the OS X unique identifier for the end point
+   * 
+   * @return  The OS X unique identifier for the end point
+   * 
+   */
+
+  public int getEndPointUniqueID() {
+
+    return endPointUniqueID;
+
+  }
+
+  /**
+   * Gets the entity name
+   *
+   * @return the entity name
+   *
+   */
+
+  public String getEntityName() {
+
+    return endPointName;
+    
+  }
+  
+  /**
+   * Gets the entityReference value
+   *
+   * @return the entityReference value
+   *
+   */
+
+  public int getEntityReference() {
+
+    return entityReference;
+    
+  }
+  
+  /**
+   * Gets the OS X unique identifier for the entity
+   * 
+   * @return  The OS X unique identifier for the entity
+   * 
+   */
+
+  public int getEntityUniqueID() {
+
+    return entityUniqueID;
+
+  }
+
+  /**
+   * Gets the device name
+   *
+   * @return the device name
+   *
+   */
+
+  public String getDeviceName() {
+
+    return deviceName;
+    
+  }
+  
+  /**
+   * Gets the deviceReference value
+   *
+   * @return the deviceReference value
+   *
+   */
+
+  public int getDeviceReference() {
+
+    return deviceReference;
+    
+  }
+  
+  /**
+   * Gets the OS X unique identifier for the device
+   * 
+   * @return  The OS X unique identifier for the device
+   * 
+   */
+
+  public int getdeviceUniqueID() {
+
+    return deviceUniqueID;
+
   }
 
 }
