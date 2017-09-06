@@ -194,7 +194,7 @@
         </configuration>
         <executions>
           <execution>
-            <id>ensure-jdk16-compliance</id>
+            <id>ensure-jdk17-compliance</id>
             <phase>test</phase>
             <goals>
               <goal>check</goal>
