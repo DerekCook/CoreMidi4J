@@ -35,7 +35,7 @@ import javax.sound.midi.Transmitter;
 
 public class CoreMidiSource implements MidiDevice {
 
-  private final CoreMidiDeviceInfo info;
+  private CoreMidiDeviceInfo info;
   private final AtomicBoolean isOpen;
   private final AtomicReference<CoreMidiInputPort> input;
   private final Set<CoreMidiTransmitter> transmitters;
@@ -74,6 +74,15 @@ public class CoreMidiSource implements MidiDevice {
   public Info getDeviceInfo() {
 
     return info;
+
+  }
+
+  /**
+   * Changes the MIDI Info object; can only be done by this package as a result of a MIDI environment change event.
+   */
+  void updateDeviceInfo(CoreMidiDeviceInfo info) {
+
+    this.info = info;
 
   }
 

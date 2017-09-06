@@ -15,6 +15,22 @@ This change log follows the conventions of
   closing transmitters and receivers.
 - We now close any devices (and their transmitters or receivers) when
   the underlying CoreMIDI device disappears.
+- It turns out that Java instantiates many, many instances of our
+  `CoreMidiDeviceProvider` class, each of which was getting added to
+  the listener list to be notified when the MIDI environment changed,
+  causing the device list to be rebuilt hundreds of times more than it
+  needed to be. We now work around this by only calling the listener
+  on the most-recently constructed instance.
+
+### Added
+
+- We now allow you to distinguish between multiple devices of the same
+  type by showing the user-assigned name of the device (and of the
+  port, if there is more than one port on the device), as discussed in
+  [Issue 21](https://github.com/DerekCook/CoreMidi4J/issues/21).
+- If the user changes a device or port name while Java is running, the
+  device information is properly updated, although the device itself
+  retains its object-level identity and opened state.
 
 
 ## [1.0] - 2017-05-14

@@ -45,11 +45,15 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
    * 
    */
 
-  private void initialise() throws CoreMidiException {
+  private synchronized void initialise() throws CoreMidiException {
 
-    midiProperties.client = new CoreMidiClient("Core MIDI Provider");
-    midiProperties.output = midiProperties.client.outputPortCreate("Core Midi Provider Output");
-    buildDeviceMap();
+    if ( midiProperties.client == null ) {
+
+      midiProperties.client = new CoreMidiClient("Core MIDI Provider");
+      midiProperties.output = midiProperties.client.outputPortCreate("Core Midi Provider Output");
+      buildDeviceMap();
+
+    }
 
   }
 
@@ -100,10 +104,15 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
       // Keep track of the IDs of all the devices we see
       devicesSeen.add(uniqueID);
 
-      // If the unique ID of the end point is not in the map then create a CoreMidiSource object and add it to the map
+      // If the unique ID of the end point is not in the map then create a CoreMidiSource object and add it to the map.
       if ( !midiProperties.deviceMap.containsKey(uniqueID) ) {
 
-        midiProperties.deviceMap.put(uniqueID,new CoreMidiSource(getMidiDeviceInfo(endPointReference)));
+        midiProperties.deviceMap.put(uniqueID, new CoreMidiSource(getMidiDeviceInfo(endPointReference)));
+
+      } else {  // We already know about the device, but may need to update its information (e.g. user renamed it).
+
+        CoreMidiSource existingDevice = (CoreMidiSource) midiProperties.deviceMap.get(uniqueID);
+        existingDevice.updateDeviceInfo(getMidiDeviceInfo(endPointReference));
 
       }
 
@@ -119,10 +128,15 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
       // Keep track of the IDs of all the devices we see
       devicesSeen.add(uniqueID);
 
-      // If the unique ID of the end point is not in the map then create a CoreMidiDestination object and add it to the map
+      // If the unique ID of the end point is not in the map then create a CoreMidiDestination object and add it to the map.
       if ( !midiProperties.deviceMap.containsKey(uniqueID) ) {
 
         midiProperties.deviceMap.put(uniqueID, new CoreMidiDestination(getMidiDeviceInfo(endPointReference)));
+
+      } else {  // We already know about the device, but may need to update its information (e.g. user renamed it).
+
+        CoreMidiDestination existingDevice = (CoreMidiDestination) midiProperties.deviceMap.get(uniqueID);
+        existingDevice.updateDeviceInfo(getMidiDeviceInfo(endPointReference));
 
       }
 
@@ -314,9 +328,9 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
 
   /**
    * Called when a change in the MIDI environment occurs
-   * 
+   *
    * @throws CoreMidiException if a problem occurs rebuilding the map of available MIDI devices
-   * 
+   *
    */
 
   public void midiSystemUpdated() throws CoreMidiException {
@@ -327,7 +341,9 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
   }
 
   /**
-   * Adds a notification listener to the listener list maintained by this class
+   * Adds a notification listener to the listener set maintained by this class. If it is a
+   * {@link CoreMidiDeviceProvider}, only keep the most recent one, since Java will create many,
+   * and we only want to update the device map once when the MIDI environment changes.
    * 
    * @param listener	The CoreMidiNotification listener to add
    * 
