@@ -161,13 +161,19 @@ public class CoreMidiClient {
                 // We have handled however many callbacks occurred before this iteration started
                 currentCallbackCount = callbackCount.addAndGet( -currentCallbackCount );
 
+                if ( currentCallbackCount < 1 ) {
+
+                  runningCallbacks.set(false);  // We are terminating; if blocked trying to start another, allow it.
+
+                }
+
               }
 
             }
 
           } finally {
 
-            runningCallbacks.set(false);   // We are terminating.
+            runningCallbacks.set(false);   // Record termination even if we exit due to an uncaught exception.
 
           }
 
