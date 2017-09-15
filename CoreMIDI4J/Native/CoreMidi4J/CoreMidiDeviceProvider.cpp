@@ -164,7 +164,7 @@ JNIEXPORT jobject JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDevic
   CFStringRef   deviceName            = NULL;
   CFStringRef   deviceManufacturer    = NULL;
   CFStringRef   deviceModel           = NULL;
-  CFStringRef   deviceOffline         = NULL;
+  SInt32        deviceOffline         = NULL;
   SInt32        deviceUniqueID        = 0;
   SInt32        deviceDriverVersion   = 0;
 
@@ -172,7 +172,7 @@ JNIEXPORT jobject JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDevic
   CFStringRef   entityName            = NULL;
   CFStringRef   entityManufacturer    = NULL;
   CFStringRef   entityModel           = NULL;
-  CFStringRef   entityOffline         = NULL;
+  SInt32        entityOffline         = NULL;
   SInt32        entityUniqueID        = 0;
   SInt32        entityDriverVersion   = 0;
 
@@ -180,7 +180,7 @@ JNIEXPORT jobject JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDevic
   CFStringRef   endpointName          = NULL;
   CFStringRef   endpointManufacturer  = NULL;
   CFStringRef   endpointModel         = NULL;
-  CFStringRef   endpointOffline       = NULL;
+  SInt32        endpointOffline       = NULL;
   SInt32        endpointUniqueID      = 0;
   SInt32        endpointDriverVersion = 0;
   
@@ -192,7 +192,7 @@ JNIEXPORT jobject JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDevic
   MIDIObjectGetStringProperty (endPointReference, kMIDIPropertyName,          &endpointName);
   MIDIObjectGetStringProperty (endPointReference, kMIDIPropertyModel,         &endpointModel);
   MIDIObjectGetStringProperty (endPointReference, kMIDIPropertyManufacturer,  &endpointManufacturer);
-  MIDIObjectGetStringProperty (endPointReference, kMIDIPropertyOffline,       &endpointOffline);
+  MIDIObjectGetIntegerProperty(endPointReference, kMIDIPropertyOffline,       &endpointOffline);
   MIDIObjectGetIntegerProperty(endPointReference, kMIDIPropertyUniqueID,      &endpointUniqueID);
   MIDIObjectGetIntegerProperty(endPointReference, kMIDIPropertyDriverVersion, &endpointDriverVersion);
 
@@ -202,7 +202,7 @@ JNIEXPORT jobject JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDevic
   MIDIObjectGetStringProperty (entityReference, kMIDIPropertyName,          &entityName);
   MIDIObjectGetStringProperty (entityReference, kMIDIPropertyModel,         &entityModel);
   MIDIObjectGetStringProperty (entityReference, kMIDIPropertyManufacturer,  &entityManufacturer);
-  MIDIObjectGetStringProperty (entityReference, kMIDIPropertyOffline,       &entityOffline);
+  MIDIObjectGetIntegerProperty(entityReference, kMIDIPropertyOffline,       &entityOffline);
   MIDIObjectGetIntegerProperty(entityReference, kMIDIPropertyUniqueID,      &entityUniqueID);
   MIDIObjectGetIntegerProperty(entityReference, kMIDIPropertyDriverVersion, &entityDriverVersion);
 
@@ -212,34 +212,36 @@ JNIEXPORT jobject JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDevic
   MIDIObjectGetStringProperty (deviceReference, kMIDIPropertyName,          &deviceName); // Get this again in case our string build fails
   MIDIObjectGetStringProperty (deviceReference, kMIDIPropertyModel,         &deviceModel);
   MIDIObjectGetStringProperty (deviceReference, kMIDIPropertyManufacturer,  &deviceManufacturer);
-  MIDIObjectGetStringProperty (deviceReference, kMIDIPropertyOffline,       &deviceOffline);
+  MIDIObjectGetIntegerProperty(deviceReference, kMIDIPropertyOffline,       &deviceOffline);
   MIDIObjectGetIntegerProperty(deviceReference, kMIDIPropertyUniqueID,      &deviceUniqueID);
   MIDIObjectGetIntegerProperty(deviceReference, kMIDIPropertyDriverVersion, &deviceDriverVersion);
   
   long numberOfEntities = MIDIDeviceGetNumberOfEntities(deviceReference);
   
   // Uncomment these lines if you wish to view information as received on the native side during debugging.
+  //CFStringRef nullPointerText = CFSTR("** NULL POINTER **");
+  //
   //std::cout << "End Point " << std::endl;
   //std::cout << "  End Point Reference                  " << endPointReference << std::endl;
-  //std::cout << "  End Point kMIDIPropertyName          " << CFStringGetCStringPtr (endpointName, CFStringGetSystemEncoding() ) << std::endl;
-  //std::cout << "  End Point kMIDIPropertyModel         " << CFStringGetCStringPtr (endpointModel, CFStringGetSystemEncoding() ) << std::endl;
-  //std::cout << "  End Point kMIDIPropertyManufacturer  " << CFStringGetCStringPtr (endpointManufacturer, CFStringGetSystemEncoding() ) << std::endl;
+  //std::cout << "  End Point kMIDIPropertyName          " << CFStringGetCStringPtr ( ( endpointName         != NULL ) ? endpointName         : nullPointerText, CFStringGetSystemEncoding() ) << std::endl;
+  //std::cout << "  End Point kMIDIPropertyModel         " << CFStringGetCStringPtr ( ( endpointModel        != NULL ) ? endpointModel        : nullPointerText, CFStringGetSystemEncoding() ) << std::endl;
+  //std::cout << "  End Point kMIDIPropertyManufacturer  " << CFStringGetCStringPtr ( ( endpointManufacturer != NULL ) ? endpointManufacturer : nullPointerText, CFStringGetSystemEncoding() ) << std::endl;
   //std::cout << "  End Point kMIDIPropertyOffline       " << endpointOffline << std::endl;
   //std::cout << "  End Point kMIDIPropertyUniqueID      " << endpointUniqueID << std::endl;
   //std::cout << "  End Point kMIDIPropertyDriverVersion " << endpointDriverVersion << std::endl;
   //std::cout << std::endl;
   //std::cout << "  Entity    Reference                  " << entityReference << std::endl;
-  //std::cout << "  Entity    kMIDIPropertyName          " << CFStringGetCStringPtr (entityName, CFStringGetSystemEncoding() ) << std::endl;
-  //std::cout << "  Entity    kMIDIPropertyModel         " << CFStringGetCStringPtr (entityModel, CFStringGetSystemEncoding() ) << std::endl;
-  //std::cout << "  Entity    kMIDIPropertyManufacturer  " << CFStringGetCStringPtr (entityManufacturer, CFStringGetSystemEncoding() ) << std::endl;
+  //std::cout << "  Entity    kMIDIPropertyName          " << CFStringGetCStringPtr ( ( entityName         != NULL ) ? entityName         : nullPointerText, CFStringGetSystemEncoding() ) << std::endl;
+  //std::cout << "  Entity    kMIDIPropertyModel         " << CFStringGetCStringPtr ( ( entityModel        != NULL ) ? entityModel        : nullPointerText, CFStringGetSystemEncoding() ) << std::endl;
+  //std::cout << "  Entity    kMIDIPropertyManufacturer  " << CFStringGetCStringPtr ( ( entityManufacturer != NULL ) ? entityManufacturer : nullPointerText, CFStringGetSystemEncoding() ) << std::endl;
   //std::cout << "  Entity    kMIDIPropertyOffline       " << entityOffline << std::endl;
   //std::cout << "  Entity    kMIDIPropertyUniqueID      " << entityUniqueID << std::endl;
   //std::cout << "  Entity    kMIDIPropertyDriverVersion " << entityDriverVersion << std::endl;
   //std::cout << std::endl;
   //std::cout << "  Device    Reference                  " << deviceReference << std::endl;
-  //std::cout << "  Device    kMIDIPropertyName          " << CFStringGetCStringPtr (deviceName, CFStringGetSystemEncoding() ) << std::endl;
-  //std::cout << "  Device    kMIDIPropertyModel         " << CFStringGetCStringPtr (deviceModel, CFStringGetSystemEncoding() ) << std::endl;
-  //std::cout << "  Device    kMIDIPropertyManufacturer  " << CFStringGetCStringPtr (deviceManufacturer, CFStringGetSystemEncoding() ) << std::endl;
+  //std::cout << "  Device    kMIDIPropertyName          " << CFStringGetCStringPtr ( ( deviceName         != NULL ) ? deviceName         : nullPointerText, CFStringGetSystemEncoding() ) << std::endl;
+  //std::cout << "  Device    kMIDIPropertyModel         " << CFStringGetCStringPtr ( ( deviceModel        != NULL ) ? deviceModel        : nullPointerText, CFStringGetSystemEncoding() ) << std::endl;
+  //std::cout << "  Device    kMIDIPropertyManufacturer  " << CFStringGetCStringPtr ( ( deviceManufacturer != NULL ) ? deviceManufacturer : nullPointerText, CFStringGetSystemEncoding() ) << std::endl;
   //std::cout << "  Device    kMIDIPropertyOffline       " << deviceOffline << std::endl;
   //std::cout << "  Device    kMIDIPropertyUniqueID      " << deviceUniqueID << std::endl;
   //std::cout << "  Device    kMIDIPropertyDriverVersion " << deviceDriverVersion << std::endl;
@@ -253,31 +255,44 @@ JNIEXPORT jobject JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDevic
   CFStringRef deviceInfoName;
   
   if ( buildName != NULL ) {
-
-    CFStringAppend(buildName, deviceName);
     
-    if ( numberOfEntities > 1 ) {
+    if ( deviceName != NULL ) {
+
+      CFStringAppend(buildName, (deviceName != NULL ) ? deviceName :  CFSTR("<Unknown Device>") );
+    
+      if ( numberOfEntities > 1 ) {
       
-      CFStringAppend(buildName, CFSTR(" "));
-      CFStringAppend(buildName, entityName);
+        CFStringAppend(buildName, CFSTR(" "));
+        CFStringAppend(buildName, (endpointName != NULL ) ? endpointName :  CFSTR("<Unknown Endpoint>") );
+      
+      }
+    
+    } else {
+      
+      CFStringAppend(buildName, (endpointName != NULL ) ? endpointName :  CFSTR("<Unknown Device>") );
       
     }
     
     // Overwrite the deviceName with our updated one
     deviceInfoName = CFStringCreateCopy(NULL, buildName);
-
+    
     // And release the temporary string
     CFRelease(buildName);
 
+  } else {
+    
+    // Overwrite the deviceName with our updated one
+    deviceInfoName = CFStringCreateCopy(NULL, deviceName);
+    
   }
-
-  const char *deviceInfoNamePtr         = CFStringGetCStringPtr ( deviceInfoName,     CFStringGetSystemEncoding() );
-  const char *deviceInfoManufacturerPtr = CFStringGetCStringPtr ( deviceManufacturer, CFStringGetSystemEncoding() );
-  const char *deviceInfoDescriptionPtr  = CFStringGetCStringPtr ( deviceModel,        CFStringGetSystemEncoding() );
+    
+  const char *deviceInfoNamePtr         = CFStringGetCStringPtr ( deviceInfoName,       CFStringGetSystemEncoding() );
+  const char *deviceInfoManufacturerPtr = CFStringGetCStringPtr ( endpointManufacturer, CFStringGetSystemEncoding() ); // The end point manufacturer name is always present
+  const char *deviceInfoDescriptionPtr  = CFStringGetCStringPtr ( endpointModel,        CFStringGetSystemEncoding() ); // The end point model name is always present
   
-  const char *deviceNamePtr             = CFStringGetCStringPtr ( deviceName,         CFStringGetSystemEncoding() );
-  const char *entityNamePtr             = CFStringGetCStringPtr ( entityName,         CFStringGetSystemEncoding() );
-  const char *endPointNamePtr           = CFStringGetCStringPtr ( endpointName,       CFStringGetSystemEncoding() );
+  const char *deviceNamePtr             = CFStringGetCStringPtr ( deviceName,           CFStringGetSystemEncoding() );
+  const char *entityNamePtr             = CFStringGetCStringPtr ( entityName,           CFStringGetSystemEncoding() );
+  const char *endPointNamePtr           = CFStringGetCStringPtr ( endpointName,         CFStringGetSystemEncoding() );
   
   // TODO - Have seen reference that the device neds to be initialised to get the version. As we are still getting zero, force the string for now
   const char *deviceInfoVersion         = "Unknown Version";
@@ -285,17 +300,17 @@ JNIEXPORT jobject JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDevic
   // Create the Java Object
   jobject info = env->NewObject(javaClass,
                                 constructor,
-                                env->NewStringUTF(( deviceInfoNamePtr         != NULL ) ? deviceInfoNamePtr         : "** Internal Error getting Device Name!"),
-                                env->NewStringUTF(( deviceInfoManufacturerPtr != NULL ) ? deviceInfoManufacturerPtr : "Unknown Manufacturer"),
-                                env->NewStringUTF(( deviceInfoDescriptionPtr  != NULL ) ? deviceInfoDescriptionPtr  : "Unknown Description"),
+                                env->NewStringUTF(( deviceInfoNamePtr         != NULL ) ? deviceInfoNamePtr         : "<Unknown Device>"),
+                                env->NewStringUTF(( deviceInfoManufacturerPtr != NULL ) ? deviceInfoManufacturerPtr : "<Unknown Manufacturer>"),
+                                env->NewStringUTF(( deviceInfoDescriptionPtr  != NULL ) ? deviceInfoDescriptionPtr  : "<Unknown Description>"),
                                 env->NewStringUTF(deviceInfoVersion),
-                                env->NewStringUTF(deviceNamePtr),
+                                env->NewStringUTF( ( deviceNamePtr != NULL ) ? deviceNamePtr : "<Unknown Device>"),
                                 deviceReference,
                                 deviceUniqueID,
-                                env->NewStringUTF(entityNamePtr),
+                                env->NewStringUTF( ( entityNamePtr != NULL) ? entityNamePtr : "<Unknown Entity>"),
                                 entityReference,
                                 entityUniqueID,
-                                env->NewStringUTF(endPointNamePtr),
+                                env->NewStringUTF( ( endPointNamePtr != NULL ) ? endPointNamePtr : "<Unknown Endpoint>"),
                                 endPointReference,
                                 endpointUniqueID);
 

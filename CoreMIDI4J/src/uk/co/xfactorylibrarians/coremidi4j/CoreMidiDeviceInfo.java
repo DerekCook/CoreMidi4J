@@ -90,7 +90,7 @@ public class CoreMidiDeviceInfo extends MidiDevice.Info {
                             final int endPointReference, 
                             final int endPointUniqueID) {
 
-    super("CoreMIDI4J - " + name, defaultForNull(vendor, "Unknown vendor"), defaultForNull(description, name), version);
+    super("CoreMIDI4J - " + name, defaultForNull(vendor, "<Unknown vendor>"), defaultForNull(description, name), version);
 
     this.deviceName        = deviceName;
     this.deviceReference   = deviceReference;
@@ -165,7 +165,7 @@ public class CoreMidiDeviceInfo extends MidiDevice.Info {
 
   public String getEntityName() {
 
-    return endPointName;
+    return entityName;
     
   }
   
