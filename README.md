@@ -290,8 +290,8 @@ ports, `Live Port` and `User Port`. Under previous releases of
 CoreMidi4J, these would show up in Java named simply `Live Port` and
 `User Port`, and there was no way to change them. In release 1.0 and
 later they show up as `Ableton Push 2 Live Port` and `Ableton Push 2
-User Port` and the "Ableton Push 2" name can be changed to whatever I
-want using Audio Midi Setup as described
+User Port` and the &ldquo;Ableton Push 2&rdquo; name can be changed to
+whatever I want using Audio Midi Setup as described
 [below](#editing-device-names).
 
 > :wrench: This means that if you update your application which embeds
