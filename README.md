@@ -316,7 +316,7 @@ subfolder within your main **Applications** folder, unless you have
 moved it). Once the utility is launched, switch to the **MIDI Studio**
 window (using the **Window** menu to open it if needed):
 
-<image src="doc/assets/AudioMidiSetup.png" alt="Audio MIDI Setup" width="930">
+<image src="doc/assets/AudioMIDISetup.png" alt="Audio MIDI Setup" width="930">
 
 To rename the very-generic "USB MIDI Device" shown at the bottom right
 of my MIDI Studio window, I can either double-click on it, or click
@@ -329,3 +329,4 @@ When editing a device name like this, as soon as you click the
 **Apply** button in the Properties window, CoreMIDI4J will report a
 MIDI environment change event, and will use the newly assigned device
 name when reporting the connected MIDI devices.
+audio
