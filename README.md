@@ -325,7 +325,7 @@ double-click on it, or click once to select it and then click the
 Information button in the toolbar. That opens a Properties window
 where the device name can be edited:
 
-<image src="doc/assets/EditDeviceName.png" alt="Editing Device Name" width="536">
+<image src="doc/assets/EditDeviceName.png" alt="Editing Device Name" width="520">
 
 When editing a device name like this, as soon as you click the
 **Apply** button in the Properties window, CoreMIDI4J will report a
