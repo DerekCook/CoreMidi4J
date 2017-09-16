@@ -271,18 +271,19 @@ device attached to their system (see the [Issue 21
 discussion](https://github.com/DerekCook/CoreMidi4J/issues/21) for
 details).
 
-Previously, we would simply return the CoreMIDI "Endpoint" name as the
-device name. The problem with this is that the endpoint name for all
-identical devices would be the same, and there is no way for the user
-to edit them to distinguish between their devices.
+Previously, we would simply return the CoreMIDI &ldquo;Endpoint&rdquo;
+name as the device name. The problem with this is that the endpoint
+name for all identical devices would be the same, and there is no way
+for the user to edit them to distinguish between their devices.
 
-Now, we instead return the CoreMIDI "Device" name associated with the
-endpoint as the Java MIDI device name. This device name can be edited
-by the user as described [below](#editing-device-names) to distinguish
-between their devices of the same type. And for devices that have
-multiple endpoints associated with them, for example a controller with
-different kinds of ports, we combine both the editable Device name
-followed by the non-editable Endpoint name.
+Now, we instead return the CoreMIDI &ldquo;Device&rdquo; name
+associated with the endpoint as the Java MIDI device name. This device
+name can be edited by the user as described
+[below](#editing-device-names) to distinguish between their devices of
+the same type. And for devices that have multiple endpoints associated
+with them, for example a controller with different kinds of ports, we
+combine both the editable Device name followed by the non-editable
+Endpoint name.
 
 To make this concrete, my Ableton Push 2 controller has two output
 ports, `Live Port` and `User Port`. Under previous releases of
@@ -311,14 +312,14 @@ object returned by CoreMidi4J, you can cast it into a
 ### Editing Device Names
 
 Users can change the device names associated with their MIDI devices
-using Apple's **Audio Midi Setup** utility (found in the **Utilities**
+using Apple&rsquo;s **Audio Midi Setup** utility (found in the **Utilities**
 subfolder within your main **Applications** folder, unless you have
 moved it). Once the utility is launched, switch to the **MIDI Studio**
 window (using the **Window** menu to open it if needed):
 
 <image src="doc/assets/AudioMIDISetup.png" alt="Audio MIDI Setup" width="930">
 
-To rename the very-generic "USB MIDI Device" shown at the bottom right
+To rename the very-generic &ldquo;USB MIDI Device&rdquo; shown at the bottom right
 of my MIDI Studio window, I can either double-click on it, or click
 once to select it and then click the Information button in the
 toolbar. That opens a Properties window where the device name can be edited:
