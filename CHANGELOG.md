@@ -6,11 +6,15 @@ This change log follows the conventions of
 
 ## [Unreleased][unreleased]
 
+Nothing so far.
+
+## [1.1] - 2017-09-16
+
 ### Fixed
 
 - Calling `close()` more than once on a `CoreMidiSource` would lead to
   a [crash](https://github.com/DerekCook/CoreMidi4J/issues/19) as the
-  same block of memory is attempted to be freed more than once.
+  same block of memory was attempted to be freed more than once.
 - Implemented the rest of the MIDI SPI contract for tracking and
   closing transmitters and receivers.
 - We now close any devices (and their transmitters or receivers) when
@@ -28,6 +32,8 @@ This change log follows the conventions of
   type by showing the user-assigned name of the device (and of the
   port, if there is more than one port on the device), as discussed in
   [Issue 21](https://github.com/DerekCook/CoreMidi4J/issues/21).
+  **This changes the names reported for many devices, as noted
+  [here](https://github.com/DerekCook/CoreMidi4J#device-names).**
 - If the user changes a device or port name while Java is running, the
   device information is properly updated, although the device itself
   retains its object-level identity and opened state.
@@ -150,7 +156,8 @@ This change log follows the conventions of
 - Initial Public Release
 
 
-[unreleased]: https://github.com/DerekCook/CoreMidi4J/compare/V1.0...HEAD
+[unreleased]: https://github.com/DerekCook/CoreMidi4J/compare/V1.1...HEAD
+[1.1]: https://github.com/DerekCook/CoreMidi4J/compare/V1.0...V1.1
 [1.0]: https://github.com/DerekCook/CoreMidi4J/compare/V0.9...V1.0
 [0.9]: https://github.com/DerekCook/CoreMidi4J/compare/V0.8...V0.9
 [0.8]: https://github.com/DerekCook/CoreMidi4J/compare/v0.7...V0.8
