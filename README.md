@@ -330,4 +330,4 @@ When editing a device name like this, as soon as you click the
 **Apply** button in the Properties window, CoreMIDI4J will report a
 MIDI environment change event, and will use the newly assigned device
 name when reporting the connected MIDI devices.
-audio
+
