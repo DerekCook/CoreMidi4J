@@ -269,7 +269,7 @@ In release 1.1 we changed the way device names are reported to Java in
 order to accommodate situations where people have several of the same
 device attached to their system (see the [Issue 21
 discussion](https://github.com/DerekCook/CoreMidi4J/issues/21) for
-details.
+details).
 
 Previously, we would simply return the CoreMIDI "Endpoint" name as the
 device name. The problem with this is that the endpoint name for all
