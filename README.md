@@ -265,7 +265,7 @@ the source and javadoc jars needed for deployment to Maven Central).
 
 ## Device Names
 
-In release 1.1 we changed the way device names are reported to Java in
+In release 1.1 we changed the way that device names are reported to Java in
 order to accommodate situations where people have several of the same
 device attached to their system (see the [Issue 21
 discussion](https://github.com/DerekCook/CoreMidi4J/issues/21) for
@@ -274,7 +274,7 @@ details).
 Previously, we would simply return the CoreMIDI &ldquo;Endpoint&rdquo;
 name as the device name. The problem with this is that the endpoint
 name for all identical devices would be the same, and there is no way
-for the user to edit them to distinguish between their devices.
+for the user to edit these &ldquo;Endpoint&rdquo; names to distinguish between their devices.
 
 Now, we instead return the CoreMIDI &ldquo;Device&rdquo; name
 associated with the endpoint as the Java MIDI device name. This device
@@ -285,10 +285,10 @@ with them, for example a controller with different kinds of ports, we
 combine both the editable Device name followed by the non-editable
 Endpoint name.
 
-To make this concrete, the Ableton Push 2 controller has two output
+To provide an example: the Ableton Push 2 controller has two output
 ports, `Live Port` and `User Port`. Under previous releases of
 CoreMidi4J, these would show up in Java named simply `Live Port` and
-`User Port`, and there was no way to change them. In release 1.1 and
+`User Port`, and there was no way to change their names. In release 1.1 and
 later they show up as `Ableton Push 2 Live Port` and `Ableton Push 2
 User Port` and the &ldquo;Ableton Push 2&rdquo; name can be changed to
 whatever you want using Audio Midi Setup as described
@@ -297,8 +297,10 @@ whatever you want using Audio Midi Setup as described
 > :wrench: This means that if you update your application which embeds
 > CoreMidi4J to use a current release and you were previously using
 > release 1.0 or earlier, you may need to warn your users that their
-> device names have likely changed, so they need to check and update
-> their saved configuration settings appropriately.
+> device names may have changed (if the Device and EndPoint names of 
+> any of their devices different, or for any device that has multiple 
+> Entities/Endpoints), so they need to check and update their saved 
+> configuration settings appropriately.
 
 If you need even more details about the device, the
 [`CoreMidiDeviceInfo` class](https://github.com/DerekCook/CoreMidi4J/blob/master/CoreMIDI4J/src/uk/co/xfactorylibrarians/coremidi4j/CoreMidiDeviceInfo.java)
