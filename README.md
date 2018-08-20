@@ -2,7 +2,7 @@
 Core MIDI Service Provider Interface (SPI) for Java 1.7 and above on
 OS X, safe to load and interact with on any platform. (The SPI will
 simply not try to provide devices on platforms where they are not
-needed).
+needed.)
 
 Derek created CoreMidi4J as to our knowledge there is currently no Mac
 Java MIDI implementation under active development that properly
