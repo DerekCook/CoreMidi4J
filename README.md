@@ -13,9 +13,8 @@ support for inbound and outbound MIDI event timestamps, which can
 extend over network MIDI sessions thanks to CoreMIDI&rsquo;s support
 for them.
 
-Hopefully one day third-party SPIs like
-CoreMidi4J will not be required, but until then we are making this
-available.
+Hopefully one day third-party SPIs like CoreMidi4J will not be
+required, but until then we are making this available.
 
 For years we both used MMJ, but that appears to longer be under
 development and it does not work with later Java Runtimes. After
@@ -58,96 +57,15 @@ will:
 * the list of devices available will correctly update even if you
   connect or detach devices after Java is already running.
 
-### Checking CoreMidi4J's availability
+If you are using an application written by someone else, and are not
+making any changes to it, then this is the best you can do; you will
+need to remember to choose the right version of each MIDI device that
+you want to use.
 
-If you would like to go further and filter out the non-working MIDI
-devices that exist on the Mac, or take advantage of CoreMidi4J&rsquo;s
-ability to notify your code when the MIDI environment changes, you
-will need to access some of CoreMidi4J's classes directly. Unless you
-are embedding CoreMidi4J in your application and certain that you are
-running under Java 7 or later, you should use reflection to make sure
-that CoreMidi4J is available before trying to do this, or your
-application will fail to run in environments where CoreMidi4J's Java
-classes have not been loaded.
-
-> If you are [embedding CoreMidi4J](#embedding-coremidi4j), the only
-> reason you would need to check if it is available is if you might be
-> running in Java 6 or earlier, because CoreMidi4J requires Java 7. If
-> your project already requires Java 7 or later, and you have embedded
-> CoreMidi4J, it is safe to assume that it is present, and you can
-> skip to checking if the native library is
-> [active](#checking-if-coremidi4j-is-active), and
-> [filtering out](#filtering-out-broken-midi-devices) broken MIDI
-> device implementations.
-
-Here is an example of how to test whether CoreMidi4J is available.
-This class can safely be loaded on any system, and will check the
-environment to see if it is safe to try and load the class in the
-example that follows:
-
-```java
-public class Available {
-
-    public static void main(String[] args) throws Exception {
-        try {
-            Class deviceProviderClass = Class.forName(
-                "uk.co.xfactorylibrarians.coremidi4j.CoreMidiDeviceProvider");
-            System.out.println("CoreMIDI4J Java classes are available.");
-            System.out.println("Working MIDI Devices:");
-            for (javax.sound.midi.MidiDevice.Info device : Example.getWorkingDeviceInfo()) {
-                System.out.println("  " + device);
-            }
-            if (Example.isCoreMidiLoaded()) {
-                System.out.println("CoreMIDI4J native library is running.");
-                Example.watchForMidiChanges();
-                System.out.println("Watching for MIDI environment changes for thirty seconds.");
-                Thread.sleep(30000);
-            } else {
-                System.out.println("CoreMIDI4J native library is not available.");
-            }
-        } catch (Exception e) {
-            System.out.println("CoreMIDI4J Java classes are not available.");
-        }
-    }
-}
-```
-
-### Checking if CoreMidi4J is Active
-
-This second class cannot be loaded on systems which lack the
-CoreMidi4J classes, but shows an example of how to ask for a list of
-only properly-working MIDI devices (filtering out the broken ones
-provided by the standard Mac OS X MIDI implementation). It also shows
-how to check whether the native library is available, and if it is, to
-ask to be notified whenever there is a change in the MIDI environment
-(in other words, a new device has become available, or an existing
-device has been removed):
-
-```java
-import uk.co.xfactorylibrarians.coremidi4j.CoreMidiDeviceProvider;
-import uk.co.xfactorylibrarians.coremidi4j.CoreMidiNotification;
-import uk.co.xfactorylibrarians.coremidi4j.CoreMidiException;
-import javax.sound.midi.MidiDevice;
-
-public class Example {
-
-    public static boolean isCoreMidiLoaded() throws CoreMidiException {
-        return CoreMidiDeviceProvider.isLibraryLoaded();
-    }
-
-    public static void watchForMidiChanges() throws CoreMidiException {
-        CoreMidiDeviceProvider.addNotificationListener(new CoreMidiNotification() {
-                public void midiSystemUpdated() {
-                    System.out.println("The MIDI environment has changed.");
-                }
-            });
-    }
-
-    public static MidiDevice.Info[] getWorkingDeviceInfo() {
-        return CoreMidiDeviceProvider.getMidiDeviceInfo();
-    }
-}
-```
+If you are writing your own program, or willing to change the source
+code of the program you are using, you can make things even easier by
+filtering out the broken MIDI devices, and only showing the ones that
+work:
 
 ### Filtering Out Broken MIDI Devices
 
@@ -167,14 +85,13 @@ CoreMidi4J, and use its implementation of `getMidiDeviceInfo()`
 wherever you would otherwise have used the standard one, and your
 users will always only see working MIDI devices.
 
-Here is an example of what running the `Available` class (listed
-above) on a Mac, with CoreMidi4J in the classpath, produces. Notice
+Here is an example of what running the `Example` class (listed
+below) on a Mac, with CoreMidi4J in the classpath, produces. Notice
 that other than the sequencer and synthesizer, the only MIDI devices
 returned are the inputs and outputs offered by CoreMidi4J:
 
 ```
-java -cp coremidi4j-1.0.jar:. Available
-CoreMIDI4J Java classes are available.
+java -cp coremidi4j-1.1.jar:. Example
 Working MIDI Devices:
   CoreMIDI4J - Bus 1
   CoreMIDI4J - Network
@@ -198,6 +115,54 @@ plugged in and later unplugged, demonstrating the fact that CoreMidi4J
 can adapt to changes in the MIDI environment, and notify the host
 application about them.
 
+### Sample Code
+
+This class shows an example of how to ask CoreMidi4J for a list of
+only properly-working MIDI devices (filtering out the broken ones
+provided by the standard Mac OS X MIDI implementation). It also shows
+how to check whether the native library is available (which will only
+be true when you are running on a Mac), and if it is, to ask to be
+notified whenever there is a change in the MIDI environment (in other
+words, a new device has become available, or an existing device has
+been removed):
+
+```java
+import uk.co.xfactorylibrarians.coremidi4j.CoreMidiDeviceProvider;
+import uk.co.xfactorylibrarians.coremidi4j.CoreMidiNotification;
+import uk.co.xfactorylibrarians.coremidi4j.CoreMidiException;
+import javax.sound.midi.MidiDevice;
+
+public class Example {
+
+    public static boolean isCoreMidiLoaded() throws CoreMidiException {
+        return CoreMidiDeviceProvider.isLibraryLoaded();
+    }
+
+    public static void watchForMidiChanges() throws CoreMidiException {
+        CoreMidiDeviceProvider.addNotificationListener(new CoreMidiNotification() {
+                public void midiSystemUpdated() {
+                    System.out.println("The MIDI environment has changed.");
+                }
+            });
+    }
+
+    public static void main(String[] args) throws Exception {
+        System.out.println("Working MIDI Devices:");
+        for (javax.sound.midi.MidiDevice.Info device : CoreMidiDeviceProvider.getMidiDeviceInfo();
+            System.out.println("  " + device);
+        }
+        if (Example.isCoreMidiLoaded()) {
+            System.out.println("CoreMIDI4J native library is running.");
+            watchForMidiChanges();
+            System.out.println("Watching for MIDI environment changes for thirty seconds.");
+            Thread.sleep(30000);
+        } else {
+            System.out.println("CoreMIDI4J native library is not available.");
+        }
+    }
+}
+```
+
 ### Embedding CoreMidi4J
 
 If you want your project's users to be able to rely on a correct MIDI
@@ -211,9 +176,11 @@ are available through
 > native library will be loaded only when needed, on Mac OS X, and the
 > Java library will remain inactive on other platforms: it will not
 > attempt to provide any MIDI devices, and its implementation of
-> `getMidiDeviceInfo()` will simply delegate to the standard one.
+> `getMidiDeviceInfo()` will simply delegate to the standard one. This
+> means that calling our version of `getMidiDeviceInfo()` will always
+> give you the correct list of devices to use on any platform.
 
-If you are building a project with code like the examples above, you
+If you are building a project with code like the example above, you
 will need to configure CoreMidi4J as a dependency of your project.
 This will also enable build tools like Maven and Leiningen to build a
 consolidated Jar containing your own classes as well as those of
@@ -234,7 +201,8 @@ from the
 [![jar](https://img.shields.io/github/downloads/DerekCook/CoreMidi4J/total.svg)](https://github.com/DerekCook/CoreMidi4J/releases)
 
 Then simply place the CoreMidi4J jar on the classpath when that
-program runs, and CoreMidi4J's devices will be available to it.
+program compiles and runs, and CoreMidi4J's devices will be available
+to it.
 
 ### Building CoreMidi4J
 
@@ -297,9 +265,9 @@ whatever you want using Audio Midi Setup as described
 > :wrench: This means that if you update your application which embeds
 > CoreMidi4J to use a current release and you were previously using
 > release 1.0 or earlier, you may need to warn your users that their
-> device names may have changed (if the Device and EndPoint names of 
-> any of their devices different, or for any device that has multiple 
-> Entities/Endpoints), so they need to check and update their saved 
+> device names may have changed (if the Device and EndPoint names of
+> any of their devices different, or for any device that has multiple
+> Entities/Endpoints), so they need to check and update their saved
 > configuration settings appropriately.
 
 If you need even more details about the device, the
@@ -333,4 +301,3 @@ When editing a device name like this, as soon as you click the
 **Apply** button in the Properties window, CoreMIDI4J will report a
 MIDI environment change event, and will use the newly assigned device
 name when reporting the connected MIDI devices.
-
