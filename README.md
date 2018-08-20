@@ -47,6 +47,14 @@ own project does not use the Maven dependency-management ecosystem).
 
 ## Using CoreMidi4J
 
+> :musical_keyboard: **New to Jave MIDI?** CoreMidi4J is designed to
+> be transparently compatible with the standard Java MIDI API, so we
+> don&rsquo;t provide examples or explanations of how to use that.
+> Oracle offers a
+> [tutorial](https://docs.oracle.com/javase/tutorial/sound/overview-MIDI.html)
+> and [API
+> documentation](https://docs.oracle.com/javase/8/docs/api/index.html?javax/sound/midi/package-summary.html).
+
 Once installed, if all you want to do is use the enhanced MIDI devices
 provided by CoreMidi4J, all you have to do is use the normal Java MIDI
 API, but choose CoreMidi4J&rsquo;s device implementations instead of the
