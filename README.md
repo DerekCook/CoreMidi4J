@@ -26,10 +26,10 @@ create our own &ldquo;lightweight&rdquo; SPI, which Derek accomplished
 in 2015, and that we would make it publicly available for others to
 contribute to.
 
-CoreMidi4J has been heavily used in some of our own projects for over
-a year, and we have recently resolved the last known outstanding
-issue, so we have labeled it version 1.0. Feedback on any new
-problems or issues is always welcome.
+CoreMidi4J has been heavily used in some of our own projects for
+several years, and after resolving the last known outstanding issue we
+labeled it version 1.0. Feedback on any new problems or issues is
+always welcome.
 
 ## Installation
 
