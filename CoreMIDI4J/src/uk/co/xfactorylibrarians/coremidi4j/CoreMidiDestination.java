@@ -71,7 +71,11 @@ public class CoreMidiDestination implements MidiDevice {
 
   /**
    * Changes the MIDI Info object; can only be done by this package as a result of a MIDI environment change event.
+   * 
+   * @param info The CoreMidiDeviceInfo to update
+   * 
    */
+  
   void updateDeviceInfo(CoreMidiDeviceInfo info) {
 
     this.info = info;
