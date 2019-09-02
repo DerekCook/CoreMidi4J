@@ -17,7 +17,7 @@
 #ifndef __CoreMidi4J__CoreMidiOutputPort__
 #define __CoreMidi4J__CoreMidiOutputPort__
 
-#include "CoreMidi4J.h"
+#include "jni/uk_co_xfactorylibrarians_coremidi4j_CoreMidiOutputPort.h"
 #include "CoreMidi4JUtilities.h"
 
 #include <iostream>

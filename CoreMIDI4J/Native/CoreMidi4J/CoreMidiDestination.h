@@ -17,7 +17,7 @@
 #ifndef ____CoreMidiDestination__
 #define ____CoreMidiDestination__
 
-#include "CoreMidi4J.h"
+#include "jni/uk_co_xfactorylibrarians_coremidi4j_CoreMidiDestination.h"
 #include "CoreMidi4JUtilities.h"
 
 #include <stdio.h>
