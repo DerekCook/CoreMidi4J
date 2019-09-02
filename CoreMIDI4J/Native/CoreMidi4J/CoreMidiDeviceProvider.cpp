@@ -151,7 +151,7 @@ JNIEXPORT jint JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDevicePr
  *
  * @param aString  The CFStringRef
  *
- * @return         A newly allocated C string holding the contents of str, or NULL
+ * @return         A newly allocated C string holding the contents of aString, or NULL
  *
  */
 char * safeCFStringCopyUTF8String(CFStringRef aString) {
