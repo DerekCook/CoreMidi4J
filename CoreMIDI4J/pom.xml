@@ -103,6 +103,10 @@
         <configuration>
           <source>7</source>
           <target>7</target>
+          <compilerArgs>
+            <arg>-h</arg>
+            <arg>Native/CoreMidi4J/jni</arg>
+          </compilerArgs>
         </configuration>
       </plugin>
 
@@ -111,31 +115,6 @@
         <artifactId>exec-maven-plugin</artifactId>
         <version>1.6.0</version>
         <executions>
-          <execution>
-            <id>create-jni-header</id>
-            <phase>process-classes</phase>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-            <configuration>
-              <executable>javah</executable>
-              <arguments>
-                <argument>-o</argument>
-                <argument>Native/CoreMidi4J/CoreMidi4J.h</argument>
-                <argument>-classpath</argument>
-                <argument>target/classes</argument>
-                <argument>-force</argument>
-                <argument>-verbose</argument>
-                <argument>uk.co.xfactorylibrarians.coremidi4j.CoreMidiClient</argument>
-                <argument>uk.co.xfactorylibrarians.coremidi4j.CoreMidiDestination</argument>
-                <argument>uk.co.xfactorylibrarians.coremidi4j.CoreMidiDeviceProvider</argument>
-                <argument>uk.co.xfactorylibrarians.coremidi4j.CoreMidiInputPort</argument>
-                <argument>uk.co.xfactorylibrarians.coremidi4j.CoreMidiOutputPort</argument>
-                <argument>uk.co.xfactorylibrarians.coremidi4j.CoreMidiSource</argument>
-              </arguments>
-            </configuration>
-          </execution>
-
           <execution>
             <id>build-native-library</id>
             <phase>prepare-package</phase>

@@ -17,7 +17,7 @@
 #ifndef ____CoreMidiSource__
 #define ____CoreMidiSource__
 
-#include "CoreMidi4J.h"
+#include "jni/uk_co_xfactorylibrarians_coremidi4j_CoreMidiSource.h"
 #include "CoreMidi4JUtilities.h"
 
 #include <stdio.h>

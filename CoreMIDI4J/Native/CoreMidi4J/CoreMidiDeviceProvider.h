@@ -17,7 +17,7 @@
 #ifndef CoreMidi4J_CoreMidiDeviceProvider_h
 #define CoreMidi4J_CoreMidiDeviceProvider_h
 
-#include "CoreMidi4J.h"
+#include "jni/uk_co_xfactorylibrarians_coremidi4j_CoreMidiDeviceProvider.h"
 #include "CoreMidi4JUtilities.h"
 
 #include <iostream>

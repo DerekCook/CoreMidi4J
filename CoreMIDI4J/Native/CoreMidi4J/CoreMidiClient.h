@@ -17,7 +17,7 @@
 #ifndef __CoreMidi4J__CoreMidiClient__
 #define __CoreMidi4J__CoreMidiClient__
 
-#include "CoreMidi4J.h"
+#include "jni/uk_co_xfactorylibrarians_coremidi4j_CoreMidiClient.h"
 #include "CoreMidi4JUtilities.h"
 
 #include <iostream>

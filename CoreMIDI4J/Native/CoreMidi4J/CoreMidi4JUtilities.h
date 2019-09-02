@@ -19,7 +19,7 @@
 
 #include <iostream>
 
-#include "CoreMidi4J.h"
+#include "jni/uk_co_xfactorylibrarians_coremidi4j_CoreMidiClient.h"
 #include <CoreMIDI/CoreMIDI.h>
 
 /*
