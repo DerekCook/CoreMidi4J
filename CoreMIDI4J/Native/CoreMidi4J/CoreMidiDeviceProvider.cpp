@@ -15,6 +15,7 @@
  */
 
 #include "CoreMidiDeviceProvider.h"
+#include "CoreMidi4JUtilities.h"
 
 /////////////////////////////////////////////////////////
 // Native functions for CoreMidiDeviceProvider
@@ -141,32 +142,6 @@ JNIEXPORT jint JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDevicePr
 
   return uid;
 
-}
-
-/*
- * Safely obtains a C string pointer from a CFStringRef. We must do it this way, because CFStringGetCStringPtr
- * is free to return NULL for a variety of reasons, including simply not having an efficient way to respond.
- * However, this means that it is the responsibility of the caller to free() the returned pointer when it is
- * no longer needed, unless we returned NULL.
- *
- * @param aString  The CFStringRef
- *
- * @return         A newly allocated C string holding the contents of aString, or NULL
- *
- */
-char * safeCFStringCopyToC(CFStringRef aString) {
-  if (aString == NULL) {
-    return NULL;
-  }
-
-  CFIndex length = CFStringGetLength(aString);
-  CFIndex maxSize = CFStringGetMaximumSizeForEncoding(length, CFStringGetSystemEncoding()) + 1;
-  char *buffer = (char *)malloc(maxSize);
-  if (CFStringGetCString(aString, buffer, maxSize, CFStringGetSystemEncoding())) {
-    return buffer;
-  }
-  free(buffer); // We failed
-  return NULL;
 }
 
 /*
@@ -325,13 +300,13 @@ JNIEXPORT jobject JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDevic
 
   }
 
-  char *deviceInfoNamePtr         = safeCFStringCopyToC ( deviceInfoName );
-  char *deviceInfoManufacturerPtr = safeCFStringCopyToC ( endpointManufacturer ); // The end point manufacturer name is always present
-  char *deviceInfoDescriptionPtr  = safeCFStringCopyToC ( endpointModel );        // The end point model name is always present
+  char *deviceInfoNamePtr         = SafeCFStringCopyToCString ( deviceInfoName );
+  char *deviceInfoManufacturerPtr = SafeCFStringCopyToCString ( endpointManufacturer ); // The end point manufacturer name is always present
+  char *deviceInfoDescriptionPtr  = SafeCFStringCopyToCString ( endpointModel );        // The end point model name is always present
 
-  char *deviceNamePtr             = safeCFStringCopyToC ( deviceName );
-  char *entityNamePtr             = safeCFStringCopyToC ( entityName );
-  char *endPointNamePtr           = safeCFStringCopyToC ( endpointName );
+  char *deviceNamePtr             = SafeCFStringCopyToCString ( deviceName );
+  char *entityNamePtr             = SafeCFStringCopyToCString ( entityName );
+  char *endPointNamePtr           = SafeCFStringCopyToCString ( endpointName );
 
   // TODO - Have seen reference that the device neds to be initialised to get the version. As we are still getting zero, force the string for now
   const char *deviceInfoVersion         = "Unknown Version";

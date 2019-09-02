@@ -44,6 +44,21 @@ void ThrowException(JNIEnv *env, CFStringRef function, OSStatus status);
 
 void printJniStatus(int status);
 
+/*
+ * Safely obtains a C string pointer from a CFStringRef. We must do it this way, because CFStringGetCStringPtr
+ * is free to return NULL for a variety of reasons, including simply not having an efficient way to respond.
+ * However, this means that it is the responsibility of the caller to free() the returned pointer when it is
+ * no longer needed, unless we returned NULL.
+ *
+ * @param aString  The CFStringRef
+ *
+ * @return         A newly allocated C string holding the contents of aString, or NULL
+ *
+ */
+
+char * SafeCFStringCopyToCString(CFStringRef aString);
+
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Type Definitions
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////

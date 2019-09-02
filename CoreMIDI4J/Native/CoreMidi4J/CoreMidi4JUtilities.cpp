@@ -40,7 +40,9 @@ void ThrowException(JNIEnv *env, CFStringRef function, OSStatus status) {
   }
 
   jclass Exception = env->FindClass("uk/co/xfactorylibrarians/coremidi4j/CoreMidiException");
-  env->ThrowNew(Exception,CFStringGetCStringPtr(CFStringCreateCopy(NULL, string), kCFStringEncodingMacRoman ));
+  char *message = SafeCFStringCopyToCString(string);
+  env->ThrowNew(Exception, message);
+  free(message);
 
 }
 
@@ -93,3 +95,28 @@ void printJniStatus(int status) {
 
 }
 
+/*
+ * Safely obtains a C string pointer from a CFStringRef. We must do it this way, because CFStringGetCStringPtr
+ * is free to return NULL for a variety of reasons, including simply not having an efficient way to respond.
+ * However, this means that it is the responsibility of the caller to free() the returned pointer when it is
+ * no longer needed, unless we returned NULL.
+ *
+ * @param aString  The CFStringRef
+ *
+ * @return         A newly allocated C string holding the contents of aString, or NULL
+ *
+ */
+char * SafeCFStringCopyToCString(CFStringRef aString) {
+  if (aString == NULL) {
+    return NULL;
+  }
+
+  CFIndex length = CFStringGetLength(aString);
+  CFIndex maxSize = CFStringGetMaximumSizeForEncoding(length, CFStringGetSystemEncoding()) + 1;
+  char *buffer = (char *)malloc(maxSize);
+  if (CFStringGetCString(aString, buffer, maxSize, CFStringGetSystemEncoding())) {
+    return buffer;
+  }
+  free(buffer); // We failed
+  return NULL;
+}
