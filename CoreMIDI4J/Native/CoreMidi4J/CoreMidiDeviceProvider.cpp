@@ -154,15 +154,15 @@ JNIEXPORT jint JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDevicePr
  * @return         A newly allocated C string holding the contents of aString, or NULL
  *
  */
-char * safeCFStringCopyUTF8String(CFStringRef aString) {
+char * safeCFStringCopyToC(CFStringRef aString) {
   if (aString == NULL) {
     return NULL;
   }
 
   CFIndex length = CFStringGetLength(aString);
-  CFIndex maxSize = CFStringGetMaximumSizeForEncoding(length, kCFStringEncodingUTF8) + 1;
+  CFIndex maxSize = CFStringGetMaximumSizeForEncoding(length, CFStringGetSystemEncoding()) + 1;
   char *buffer = (char *)malloc(maxSize);
-  if (CFStringGetCString(aString, buffer, maxSize, kCFStringEncodingUTF8)) {
+  if (CFStringGetCString(aString, buffer, maxSize, CFStringGetSystemEncoding())) {
     return buffer;
   }
   free(buffer); // We failed
@@ -325,13 +325,13 @@ JNIEXPORT jobject JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDevic
 
   }
 
-  char *deviceInfoNamePtr         = safeCFStringCopyUTF8String ( deviceInfoName );
-  char *deviceInfoManufacturerPtr = safeCFStringCopyUTF8String ( endpointManufacturer ); // The end point manufacturer name is always present
-  char *deviceInfoDescriptionPtr  = safeCFStringCopyUTF8String ( endpointModel );        // The end point model name is always present
+  char *deviceInfoNamePtr         = safeCFStringCopyToC ( deviceInfoName );
+  char *deviceInfoManufacturerPtr = safeCFStringCopyToC ( endpointManufacturer ); // The end point manufacturer name is always present
+  char *deviceInfoDescriptionPtr  = safeCFStringCopyToC ( endpointModel );        // The end point model name is always present
 
-  char *deviceNamePtr             = safeCFStringCopyUTF8String ( deviceName );
-  char *entityNamePtr             = safeCFStringCopyUTF8String ( entityName );
-  char *endPointNamePtr           = safeCFStringCopyUTF8String ( endpointName );
+  char *deviceNamePtr             = safeCFStringCopyToC ( deviceName );
+  char *entityNamePtr             = safeCFStringCopyToC ( entityName );
+  char *endPointNamePtr           = safeCFStringCopyToC ( endpointName );
 
   // TODO - Have seen reference that the device neds to be initialised to get the version. As we are still getting zero, force the string for now
   const char *deviceInfoVersion         = "Unknown Version";
