@@ -181,7 +181,7 @@ implementation on Mac OS X without having to install anything, you can
 embed CoreMidi4J and thereby make it automatically available. Releases
 are available through
 [Maven Central](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22uk.co.xfactory-librarians%22%20AND%20a%3A%22coremidi4j%22).
-[![Maven Central](https://img.shields.io/maven-central/v/uk.co.xfactory-librarians/coremidi4j.svg)](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22uk.co.xfactory-librarians%22%20AND%20a%3A%22coremidi4j%22)
+[![Maven Central](https://img.shields.io/maven-central/v/uk.co.xfactory-librarians/coremidi4j)](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22uk.co.xfactory-librarians%22%20AND%20a%3A%22coremidi4j%22)
 
 > It is safe to embed CoreMidi4J in cross-platform Java projects; the
 > native library will be loaded only when needed, on Mac OS X, and the
@@ -224,6 +224,10 @@ repository, you will need to install Apple&rsquo;s
 [Homebrew](http://brew.sh) to install Maven: once you have followed
 Homebrew&rsquo;s own install instructions, simply run `brew install
 maven` to install Maven.)
+
+Of course you will also need a Java development environment. Even
+though CoreMidi4J still can be used as far back as JDK 1.7, you need
+at least JDK 1.8 to build it.
 
 Once you have Xcode and Maven, to build CoreMidi4J `cd` into the
 directory containing the Maven project specification `pom.xml` (you
