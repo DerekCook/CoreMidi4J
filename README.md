@@ -28,8 +28,10 @@ contribute to.
 
 CoreMidi4J has been heavily used in some of our own projects for
 several years, and after resolving the last known outstanding issue we
-labeled it version 1.0. Feedback on any new problems or issues is
-always welcome.
+labeled it version 1.0. Over the next few years an occasional issue
+was discovered and fixed, leading to a new release.
+[Feedback](https://github.com/DerekCook/CoreMidi4J/issues) on any new
+problems or issues is always welcome.
 
 ## Installation
 
@@ -240,7 +242,7 @@ cd CoreMidi4J/CoreMidi4J
 mvn package
 ```
 
-That will compile the Java classes, generate the JNI header, compile
+That will compile the Java classes, generate the JNI headers, compile
 the native library, and build the standalone jar file which embeds
 everything needed at runtime, using the standard Maven location and
 naming convention of `target/coremidi4j-{version}.jar` (it also builds

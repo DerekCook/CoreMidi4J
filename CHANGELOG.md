@@ -8,6 +8,19 @@ This change log follows the conventions of
 
 Nothing so far.
 
+## [1.2] - 2019-09-05
+
+### Fixed
+
+- We discovered we were using an unreliable mechanism for converting
+  MIDI device names to a format we could share with Java, thanks to an
+  [issue](https://github.com/DerekCook/CoreMidi4J/issues/29) raised by
+  [iaguilera](https://github.com/iaguilera). Especially under JDK 11
+  and when running from a JDK bundled into a standalone Mac
+  application, devices other than the IAC Driver were showing up as
+  `<Unknown device>`. We now use a slightly more complex but reliable
+  mechanism, so device names should always be available.
+
 ## [1.1] - 2017-09-16
 
 ### Fixed
@@ -156,7 +169,8 @@ Nothing so far.
 - Initial Public Release
 
 
-[unreleased]: https://github.com/DerekCook/CoreMidi4J/compare/V1.1...HEAD
+[unreleased]: https://github.com/DerekCook/CoreMidi4J/compare/V1.2...HEAD
+[1.2]: https://github.com/DerekCook/CoreMidi4J/compare/V1.1...V1.2
 [1.1]: https://github.com/DerekCook/CoreMidi4J/compare/V1.0...V1.1
 [1.0]: https://github.com/DerekCook/CoreMidi4J/compare/V0.9...V1.0
 [0.9]: https://github.com/DerekCook/CoreMidi4J/compare/V0.8...V0.9
