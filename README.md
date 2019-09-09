@@ -161,7 +161,7 @@ public class Example {
 
     public static void main(String[] args) throws Exception {
         System.out.println("Working MIDI Devices:");
-        for (javax.sound.midi.MidiDevice.Info device : CoreMidiDeviceProvider.getMidiDeviceInfo();
+        for (javax.sound.midi.MidiDevice.Info device : CoreMidiDeviceProvider.getMidiDeviceInfo()) {
             System.out.println("  " + device);
         }
         if (Example.isCoreMidiLoaded()) {
