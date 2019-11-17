@@ -205,7 +205,10 @@ JNIEXPORT jobject JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDevic
   jmethodID constructor = env->GetMethodID(javaClass, "<init>", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;IILjava/lang/String;IILjava/lang/String;II)V");
 
   // Get the endpoint properties
-  MIDIObjectGetStringProperty (endPointReference, kMIDIPropertyName,          &endpointName);
+  
+  // The method for getting the end point name is different to fix Issue #34
+  //MIDIObjectGetStringProperty (endPointReference, kMIDIPropertyName,          &endpointName);
+  endpointName = CreateConnectedEndpointName(endPointReference);
   MIDIObjectGetStringProperty (endPointReference, kMIDIPropertyModel,         &endpointModel);
   MIDIObjectGetStringProperty (endPointReference, kMIDIPropertyManufacturer,  &endpointManufacturer);
   MIDIObjectGetIntegerProperty(endPointReference, kMIDIPropertyOffline,       &endpointOffline);
@@ -272,13 +275,15 @@ JNIEXPORT jobject JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDevic
 
     if ( deviceName != NULL ) {
 
-      CFStringAppend(buildName, (deviceName != NULL ) ? deviceName :  CFSTR("<Unknown Device>") );
-
       if ( numberOfEntities > 1 ) {
 
         CFStringAppend(buildName, CFSTR(" "));
         CFStringAppend(buildName, (endpointName != NULL ) ? endpointName :  CFSTR("<Unknown Endpoint>") );
 
+      } else {
+        
+        CFStringAppend(buildName, (deviceName != NULL ) ? deviceName :  CFSTR("<Unknown Device>") );
+        
       }
 
     } else {

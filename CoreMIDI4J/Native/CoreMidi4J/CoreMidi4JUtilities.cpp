@@ -107,16 +107,240 @@ void printJniStatus(int status) {
  *
  */
 char * SafeCFStringCopyToCString(CFStringRef aString) {
+  
   if (aString == NULL) {
+    
     return NULL;
+    
   }
 
   CFIndex length = CFStringGetLength(aString);
   CFIndex maxSize = CFStringGetMaximumSizeForEncoding(length, CFStringGetSystemEncoding()) + 1;
   char *buffer = (char *)malloc(maxSize);
+  
   if (CFStringGetCString(aString, buffer, maxSize, CFStringGetSystemEncoding())) {
+ 
     return buffer;
+  
   }
+  
   free(buffer); // We failed
+  
   return NULL;
+  
 }
+
+/*
+ * Utilities for acquiring endpoint names (resolving connections if existing)
+ */
+
+static CFStringRef CreateEndpointName(MIDIEndpointRef endpoint, bool isExternal);
+
+static OSStatus MIDIObjectGetStringPropertyClean(MIDIObjectRef obj, CFStringRef propertyID, CFStringRef __nullable * __nonnull str);
+
+/*
+ * Some endpoint names contain illegal characters in their CFStringRef form (e.g. '\0')
+ * Convert to and from a C-string in order to clean these up.
+ */
+static OSStatus MIDIObjectGetStringPropertyClean(MIDIObjectRef obj, CFStringRef propertyID, CFStringRef __nullable * __nonnull str) {
+  
+  CFStringRef raw = NULL;
+  MIDIObjectGetStringProperty(obj, propertyID, &raw);
+  
+  if (raw != NULL) {
+    
+    char *cString = SafeCFStringCopyToCString(raw);
+    *str = CFStringCreateWithCString(kCFAllocatorDefault, cString, kCFStringEncodingUTF8);
+    free(cString);
+    CFRelease(raw);
+    return noErr;
+    
+  }
+  
+  *str = NULL;
+  return -1;
+  
+}
+
+CFStringRef CreateConnectedEndpointName(MIDIEndpointRef endpoint) {
+  
+  CFMutableStringRef result = CFStringCreateMutable(NULL, 0);
+  CFStringRef str;
+  OSStatus err;
+  
+  // Does the endpoint have connections?
+  CFDataRef connections = NULL;
+  int nConnected = 0;
+  bool anyStrings = false;
+  err = MIDIObjectGetDataProperty(endpoint, kMIDIPropertyConnectionUniqueID, &connections);
+  
+  if (connections != NULL) {
+    
+    // It has connections, follow them
+    // Concatenate the names of all connected devices
+    nConnected = static_cast<int>(CFDataGetLength(connections) / sizeof(MIDIUniqueID));
+    
+    if (nConnected) {
+      
+      const SInt32 *pid = reinterpret_cast<const SInt32 *>(CFDataGetBytePtr(connections));
+      
+      for (int i = 0; i < nConnected; ++i, ++pid) {
+        
+        MIDIUniqueID id = EndianS32_BtoN(*pid);
+        MIDIObjectRef connObject;
+        MIDIObjectType connObjectType;
+        err = MIDIObjectFindByUniqueID(id, &connObject, &connObjectType);
+        
+        if (err == noErr) {
+          
+          if (connObjectType == kMIDIObjectType_ExternalSource  ||
+              connObjectType == kMIDIObjectType_ExternalDestination) {
+            
+            // Connected to an external device's endpoint (10.3 and later).
+            str = CreateEndpointName(static_cast<MIDIEndpointRef>(connObject), true);
+          
+          } else {
+            
+            // Connected to an external device (10.2) (or something else, catch-all)
+            str = NULL;
+            MIDIObjectGetStringPropertyClean(connObject, kMIDIPropertyName, &str);
+          
+          }
+          
+          if (str != NULL) {
+            
+            if (anyStrings) {
+              
+              CFStringAppend(result, CFSTR(", "));
+              
+            } else {
+              
+              anyStrings = true;
+            
+            }
+          
+            CFStringAppend(result, str);
+            CFRelease(str);
+          
+          }
+        
+        }
+      
+      }
+    
+    }
+    
+    CFRelease(connections);
+    
+  }
+  
+  if (anyStrings) {
+  
+    return result;
+    
+  } else {
+    
+    CFRelease(result);
+
+  }
+  
+  // Here, either the endpoint had no connections, or we failed to obtain names for any of them.
+  return CreateEndpointName(endpoint, false);
+
+}
+
+/*
+ * Obtain the name of an endpoint without regard for whether it has connections.
+ * The result should be released by the caller.
+ */
+
+static CFStringRef CreateEndpointName(MIDIEndpointRef endpoint, bool isExternal) {
+  
+  CFMutableStringRef result = CFStringCreateMutable(NULL, 0);
+  CFStringRef str;
+  
+  // begin with the endpoint's name
+  str = NULL;
+  
+  MIDIObjectGetStringPropertyClean(endpoint, kMIDIPropertyName, &str);
+  
+  if (str != NULL) {
+    
+    CFStringAppend(result, str);
+    CFRelease(str);
+    
+  }
+  
+  MIDIEntityRef entity = NULL;
+  MIDIEndpointGetEntity(endpoint, &entity);
+  
+  if (entity == 0) {
+    
+    return result; // probably virtual
+    
+  }
+    
+  if (CFStringGetLength(result) == 0) {
+    
+    // endpoint name has zero length -- try the entity
+    str = NULL;
+    
+    MIDIObjectGetStringPropertyClean(entity, kMIDIPropertyName, &str);
+    
+    if (str != NULL) {
+      
+      CFStringAppend(result, str);
+      CFRelease(str);
+      
+    }
+    
+  }
+  
+  // now consider the device's name
+  MIDIDeviceRef device = NULL;
+  MIDIEntityGetDevice(entity, &device);
+  if (device == 0) return result;
+  
+  str = NULL;
+  MIDIObjectGetStringPropertyClean(device, kMIDIPropertyName, &str);
+  
+  if (str != NULL) {
+    
+    // if an external device has only one entity, throw away
+    // the endpoint name and just use the device name
+    
+    if (isExternal && MIDIDeviceGetNumberOfEntities(device) < 2) {
+      
+      CFRelease(result);
+      return str;
+      
+    } else {
+      
+      // does the entity name already start with the device name?
+      // (some drivers do this though they shouldn't)
+      // if so, do not prepend
+      if (CFStringCompareWithOptions(str /* device name */,
+                                     result /* endpoint name */,
+                                     CFRangeMake(0, CFStringGetLength(str)), 0) != kCFCompareEqualTo) {
+        
+        // prepend the device name to the entity name
+        if (CFStringGetLength(result) > 0) {
+          
+          CFStringInsert(result, 0, CFSTR(" "));
+          
+        }
+        
+        CFStringInsert(result, 0, str);
+        
+      }
+      
+      CFRelease(str);
+      
+    }
+    
+  }
+  
+  return result;
+  
+}
+

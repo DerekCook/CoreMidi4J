@@ -21,6 +21,7 @@
 
 #include "jni/uk_co_xfactorylibrarians_coremidi4j_CoreMidiClient.h"
 #include <CoreMIDI/CoreMIDI.h>
+#include <CoreServices/CoreServices.h>
 
 /*
  * Helper function for throwing exceptions to Java
@@ -58,6 +59,7 @@ void printJniStatus(int status);
 
 char * SafeCFStringCopyToCString(CFStringRef aString);
 
+CFStringRef CreateConnectedEndpointName(MIDIEndpointRef endpoint);
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Type Definitions
