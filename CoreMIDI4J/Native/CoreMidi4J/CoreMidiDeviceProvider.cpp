@@ -218,7 +218,7 @@ JNIEXPORT jobject JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDevic
   // Get the entity properties
   MIDIEndpointGetEntity(endPointReference, &entityReference);
 
-  MIDIObjectGetStringProperty (entityReference, kMIDIPropertyName,          &entityName);
+  MIDIObjectGetStringPropertyClean(entityReference, kMIDIPropertyName,     &entityName);
   MIDIObjectGetStringProperty (entityReference, kMIDIPropertyModel,         &entityModel);
   MIDIObjectGetStringProperty (entityReference, kMIDIPropertyManufacturer,  &entityManufacturer);
   MIDIObjectGetIntegerProperty(entityReference, kMIDIPropertyOffline,       &entityOffline);
@@ -228,7 +228,7 @@ JNIEXPORT jobject JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDevic
   // Get the device properties
   MIDIEntityGetDevice(entityReference, &deviceReference);
 
-  MIDIObjectGetStringProperty (deviceReference, kMIDIPropertyName,          &deviceName); // Get this again in case our string build fails
+  MIDIObjectGetStringPropertyClean(deviceReference, kMIDIPropertyName,     &deviceName); // Get this again in case our string build fails
   MIDIObjectGetStringProperty (deviceReference, kMIDIPropertyModel,         &deviceModel);
   MIDIObjectGetStringProperty (deviceReference, kMIDIPropertyManufacturer,  &deviceManufacturer);
   MIDIObjectGetIntegerProperty(deviceReference, kMIDIPropertyOffline,       &deviceOffline);
@@ -277,13 +277,12 @@ JNIEXPORT jobject JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiDevic
 
       if ( numberOfEntities > 1 ) {
 
-        CFStringAppend(buildName, CFSTR(" "));
         CFStringAppend(buildName, (endpointName != NULL ) ? endpointName :  CFSTR("<Unknown Endpoint>") );
 
       } else {
-        
-        CFStringAppend(buildName, (deviceName != NULL ) ? deviceName :  CFSTR("<Unknown Device>") );
-        
+
+        CFStringAppend(buildName, deviceName);
+
       }
 
     } else {
