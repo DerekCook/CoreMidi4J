@@ -136,25 +136,34 @@ char * SafeCFStringCopyToCString(CFStringRef aString) {
 
 static CFStringRef CreateEndpointName(MIDIEndpointRef endpoint, bool isExternal);
 
-static OSStatus MIDIObjectGetStringPropertyClean(MIDIObjectRef obj, CFStringRef propertyID, CFStringRef __nullable * __nonnull str);
-
 /*
  * Some endpoint names contain illegal characters in their CFStringRef form (e.g. '\0')
  * Convert to and from a C-string in order to clean these up.
  */
-static OSStatus MIDIObjectGetStringPropertyClean(MIDIObjectRef obj, CFStringRef propertyID, CFStringRef __nullable * __nonnull str) {
+OSStatus MIDIObjectGetStringPropertyClean(MIDIObjectRef obj, CFStringRef propertyID, CFStringRef __nullable * __nonnull str) {
   
   CFStringRef raw = NULL;
-  MIDIObjectGetStringProperty(obj, propertyID, &raw);
-  
-  if (raw != NULL) {
+  OSStatus status = MIDIObjectGetStringProperty(obj, propertyID, &raw);
+
+  if (status == noErr && raw != NULL) {
     
     char *cString = SafeCFStringCopyToCString(raw);
-    *str = CFStringCreateWithCString(kCFAllocatorDefault, cString, kCFStringEncodingUTF8);
-    free(cString);
+
     CFRelease(raw);
-    return noErr;
-    
+
+    if (cString != NULL) {
+
+      *str = CFStringCreateWithCString(kCFAllocatorDefault, cString, kCFStringEncodingUTF8);
+      free(cString);
+
+      if (*str != NULL) {
+
+        return noErr;
+
+      }
+
+    }
+
   }
   
   *str = NULL;
