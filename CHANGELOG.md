@@ -8,6 +8,16 @@ This change log follows the conventions of
 
 Nothing so far.
 
+## [1.3] - 2020-01-03
+
+### Fixed
+
+- Several issues with formatting device names for different kinds of
+  MIDI hardware, thanks to
+  [@jeremybernstein](https://github.com/jeremybernstein).
+- A mistake in the sample code in the project Read Me, thanks to
+  [@git-moss](https://github.com/git-moss).
+
 ## [1.2] - 2019-09-05
 
 ### Fixed
@@ -169,7 +179,8 @@ Nothing so far.
 - Initial Public Release
 
 
-[unreleased]: https://github.com/DerekCook/CoreMidi4J/compare/V1.2...HEAD
+[unreleased]: https://github.com/DerekCook/CoreMidi4J/compare/V1.3...HEAD
+[1.3]: https://github.com/DerekCook/CoreMidi4J/compare/V1.2...V1.3
 [1.2]: https://github.com/DerekCook/CoreMidi4J/compare/V1.1...V1.2
 [1.1]: https://github.com/DerekCook/CoreMidi4J/compare/V1.0...V1.1
 [1.0]: https://github.com/DerekCook/CoreMidi4J/compare/V0.9...V1.0
