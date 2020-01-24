@@ -84,19 +84,26 @@ work:
 
 If your application runs on Macs as well as other platforms, you can
 ensure that your users only ever see MIDI devices whose
-implementations work properly, by using the `getMidiDeviceInfo()`
+implementations work properly, by using the
+[`getMidiDeviceInfo()`](https://deepsymmetry.org/coremidi4j/apidocs/uk/co/xfactorylibrarians/coremidi4j/CoreMidiDeviceProvider.html#getMidiDeviceInfo())
 method provided by
-`uk.co.xfactorylibrarians.coremidi4j.CoreMidiDeviceProvider` instead
-of the one in `javax.sound.midi.MidiSystem`. The CoreMidi4J version
-works on any platform. If you call it on anything but a Mac, it simply
-gives you the same result you would get from the standard method. On
-the Mac, it filters out any devices which have broken SysEx
-implementations, and returns the CoreMidi4J versions instead.
+[`uk.co.xfactorylibrarians.coremidi4j.CoreMidiDeviceProvider`](https://deepsymmetry.org/coremidi4j/apidocs/uk/co/xfactorylibrarians/coremidi4j/CoreMidiDeviceProvider.html)
+instead of the one in
+[`javax.sound.midi.MidiSystem`](https://docs.oracle.com/javase/7/docs/api/javax/sound/midi/MidiSystem.html).
+The CoreMidi4J version works on any platform. If you call it on
+anything but a Mac, it simply gives you the same result you would get
+from the standard method. On the Mac, it filters out any devices which
+have broken SysEx implementations, and returns the CoreMidi4J versions
+instead.
 
 So to give your users the best experience possible, simply embed
 CoreMidi4J, and use its implementation of `getMidiDeviceInfo()`
 wherever you would otherwise have used the standard one, and your
 users will always only see working MIDI devices.
+
+For more details, you can consult the CoreMidi4J [API
+documentation](https://deepsymmetry.org/coremidi4j/apidocs/) or even
+the source code, or simply keep reading.
 
 Here is an example of what running the `Example` class (listed
 below) on a Mac, with CoreMidi4J in the classpath, produces. Notice
@@ -288,7 +295,7 @@ whatever you want using Audio Midi Setup as described
 > configuration settings appropriately.
 
 If you need even more details about the device, the
-[`CoreMidiDeviceInfo` class](https://github.com/DerekCook/CoreMidi4J/blob/master/CoreMIDI4J/src/uk/co/xfactorylibrarians/coremidi4j/CoreMidiDeviceInfo.java)
+[`CoreMidiDeviceInfo` class](https://deepsymmetry.org/coremidi4j/apidocs/uk/co/xfactorylibrarians/coremidi4j/CoreMidiDeviceInfo.html)
 returned by CoreMidi4J to describe its devices has additional
 properties which provide access to CoreMIDI-specific device
 attributes. When you know you are dealing with a
