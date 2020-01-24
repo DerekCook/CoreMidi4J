@@ -88,7 +88,7 @@
             <configuration>
               <rules>
                 <requireMavenVersion>
-                  <version>3.0.4</version>
+                  <version>3.0.5</version>
                 </requireMavenVersion>
                 <requireJavaVersion>
                   <version>1.8</version>
@@ -102,7 +102,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.6.2</version>
+        <version>3.8.0</version>
         <configuration>
           <source>7</source>
           <target>7</target>
@@ -231,16 +231,16 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
-        <version>3.0.2</version>
+        <version>3.1.0</version>
         <configuration>
           <archive>
             <manifest>
               <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
               <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-              <manifestEntries>
-                <Automatic-Module-Name>uk.co.xfactorylibrarians.coremidi4j</Automatic-Module-Name>
-              </manifestEntries>
             </manifest>
+            <manifestEntries>
+              <Automatic-Module-Name>uk.co.xfactorylibrarians.coremidi4j</Automatic-Module-Name>
+            </manifestEntries>
           </archive>
         </configuration>
       </plugin>
@@ -259,6 +259,37 @@
           </execution>
         </executions>
       </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-clean-plugin</artifactId>
+        <version>3.0.0</version>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <version>2.8.2</version>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-install-plugin</artifactId>
+        <version>2.5.2</version>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-site-plugin</artifactId>
+        <version>3.5.1</version>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.22.0</version>
+      </plugin>
+
     </plugins>
   </build>
 
