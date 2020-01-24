@@ -221,7 +221,7 @@ to it.
 
 In order to build CoreMidi4J from source, in addition to cloning this
 repository, you will need to install Apple&rsquo;s
-[Xcode](https://developer.apple.com/xcode/download/) and Apache
+[Xcode](https://developer.apple.com/xcode/) and Apache
 [Maven](https://maven.apache.org). (We recommend using
 [Homebrew](http://brew.sh) to install Maven: once you have followed
 Homebrew&rsquo;s own install instructions, simply run `brew install
