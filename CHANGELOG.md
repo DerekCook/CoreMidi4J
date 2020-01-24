@@ -8,7 +8,6 @@ This change log follows the conventions of
 
 ### Added
 
-### Added
 - Assigned a stable automatic module name so this project can safely
   be used as a dependency in modular Java projects.
 - Updated JavaDoc builder version to include search field, as well as
