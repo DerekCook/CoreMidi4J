@@ -54,7 +54,8 @@ jobs:
     - name: Build library jar
       run: |
         cd CoreMIDI4J
-        mvn -U package
+        mvn -U package || true  # For some reason xcode can't find jni_md.h the first time
+        mvn package
         mv "target/$built_name" ../$artifact_name
 
     - name: Upload library jar
