@@ -6,6 +6,16 @@ This change log follows the conventions of
 
 ## [Unreleased][unreleased]
 
+### Fixed
+
+- The build would fail the first time, because a step that was
+  required for the xcode build to find the JNI headers in the Java
+  runtime was being performed by xcode itself, which was too late for
+  the compile to detect it. But the build would succeed the second
+  time, because the first attempt had set up the necessary link. This
+  step is now performed by Maven itself before even invoking xcode, so
+  it can work all in one attempt.
+
 ### Added
 
 - Assigned a stable automatic module name so this project can safely

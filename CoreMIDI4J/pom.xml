@@ -119,6 +119,21 @@
         <version>1.6.0</version>
         <executions>
           <execution>
+            <id>link-to-jni-headers</id>
+            <phase>compile</phase>
+            <configuration>
+              <executable>sh</executable>
+              <workingDirectory>Native/CoreMidi4J</workingDirectory>
+              <arguments>
+                <argument>-c</argument>
+                <argument>rm -f java_home; ln -s `/usr/libexec/java_home` java_home</argument>
+              </arguments>
+            </configuration>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+          </execution>
+          <execution>
             <id>build-native-library</id>
             <phase>prepare-package</phase>
             <goals>

@@ -239,13 +239,8 @@ standalone jar, for example,
 
 ```sh
 cd CoreMidi4J/CoreMidi4J
-sh setup.sh
 mvn package
 ```
-
-> :wrench: The `sh setup.sh` step is only needed the first time you
-> build from a clean checkout. It allows xcode to find the proper
-> JNI headers for compiling the CoreMIDI4J native library files.
 
 That will compile the Java classes, generate the JNI headers, compile
 the native library, and build the standalone jar file which embeds
