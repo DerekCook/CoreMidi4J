@@ -51,7 +51,7 @@ jobs:
 
     - name: Build library jar
       run: |
-        mvn -u package
+        mvn -U package
         mv "CoreMIDI4J/target/$jar_name" .
 
     - name: Upload library jar
