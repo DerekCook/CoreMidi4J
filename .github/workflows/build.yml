@@ -30,10 +30,12 @@ jobs:
     - uses: Deep-Symmetry/github-version-action@v1
       with:
         tag-var-name: release_tag
+        mvn-var-name: mvn_version
 
     - name: Determine jar name from git version, and snapshot status
       run: |
-        echo "::set-env name=jar_name::coremidi4j-$git_version.jar"
+        echo "::set-env name=artifact_name::coremidi4j-$git_version.jar"
+        echo "::set-env name=built_name::coremidi4j-$mvn_version.jar"
         if [[ release_tag =~ .*-SNAPSHOT ]]
         then
           echo "::set-env name=release_snapshot::true"
@@ -51,8 +53,9 @@ jobs:
 
     - name: Build library jar
       run: |
+        cd CoreMIDI4J
         mvn -U package
-        mv "CoreMIDI4J/target/$jar_name" .
+        mv "target/$built_name" ../$artifact_name
 
     - name: Upload library jar
       if: success()
@@ -62,6 +65,6 @@ jobs:
         tag_name: ${{ env.release_tag }}
         isPrerelease: true
         replace_assets: ${{ env.release_snapshot }}
-        assets: ${{ env.jar_name }}
+        assets: ${{ env.artifact_name }}
         github_token: ${{ github.token }}
         initial_mrkdwn: ${{ env.initial_description }}
