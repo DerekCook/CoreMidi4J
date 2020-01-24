@@ -1,0 +1,67 @@
+name: Create and upload the library jar
+
+on:
+  push:
+    branches:
+      - master
+
+env:
+  initial_description: |
+    :construction: This is pre-release code for people who want to help test [what is going into the next release](https://github.com/DerekCook/CoreMidi4J/blob/master/CHANGELOG.md).
+
+    > Don’t download this if you aren’t comfortable testing code while it is under active development! Instead, look at the [latest release](https:///github.com/DerekCook/CoreMidi4J/releases/latest).
+
+    Please note that since it’s a snapshot release, the library jar below (you may need to click to expand the Assets) will change frequently—whenever new code is pushed to the project—so you will want to _download the latest version every time you work with it_.
+
+
+jobs:
+  build_jar:
+    name: Build library jar
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - uses: actions/setup-java@v1
+      with:
+        java-version: '11'
+
+    - uses: Deep-Symmetry/github-version-action@v1
+      with:
+        tag-var-name: release_tag
+
+    - name: Determine jar name from git version, and snapshot status
+      run: |
+        echo "::set-env name=jar_name::coremidi4j-$git_version.jar"
+        if [[ release_tag =~ .*-SNAPSHOT ]]
+        then
+          echo "::set-env name=release_snapshot::true"
+        else
+          echo "::set-env name=release_snapshot::false"
+        fi
+
+    - name: Cache Maven dependencies
+      uses: actions/cache@v1
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-mvn-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-mvn-
+
+    - name: Build library jar
+      run: |
+        mvn -u package
+        mv "CoreMIDI4J/target/$jar_name" .
+
+    - name: Upload library jar
+      if: success()
+      uses: Xotl/cool-github-releases@v1
+      with:
+        mode: update
+        tag_name: ${{ env.release_tag }}
+        isPrerelease: true
+        replace_assets: ${{ env.release_snapshot }}
+        assets: ${{ env.jar_name }}
+        github_token: ${{ github.token }}
+        initial_mrkdwn: ${{ env.initial_description }}
