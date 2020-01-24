@@ -6,7 +6,7 @@
 
   <groupId>uk.co.xfactory-librarians</groupId>
   <artifactId>coremidi4j</artifactId>
-  <version>1.3</version>
+  <version>1.4-SNAPSHOT</version>
 
   <packaging>jar</packaging>
 
@@ -237,6 +237,9 @@
             <manifest>
               <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
               <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+              <manifestEntries>
+                <Automatic-Module-Name>uk.co.xfactorylibrarians.coremidi4j</Automatic-Module-Name>
+              </manifestEntries>
             </manifest>
           </archive>
         </configuration>
