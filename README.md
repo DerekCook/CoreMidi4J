@@ -239,15 +239,13 @@ standalone jar, for example,
 
 ```sh
 cd CoreMidi4J/CoreMidi4J
+sh setup.sh
 mvn package
 ```
 
-> :wrench: For some reason, the build is failing the first time it is
-> performed from a clean checkout, with xcode reporting that it cannot
-> locate the file `jni_md.h`, which is actually present on the Mac.
-> But simply running `mvn package` again will work, and will continue
-> to work from this point on. If we figure this out, we'll fix it; if
-> you have any ideas of how we can, please let us know!
+> :wrench: The `sh setup.sh` step is only needed the first time you
+> build from a clean checkout. It allows xcode to find the proper
+> JNI headers for compiling the CoreMIDI4J native library files.
 
 That will compile the Java classes, generate the JNI headers, compile
 the native library, and build the standalone jar file which embeds
