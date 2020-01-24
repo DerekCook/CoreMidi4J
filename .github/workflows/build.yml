@@ -54,7 +54,6 @@ jobs:
     - name: Build library jar
       run: |
         cd CoreMIDI4J
-        sh setup.sh
         mvn package
         mv "target/$built_name" ../$artifact_name
 
