@@ -29,6 +29,7 @@ jobs:
 
     - name: Determine jar name from git version, and snapshot status
       run: |
+        cd CoreMidi4J
         PROJECT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
         RELEASE_TAG="V$PROJECT_VERSION"
         HUMAN_VERSION=${PROJECT_VERSION/SNAPSHOT/Preview}
