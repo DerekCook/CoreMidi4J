@@ -36,7 +36,7 @@ jobs:
         echo "::set-env name=release_tag::$RELEASE_TAG"
         echo "::set-env name=release_name::Version $PROJECT_VERSION"
         echo "::set-env name=artifact_name::coremidi4j-$HUMAN_VERSION.jar"
-        echo "::set-env name=built_name::coremidi4j-PROJECT_VERSION.jar"
+        echo "::set-env name=built_name::coremidi4j-$PROJECT_VERSION.jar"
         if [[ release_tag =~ .*-SNAPSHOT ]]
         then
           echo "::set-env name=release_snapshot::true"
