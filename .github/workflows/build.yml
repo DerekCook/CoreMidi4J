@@ -64,6 +64,7 @@ jobs:
       with:
         mode: update
         tag_name: ${{ env.release_tag }}
+        release_name: ${{ env.release_name }}
         isPrerelease: true
         replace_assets: ${{ env.release_snapshot }}
         assets: ${{ env.artifact_name }}
