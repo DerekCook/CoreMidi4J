@@ -27,7 +27,7 @@ jobs:
       with:
         java-version: '11'
 
-    - name: Determine jar name from git version, and snapshot status
+    - name: Determine git tag, jar names, and release name from Maven version, and snapshot status
       run: |
         cd CoreMidi4J
         PROJECT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
