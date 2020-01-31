@@ -15,6 +15,10 @@
 package uk.co.xfactorylibrarians.coremidi4j;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.sound.midi.*;
 import javax.sound.midi.spi.MidiDeviceProvider;
@@ -77,7 +81,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
 
       }
 
-      midiProperties.client.addNotificationListener(this);
+      addNotificationListener(this);
 
     }
 
@@ -341,33 +345,184 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
   }
 
   /**
-   * Adds a notification listener to the listener set maintained by this class. If it is a
-   * {@link CoreMidiDeviceProvider}, only keep the most recent one, since Java will create many,
-   * and we only want to update the device map once when the MIDI environment changes.
-   * 
-   * @param listener	The CoreMidiNotification listener to add
-   * 
-   * @throws 					CoreMidiException if it is not possible to provide change notifications
-   * 
+   * Will hold the thread that is watching for MIDI environment changes on non-macOS platforms if
+   * the user has asked to be notified of them by adding a notification listener.
    */
 
-  public static void addNotificationListener(CoreMidiNotification listener) throws CoreMidiException {
+  private static AtomicReference<Thread> changeScanner = new AtomicReference<>(null);
 
-    // If the dynamic library failed to load, we cannot provide notifications
-    if (!isLibraryLoaded()) {
+  /**
+   * Holds the interval, in milliseconds, at which we will scan for MIDI environment changes on
+   * non-macOS platforms if the user has requested that we report them by adding a notification
+   * listener.
+   */
 
-      throw new CoreMidiException("libCoreMidi4J.dylib could not be loaded, CoreMIDI4J is not active.");
+  private static AtomicInteger scanInterval = new AtomicInteger(500);
+
+  /**
+   * Controls how often, in milliseconds, the MIDI environment should be examined for changes to report.
+   * This will have no effect on macOS, because changes are delivered by CoreMIDI as soon as they occur.
+   * It will also have no effect if {@link #addNotificationListener(CoreMidiNotification)} has never been
+   * called to register interest in such changes. The default interval is 500, or half a second.
+   *
+   * @param interval how often to check the MIDI environment for changes in the list of available devices, in ms
+   * @throws IllegalArgumentException if {@code interval} is less than 10 or more than 60000 (one minute).
+   */
+  public static void setScanInterval(int interval) {
+
+    if (interval < 10 || interval > 60000) {
+
+      throw new IllegalArgumentException("interval must be between 10 and 60000");
 
     }
 
-    // If the client has not been initialised then we need to setup the static fields in the class
-    if (midiProperties.client == null) {
+    scanInterval.set(interval);
 
-      new CoreMidiDeviceProvider().initialise();
+  }
+
+  /**
+   * Check how often, in milliseconds, the MIDI environment should be examined for changes to report.
+   * This value is meaningless on macOS, because changes are delivered by CoreMIDI as soon as they occur.
+   * It is also irrelevant if {@link #addNotificationListener(CoreMidiNotification)} has never been
+   * called to register interest in such changes. The default interval is 500, or half a second.
+   *
+   * @return how often the MIDI environment will be checked for changes on non-macOS systems, in ms
+   */
+
+  public static int getScanInterval() {
+
+    return scanInterval.get();
+
+  }
+
+  /**
+   * Holds a snapshot of the current devices in the system, used when we are scanning for MIDI environment
+   * changes on non-macOS systems. Each device is represented as a list of its device information strings,
+   * for ease of comparison, since Sun didn't know how to write comparable data objects yet when the MIDI
+   * classes were created.
+   */
+
+  private static AtomicReference<Set<List<String>>> currentDevices = new AtomicReference<>(null);
+
+  /**
+   * Build a snapshot of the current MIDI devices in the system. Each device is represented as a list of its
+   * device information strings, for ease of comparison, since Sun didn’t know how to write comparable data
+   * objects yet when the MIDI classes were created.
+   *
+   * @return a summary of the current MIDI environment that can be deep-compared by calling {@link Set#equals(Object)}
+   */
+
+  private static Set<List<String>> snapshotCurrentEnvironment() {
+
+    Set<List<String>> results = new HashSet<>();
+
+    for (MidiDevice.Info info : MidiSystem.getMidiDeviceInfo()) {
+
+      List<String> summary = new LinkedList<>();
+      summary.add(info.getName());
+      summary.add(info.getDescription());
+      summary.add(info.getVendor());
+      summary.add(info.getVersion());
+      results.add(Collections.unmodifiableList(summary));
 
     }
 
-    midiProperties.client.addNotificationListener(listener);
+    return Collections.unmodifiableSet(results);
+  }
+
+  /**
+   * This method is run on a daemon thread when we have been asked to report MIDI environment
+   * changes and we are not on a macOS system, so CoreMIDI will not deliver them to us.
+   */
+
+  private static void watchForChanges() {
+
+    currentDevices.set(snapshotCurrentEnvironment());  // Establish a baseline for our first comparison.
+
+    //noinspection InfiniteLoopStatement
+    while (true) {
+
+      try {
+
+        Thread.sleep(getScanInterval());
+        Set<List<String>> newDevices = snapshotCurrentEnvironment();
+
+        if (!newDevices.equals(currentDevices.get())) {  // There has been a change to the MIDI environment.
+
+          currentDevices.set(newDevices);
+          deliverCallbackToListeners();
+
+        }
+      } catch (Throwable t) {
+
+        System.err.println("Problem while watching for MIDI environment changes: " + t);
+        t.printStackTrace(System.err);
+
+      }
+    }
+  }
+
+  /**
+   * Holds the registered listeners that should be notified when the MIDI environment changes.
+   *
+   */
+
+  private static final Set<CoreMidiNotification> notificationListeners =
+          Collections.newSetFromMap(new ConcurrentHashMap<CoreMidiNotification, Boolean>());
+
+  /**
+   * Keeps track of the latest {@link CoreMidiDeviceProvider} added to our listener list; this is the only one that
+   * we want to call when the MIDI environment changes, since we only need to update the device map once, and Java
+   * creates a vast number of instances of our device provider.
+   */
+
+  private static CoreMidiNotification mostRecentDeviceProvider = null;
+
+  /**
+   * Adds a notification listener to the listener set maintained by this class. If it is a
+   * {@link CoreMidiDeviceProvider}, only keep the most recent one, since Java will create many,
+   * and we only want to update the device map once when the MIDI environment changes. If we
+   * are not on a macOS system, then ensure our watcher daemon thread is running in order to
+   * be able to deliver these notifications, since we don't have CoreMIDI to initiate them.
+   * 
+   * @param listener The CoreMidiNotification listener to add
+   *
+   * @throws CoreMidiException if there is a problem loading the shared library
+   */
+
+  public static synchronized void addNotificationListener(CoreMidiNotification listener) throws CoreMidiException {
+
+    if ( listener != null ) {
+
+      // Our CoreMidiDeviceProvider is a special case, we only want to notify a single instance of that, even though
+      // Java keeps creating new ones. So keep track of the most recent instance registered, do not add it to the list.
+      if (listener instanceof CoreMidiDeviceProvider) {
+
+        mostRecentDeviceProvider = listener;
+
+      } else {
+
+        notificationListeners.add(listener);
+
+      }
+
+    }
+
+    // If the dynamic library is not loadable, set up our own daemon thread provide notifications.
+    if (!isLibraryLoaded() && changeScanner.get() == null) {
+
+      Thread scanner = new Thread(new Runnable() {
+        @Override
+        public void run() {
+          watchForChanges();
+        }
+      }, "CoreMidi4J Environment Change Scanner");
+
+      scanner.setDaemon(true);
+      changeScanner.set(scanner);
+      scanner.start();
+
+    }
 
   }
 
@@ -376,28 +531,113 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
    * 
    * @param listener	The CoreMidiNotification listener to remove
    * 
-   * @throws 					CoreMidiException when we are unable to offer change notifications
-   * 
+   * @throws 					CoreMidiException when there is a problem interacting with the native library
+   *
    */
 
   public static void removeNotificationListener(CoreMidiNotification listener) throws CoreMidiException {
 
-    // If the dynamic library failed to load, we cannot provide notifications
-    if (!isLibraryLoaded()) {
+    notificationListeners.remove(listener);
 
-      throw new CoreMidiException("libCoreMidi4J.dylib could not be loaded, CoreMIDI4J is not active.");
+  }
+
+  /**
+   * Used to count the number of CoreMidi environment change callbacks we have received, so that if additional ones
+   * come in while we are delivering callback messages to our listeners, we know to start another round at the end.
+   */
+
+  static final AtomicInteger callbackCount = new AtomicInteger( 0);
+
+  /**
+   * Used to make sure we are only running one callback delivery loop at a time without having to serialize the process
+   * in a way that will block the actual CoreMidi callback.
+   */
+
+  private static final AtomicBoolean runningCallbacks = new AtomicBoolean(false);
+
+  /**
+   * Check whether we are already in the process of delivering callbacks to our listeners; if not, start a background
+   * thread to do so, and at the end of that process, see if additional callbacks were attempted while it was going on.
+   */
+
+  static synchronized void deliverCallbackToListeners() {
+
+    final int initialCallbackCount = callbackCount.incrementAndGet();
+
+    if (runningCallbacks.compareAndSet(false, true)) {
+
+      new Thread(new Runnable() {
+
+        @Override
+        public void run() {
+
+          try {
+
+            int currentCallbackCount = initialCallbackCount;
+            while ( currentCallbackCount > 0 ) {  // Loop until no new callbacks occur while delivering a set.
+
+              // Iterate through the listeners (if any) and call them to advise that the environment has changed.
+              final Set<CoreMidiNotification> listeners = Collections.unmodifiableSet(new HashSet<>(notificationListeners));
+
+              // First notify the CoreMidiDeviceProvider object itself, so that the device map is
+              // updated before any other listeners, from client code, are called.
+              if (mostRecentDeviceProvider != null) {
+
+                try {
+
+                  mostRecentDeviceProvider.midiSystemUpdated();
+
+                } catch (Throwable t) {
+
+                  System.err.println("Problem delivering MIDI environment change notification to CoreMidiDeviceProvider: " + t);
+                  t.printStackTrace(System.err);
+
+                }
+
+              }
+
+              // Finally, notify any registered client code listeners, now that the device map is properly up to date.
+              for ( CoreMidiNotification listener : listeners ) {
+
+                try {
+
+                  listener.midiSystemUpdated();
+
+                } catch (Throwable t) {
+
+                  System.err.println("Problem delivering MIDI environment change notification:" + t);
+                  t.printStackTrace(System.err);
+
+                }
+
+              }
+
+              synchronized (CoreMidiDeviceProvider.class) {
+
+                // We have handled however many callbacks occurred before this iteration started
+                currentCallbackCount = callbackCount.addAndGet( -currentCallbackCount );
+
+                if ( currentCallbackCount < 1 ) {
+
+                  runningCallbacks.set(false);  // We are terminating; if blocked trying to start another, allow it.
+
+                }
+
+              }
+
+            }
+
+          } finally {
+
+            runningCallbacks.set(false);   // Record termination even if we exit due to an uncaught exception.
+
+          }
+
+        }
+
+      }).start();
 
     }
-
-    // If the client has not been initialised then we need to setup the static fields in the class
-    if (midiProperties.client == null) {
-
-      new CoreMidiDeviceProvider().initialise();
-
-    }
-
-    midiProperties.client.removeNotificationListener(listener);
-
   }
 
   /**
