@@ -18,6 +18,11 @@ This change log follows the conventions of
 
 ### Added
 
+- CoreMidi4J can now notify your project when the MIDI environment has
+  changed on any platform, not just on macOS. If CoreMIDI is not
+  available to generate these notifications and you ask for them,
+  CoreMidi4J will create its own daemon thread to periodically examine
+  the MIDI environment and generate notifications when it changes.
 - Assigned a stable automatic module name so this project can safely
   be used as a dependency in modular Java projects.
 - Updated JavaDoc builder version to include search field, as well as

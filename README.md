@@ -141,10 +141,11 @@ This class shows an example of how to ask CoreMidi4J for a list of
 only properly-working MIDI devices (filtering out the broken ones
 provided by the standard Mac OS X MIDI implementation). It also shows
 how to check whether the native library is available (which will only
-be true when you are running on a Mac), and if it is, to ask to be
-notified whenever there is a change in the MIDI environment (in other
-words, a new device has become available, or an existing device has
-been removed):
+be true when you are running on a Mac), and how to ask to be notified
+whenever there is a change in the MIDI environment (in other words, a
+new device has become available, or an existing device has been
+removed, which works on any platform starting with CoreMidi4J version
+1.4):
 
 ```java
 import uk.co.xfactorylibrarians.coremidi4j.CoreMidiDeviceProvider;
@@ -171,14 +172,16 @@ public class Example {
         for (javax.sound.midi.MidiDevice.Info device : CoreMidiDeviceProvider.getMidiDeviceInfo()) {
             System.out.println("  " + device);
         }
+
         if (Example.isCoreMidiLoaded()) {
             System.out.println("CoreMIDI4J native library is running.");
-            watchForMidiChanges();
-            System.out.println("Watching for MIDI environment changes for thirty seconds.");
-            Thread.sleep(30000);
         } else {
             System.out.println("CoreMIDI4J native library is not available.");
         }
+
+        watchForMidiChanges();
+        System.out.println("Watching for MIDI environment changes for thirty seconds.");
+        Thread.sleep(30000);
     }
 }
 ```
@@ -199,6 +202,13 @@ are available through
 > `getMidiDeviceInfo()` will simply delegate to the standard one. This
 > means that calling our version of `getMidiDeviceInfo()` will always
 > give you the correct list of devices to use on any platform.
+>
+> Starting with CoreMidi4J version 1.4, you can even request to be
+> notified of MIDI environment changes on any platform. If you are not
+> on a Mac (where the underlying CoreMIDI library provides this
+> service), CoreMidi4J will create a daemon thread which periodically
+> scans the MIDI environment so that it can generate these
+> notifications itself.
 
 If you are building a project with code like the example above, you
 will need to configure CoreMidi4J as a dependency of your project.
