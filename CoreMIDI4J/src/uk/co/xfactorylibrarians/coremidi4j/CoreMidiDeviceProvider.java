@@ -24,7 +24,8 @@ import javax.sound.midi.*;
 import javax.sound.midi.spi.MidiDeviceProvider;
 
 /**
- * The OS X CoreMIDI Device Provider
+ * The OS X CoreMIDI Device Provider: this is the primary class with which Java itself and user
+ * code will interact.
  *
  */
 
@@ -349,7 +350,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
    * the user has asked to be notified of them by adding a notification listener.
    */
 
-  private static AtomicReference<Thread> changeScanner = new AtomicReference<>(null);
+  private static final AtomicReference<Thread> changeScanner = new AtomicReference<>(null);
 
   /**
    * Holds the interval, in milliseconds, at which we will scan for MIDI environment changes on
@@ -357,13 +358,13 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
    * listener.
    */
 
-  private static AtomicInteger scanInterval = new AtomicInteger(500);
+  private static final AtomicInteger scanInterval = new AtomicInteger(500);
 
   /**
    * Controls how often, in milliseconds, the MIDI environment should be examined for changes to report.
    * This will have no effect on macOS, because changes are delivered by CoreMIDI as soon as they occur.
-   * It will also have no effect if {@link #addNotificationListener(CoreMidiNotification)} has never been
-   * called to register interest in such changes. The default interval is 500, or half a second.
+   * It will also have no effect if there are currently no listeners registered via
+   * {@link #addNotificationListener(CoreMidiNotification)}. The default interval is 500, or half a second.
    *
    * @param interval how often to check the MIDI environment for changes in the list of available devices, in ms
    * @throws IllegalArgumentException if {@code interval} is less than 10 or more than 60000 (one minute).
@@ -383,8 +384,8 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
   /**
    * Check how often, in milliseconds, the MIDI environment should be examined for changes to report.
    * This value is meaningless on macOS, because changes are delivered by CoreMIDI as soon as they occur.
-   * It is also irrelevant if {@link #addNotificationListener(CoreMidiNotification)} has never been
-   * called to register interest in such changes. The default interval is 500, or half a second.
+   * It is also irrelevant if there are currently no listeners registered via
+   * {@link #addNotificationListener(CoreMidiNotification)}. The default interval is 500, or half a second.
    *
    * @return how often the MIDI environment will be checked for changes on non-macOS systems, in ms
    */
@@ -402,7 +403,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
    * classes were created.
    */
 
-  private static AtomicReference<Set<List<String>>> currentDevices = new AtomicReference<>(null);
+  private static final AtomicReference<Set<List<String>>> currentDevices = new AtomicReference<>(null);
 
   /**
    * Build a snapshot of the current MIDI devices in the system. Each device is represented as a list of its
@@ -439,8 +440,10 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
 
     currentDevices.set(snapshotCurrentEnvironment());  // Establish a baseline for our first comparison.
 
-    //noinspection InfiniteLoopStatement
-    while (true) {
+    // Keep running as long as we are needed. As soon as there are no listeners left, changeScanner will
+    // be set to null. Even if a new listener is then added and a new thread is started up before we wake
+    // from our sleep, the comparison below will fail, and we will exit.
+    while (changeScanner.get() == Thread.currentThread()) {
 
       try {
 
@@ -479,13 +482,17 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
   private static CoreMidiNotification mostRecentDeviceProvider = null;
 
   /**
-   * Adds a notification listener to the listener set maintained by this class. If it is a
-   * {@link CoreMidiDeviceProvider}, only keep the most recent one, since Java will create many,
-   * and we only want to update the device map once when the MIDI environment changes. If we
-   * are not on a macOS system, then ensure our watcher daemon thread is running in order to
-   * be able to deliver these notifications, since we don't have CoreMIDI to initiate them.
+   * <p>Adds a listener to be notified when the MIDI environment changes. If the current system
+   * is not running macOS, then ensure that our watcher daemon thread is running in order to
+   * be able to deliver these notifications, since we don't have CoreMIDI to initiate them.</p>
+   *
+   * <p>Instances of {@link CoreMidiDeviceProvider} register themselves when they are constructed,
+   * so they can keep their lists of working CoreMIDI-backed devices up to date. We only keep the
+   * most recent one, since the Java MIDI subsystem will create many, and we only want to update
+   * the device map once when the MIDI environment changes. This self-registration will also not
+   * cause the daemon thread to be started because such updates are only needed on macOS.</p>
    * 
-   * @param listener The CoreMidiNotification listener to add
+   * @param listener The {@code CoreMidiNotification} listener to add
    *
    * @throws CoreMidiException if there is a problem loading the shared library
    */
@@ -504,30 +511,32 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
 
         notificationListeners.add(listener);
 
-      }
+        // If the dynamic library is not loadable, set up our own daemon thread provide notifications.
+        if (!isLibraryLoaded() && changeScanner.get() == null) {
 
-    }
+          Thread scanner = new Thread(new Runnable() {
+            @Override
+            public void run() {
+              watchForChanges();
+            }
+          }, "CoreMidi4J Environment Change Scanner");
 
-    // If the dynamic library is not loadable, set up our own daemon thread provide notifications.
-    if (!isLibraryLoaded() && changeScanner.get() == null) {
+          scanner.setDaemon(true);
+          changeScanner.set(scanner);
+          scanner.start();
 
-      Thread scanner = new Thread(new Runnable() {
-        @Override
-        public void run() {
-          watchForChanges();
         }
-      }, "CoreMidi4J Environment Change Scanner");
 
-      scanner.setDaemon(true);
-      changeScanner.set(scanner);
-      scanner.start();
+      }
 
     }
 
   }
 
   /**
-   * Removes a notification listener from the listener list maintained by this class
+   * Removes a listener that had been receiving notifications of MIDI environment changes. If there are
+   * none remaining (other than {@link CoreMidiDeviceProvider} itself) after this operation, arranges
+   * for the non-macOS daemon thread to stop running.
    * 
    * @param listener	The CoreMidiNotification listener to remove
    * 
@@ -538,6 +547,12 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
   public static void removeNotificationListener(CoreMidiNotification listener) throws CoreMidiException {
 
     notificationListeners.remove(listener);
+
+    if (notificationListeners.isEmpty()) {
+
+      changeScanner.set(null);  // The thread will notice it is no longer desired and gracefully exit.
+
+    }
 
   }
 
