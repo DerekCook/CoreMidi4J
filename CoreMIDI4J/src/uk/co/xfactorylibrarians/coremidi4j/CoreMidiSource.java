@@ -29,8 +29,8 @@ import javax.sound.midi.SysexMessage;
 import javax.sound.midi.Transmitter;
 
 /**
- * CoreMidiDevice - a MidiDevice implementation for Apple CoreMIDI
- * 
+ * Provides a working Java MIDI interface to a CoreMIDI device to which we can send messages.
+ *
  */
 
 public class CoreMidiSource implements MidiDevice {

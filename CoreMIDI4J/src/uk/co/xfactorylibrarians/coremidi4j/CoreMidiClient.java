@@ -15,7 +15,8 @@
 package uk.co.xfactorylibrarians.coremidi4j;
 
 /**
- * CoreMidiClient class
+ * Provides the Java Native Interface bridge to CoreMIDI on macOS. This is an internal class which is managed by
+ * the library itself.
  *
  */
 

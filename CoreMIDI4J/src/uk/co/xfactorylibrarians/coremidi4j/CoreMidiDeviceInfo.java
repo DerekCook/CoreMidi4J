@@ -17,7 +17,7 @@ package uk.co.xfactorylibrarians.coremidi4j;
 import javax.sound.midi.MidiDevice;
 
 /**
- * CoreMidiDeviceInfo class
+ * Provides information about a MIDI device which is implemented by CoreMidi4J.
  *
  */
 

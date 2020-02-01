@@ -20,7 +20,7 @@ import javax.sound.midi.MidiMessage;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * CoreMidiReceiver - used to receive data from the application and send it to the connected device.
+ * Used to receive data from the application and send it to the connected device.
  *
  */
 

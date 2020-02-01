@@ -15,7 +15,7 @@
 package uk.co.xfactorylibrarians.coremidi4j;
 
 /**
- * CoreMidiInputPort class
+ * Wraps a native macOS Core MIDI input port.
  *
  */
 

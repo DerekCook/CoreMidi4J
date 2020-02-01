@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * CoreMidiTransmitter - used to receive data from the connected device and send it to the application.
+ * Used to receive data from the connected device and send it to the application.
  *
  */
 

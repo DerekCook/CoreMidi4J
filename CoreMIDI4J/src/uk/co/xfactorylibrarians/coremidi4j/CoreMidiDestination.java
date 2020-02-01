@@ -28,7 +28,7 @@ import javax.sound.midi.Receiver;
 import javax.sound.midi.Transmitter;
 
 /**
- * CoreMidiDestination - implementation for Apple CoreMIDI
+ * Provides a working Java MIDI interface to a CoreMIDI device to which we can send messages.
  *
  */
 

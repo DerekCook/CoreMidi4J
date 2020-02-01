@@ -17,7 +17,7 @@ package uk.co.xfactorylibrarians.coremidi4j;
 import javax.sound.midi.MidiMessage;
 
 /**
- * CoreMidiOutputPort
+ * Wraps a native macOS Core MIDI output port.
  *
  */
 

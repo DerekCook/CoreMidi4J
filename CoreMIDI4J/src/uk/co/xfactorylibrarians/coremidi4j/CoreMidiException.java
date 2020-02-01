@@ -15,7 +15,8 @@
 package uk.co.xfactorylibrarians.coremidi4j;
 
 /**
- * CoreMidiException - thrown by the JNI Native Code if errors are detected during processing.
+ * Used to report errors and problems which occur both in the Java Native Interface bridge to Core MIDI,
+ * and in the library itself.
  *
  */
 

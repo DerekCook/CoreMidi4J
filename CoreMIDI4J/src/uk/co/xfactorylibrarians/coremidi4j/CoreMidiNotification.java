@@ -15,14 +15,14 @@
 package uk.co.xfactorylibrarians.coremidi4j;
 
 /**
- * CoreMidiNotification is a listener interface which is used to register for change notifications when CoreMIDI4J detects changes in the MIDI environment
+ * Listener interface which is used to register for notifications when CoreMIDI4J detects changes in the MIDI environment.
  *
  */
 
 public interface CoreMidiNotification {
 
   /**
-   * Called when a notification occurs
+   * Called when the MIDI environment has changed.
    * 
    * @throws CoreMidiException if there is a problem handling the notification
    * 
