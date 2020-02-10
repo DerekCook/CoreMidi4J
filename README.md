@@ -29,7 +29,8 @@ contribute to.
 CoreMidi4J has been heavily used in some of our own projects for
 several years, and after resolving the last known outstanding issue we
 labeled it version 1.0. Over the next few years an occasional issue
-was discovered and fixed, leading to a new release.
+was discovered and fixed, or a new feature was thought up and added,
+leading to a new release.
 [Feedback](https://github.com/DerekCook/CoreMidi4J/issues) on any new
 problems or issues is always welcome.
 

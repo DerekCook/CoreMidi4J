@@ -6,6 +6,11 @@ This change log follows the conventions of
 
 ## [Unreleased][unreleased]
 
+Nothing so far.
+
+
+## [1.4] - 2020-02-09
+
 ### Fixed
 
 - The build would fail the first time, because a step that was
@@ -25,8 +30,8 @@ This change log follows the conventions of
   the MIDI environment and generate notifications when it changes.
 - Assigned a stable automatic module name so this project can safely
   be used as a dependency in modular Java projects.
-- Updated JavaDoc builder version to include search field, as well as
-  other Maven build components.
+- Updated the JavaDoc builder version so the API documentation would
+  include a search field. Also updated other Maven build components.
 - Added continuous deployment using GitHub Actions so that the library
   jar is automatically built and uploaded as a release artifact
   whenever code is pushed to the master branch on GitHub.
@@ -203,7 +208,8 @@ This change log follows the conventions of
 - Initial Public Release
 
 
-[unreleased]: https://github.com/DerekCook/CoreMidi4J/compare/V1.3...HEAD
+[unreleased]: https://github.com/DerekCook/CoreMidi4J/compare/V1.4...HEAD
+[1.4]: https://github.com/DerekCook/CoreMidi4J/compare/V1.3...V1.4
 [1.3]: https://github.com/DerekCook/CoreMidi4J/compare/V1.2...V1.3
 [1.2]: https://github.com/DerekCook/CoreMidi4J/compare/V1.1...V1.2
 [1.1]: https://github.com/DerekCook/CoreMidi4J/compare/V1.0...V1.1
