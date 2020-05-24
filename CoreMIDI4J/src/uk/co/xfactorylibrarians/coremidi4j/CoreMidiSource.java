@@ -48,6 +48,12 @@ public class CoreMidiSource implements MidiDevice {
   private int sysexMessageLength = 0;  						// Tracks the total SYSEX data length accumulated.
   private long startTime;                         // The system time in microseconds when the port was opened
 
+  /**
+   * Create a new virtual input device with the given name.
+   * @param name name of the MIDI device
+   * @return newly created CoreMidiSource with proper device info
+   * @throws MidiUnavailableException
+   */
   public static CoreMidiSource createVirtualDevice(String name) throws MidiUnavailableException {
     CoreMidiSource source = new CoreMidiSource(null);
     source.open(name, true);

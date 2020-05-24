@@ -44,7 +44,7 @@ public class CoreMidiClient {
    *
    * @param name	The name of the port
    *
-   * @param isVirtual Flag if port should be virtual
+   * @param createVirtual	If true, create a virtual input port
    *
    * @return			A new CoreMidiInputPort
    *
@@ -52,9 +52,9 @@ public class CoreMidiClient {
    *
    */
 
-  public CoreMidiInputPort inputPortCreate(final String name, boolean isVirtual) throws CoreMidiException {
+  public CoreMidiInputPort inputPortCreate(final String name, final boolean createVirtual) throws CoreMidiException {
 
-    return new CoreMidiInputPort(midiClientReference,name,isVirtual);
+    return new CoreMidiInputPort(midiClientReference,name,createVirtual);
 
   }
 
