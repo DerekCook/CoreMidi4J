@@ -23,13 +23,11 @@
 /*
  * The native callback that is called when a MIDI message is received
  *
- * @param packets         A list of MIDI packets that have been received.
- * @param readProcRefCon  The refCon passed to MIDIInputPortCreate
- * @param srcConnRefCon   The refCon passed to MIDIPortConnectSource
+ * @param packets             A list of MIDI packets that have been received.
+ * @param callbackParameters  Context of the JVM
  *
  */
-
-void MIDIInput(const MIDIPacketList *packets, void *readProcRefCon, void *srcConnRefCon) {
+void sendMidiToCallback(const MIDIPacketList *packets, const MIDI_CALLBACK_PARAMETERS *callbackParameters) {
 
   static mach_timebase_info_data_t sTimebaseInfo;  // Will hold conversion factor for timestamps
   JNIEnv *env;
@@ -39,13 +37,10 @@ void MIDIInput(const MIDIPacketList *packets, void *readProcRefCon, void *srcCon
   // uninitialised because it makes no sense to have a zero
   // denominator in a fraction.
   if ( sTimebaseInfo.denom == 0 ) {
-    
-    (void) mach_timebase_info(&sTimebaseInfo);
-    
-  }
 
-  // Cast the supplied reference to the correct data type
-  MIDI_CALLBACK_PARAMETERS *callbackParameters = (MIDI_CALLBACK_PARAMETERS *) srcConnRefCon;
+    (void) mach_timebase_info(&sTimebaseInfo);
+
+  }
 
   // Get a JNIEnv reference from the cached JVM
   int getEnvStat = callbackParameters->jvm->GetEnv((void **) &env, NULL);
@@ -113,6 +108,33 @@ void MIDIInput(const MIDIPacketList *packets, void *readProcRefCon, void *srcCon
   callbackParameters->jvm->DetachCurrentThread();
 
 }
+
+/*
+ * The native callback that is called when a MIDI message is received
+ *
+ * @param packets         A list of MIDI packets that have been received.
+ * @param readProcRefCon  The refCon passed to MIDIInputPortCreate
+ * @param srcConnRefCon   The refCon passed to MIDIPortConnectSource
+ *
+ */
+void MIDIInput(const MIDIPacketList *packets, void *readProcRefCon, void *srcConnRefCon) {
+  MIDI_CALLBACK_PARAMETERS *callbackParameters = (MIDI_CALLBACK_PARAMETERS *) srcConnRefCon;
+  sendMidiToCallback(packets, callbackParameters);
+}
+
+/*
+ * The native callback that is called when a MIDI message is received for a virtual device
+ *
+ * @param packets         A list of MIDI packets that have been received.
+ * @param readProcRefCon  The readProcRefCon passed to MIDIDestinationCreate
+ * @param srcConnRefCon   The srcConnRefCon (always NULL)
+ *
+ */
+void MIDIInputVirtual(const MIDIPacketList *packets, void *readProcRefCon, void *srcConnRefCon) {
+  MIDI_CALLBACK_PARAMETERS *callbackParameters = (MIDI_CALLBACK_PARAMETERS *) readProcRefCon;
+  sendMidiToCallback(packets, callbackParameters);
+}
+
 
 /////////////////////////////////////////////////////////
 // Native functions for CoreMidiInputPort
@@ -207,6 +229,7 @@ JNIEXPORT jlong JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiInputPo
   // Get the endpoint reference from the info object
   int sourceEndPointReference = env->GetIntField(info, env->GetFieldID(env->GetObjectClass(info),"endPointReference","I"));
 
+  std::cout << "midiPortConnectSource" << std::endl;
   // Connect the input port to the source endpoint.
   status = MIDIPortConnectSource(inputPortReference, sourceEndPointReference, callbackParameters);
 
@@ -266,5 +289,91 @@ JNIEXPORT void JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiInputPor
     ThrowException(env,CFSTR("MIDIPortDisconnectSource"),status);
 
   }
+
+}
+
+/*
+ * Creates the virtual MIDI Input Port
+ *
+ * Class:     com_coremidi4j_CoreMidiInputPort
+ * Method:    createVirtualPort
+ * Signature: (ILjava/lang/String;)Iuk/co/xfactorylibrarians/coremidi4j/CoreMidiSource;)V
+ *
+ * @param env                   The JNI environment
+ * @param obj                   The reference to the java object instance that called this native method
+ * @param clientReference       The MIDI Client used to create the port
+ * @param portName              The name of the input port
+ * @param sourceDevice             The reference of the source device
+ *
+ * @return                      A reference to the created virtual input port
+ *
+ * @throws                      CoreMidiException if the virtual input port cannot be created
+ *
+ */
+
+JNIEXPORT jint JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiInputPort_createVirtualPort(JNIEnv *env, jobject obj, jint clientReference, jstring portName, jobject sourceDevice) {
+
+  OSStatus status;
+
+  // Allocate memory for the callback parameters
+  MIDI_CALLBACK_PARAMETERS *callbackParameters = (MIDI_CALLBACK_PARAMETERS *) malloc(sizeof(MIDI_CALLBACK_PARAMETERS));
+
+  // Throw exception if memory allocation failed
+  if ( callbackParameters == NULL ) {
+
+    ThrowException(env,CFSTR("MIDIPortCreateVirtual"),-1);
+
+  }
+
+  // Cache the information needed for the callback, noting that we obtain a l=global reference for the CoreMidiInputPortObject
+  callbackParameters->object = env->NewGlobalRef(sourceDevice);
+  callbackParameters->methodID =  env->GetMethodID(env->GetObjectClass(sourceDevice), "messageCallback", "(JI[B)V");
+  jint result = env->GetJavaVM(&callbackParameters->jvm);
+
+  // Ensure that the last call succeeded
+  assert (result == JNI_OK);
+
+  MIDIPortRef portRef;
+  // Create a CFStringRef from the portName jstring
+  const char *portNameString = env->GetStringUTFChars(portName,0);
+  CFStringRef cfPortName = CFStringCreateWithCString(NULL,portNameString,kCFStringEncodingMacRoman);
+
+  status = MIDIDestinationCreate( clientReference, cfPortName, MIDIInputVirtual, callbackParameters, &portRef );
+
+  if ( status != 0) {
+
+    ThrowException(env,CFSTR("MIDIPortCreateVirtual"),status);
+
+  }
+
+  return portRef;
+
+}
+
+/*
+ * Disposes a virtual source or destination your client created.
+ *
+ * Class:     com_coremidi4j_CoreMidiInputPort
+ * Method:    disposeVirtualPort
+ * Signature: (IL
+ *
+ * @param env                      The JNI environment
+ * @param obj                      The reference to the java object instance that called this native method
+ * @param inputPortReference       The reference of the input point that we wish to dispose
+ *
+ * @throws                         CoreMidiException if the input port cannot be disposed
+ *
+ */
+JNIEXPORT void JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiInputPort_disposeVirtualPort(JNIEnv *env, jobject obj, jint inputPortReference) {
+
+    OSStatus status;
+
+    status = MIDIEndpointDispose( inputPortReference );
+
+    if ( status != 0) {
+
+        ThrowException(env,CFSTR("MIDIPortDisposeVirtual"),status);
+
+    }
 
 }

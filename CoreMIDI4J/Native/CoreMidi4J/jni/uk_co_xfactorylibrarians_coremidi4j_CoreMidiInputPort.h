@@ -17,6 +17,22 @@ JNIEXPORT jint JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiInputPor
 
 /*
  * Class:     uk_co_xfactorylibrarians_coremidi4j_CoreMidiInputPort
+ * Method:    createVirtualPort
+ * Signature: (ILjava/lang/String;Luk/co/xfactorylibrarians/coremidi4j/CoreMidiSource;)I
+ */
+JNIEXPORT jint JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiInputPort_createVirtualPort
+  (JNIEnv *, jobject, jint, jstring, jobject);
+
+/*
+ * Class:     uk_co_xfactorylibrarians_coremidi4j_CoreMidiInputPort
+ * Method:    disposeVirtualPort
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiInputPort_disposeVirtualPort
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     uk_co_xfactorylibrarians_coremidi4j_CoreMidiInputPort
  * Method:    midiPortConnectSource
  * Signature: (ILuk/co/xfactorylibrarians/coremidi4j/CoreMidiSource;)J
  */
