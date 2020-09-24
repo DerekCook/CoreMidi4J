@@ -10,7 +10,7 @@ This change log follows the conventions of
 
 - It is now possible to send long SysEx payloads split across multiple
   messages using the Java convention of leaving out the trailing
-  `0dF7` byte on all messages except the last, and introducing
+  `0xF7` byte on all messages except the last, and introducing
   continuation messages with a first byte of `0xF7` instead of the
   normal `0xF0`. Thanks to [@eclab](https://github.com/eclab) for
   identifying this in [Issue
