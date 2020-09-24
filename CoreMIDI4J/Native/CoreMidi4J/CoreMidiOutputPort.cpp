@@ -130,7 +130,16 @@ JNIEXPORT void JNICALL Java_uk_co_xfactorylibrarians_coremidi4j_CoreMidiOutputPo
     MIDIPacketList *packets = (MIDIPacketList *)buffer;
 
     MIDIPacket *packet = MIDIPacketListInit(packets);
-    MIDIPacketListAdd(packets, bufferLength, packet, coreTimestamp, messageLength, (Byte *) messageData);
+    if (messageData[0] == -9) {
+
+      // Java represents continuations of incomplete SysEx messages as having a status code of 0xf7, which we need to strip off.
+      MIDIPacketListAdd(packets, bufferLength, packet, coreTimestamp, messageLength - 1, (Byte *) messageData + 1);
+
+    } else {
+
+      MIDIPacketListAdd(packets, bufferLength, packet, coreTimestamp, messageLength, (Byte *) messageData);  // A normal message.
+
+    }
 
     status = MIDISend(outputPortReference, endPointReference, packets);
 

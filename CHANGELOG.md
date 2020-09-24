@@ -6,7 +6,15 @@ This change log follows the conventions of
 
 ## [Unreleased][unreleased]
 
-Nothing so far.
+### Fixed
+
+- It is now possible to send long SysEx payloads split across multiple
+  messages using the Java convention of leaving out the trailing
+  `0dF7` byte on all messages except the last, and introducing
+  continuation messages with a first byte of `0xF7` instead of the
+  normal `0xF0`. Thanks to [@eclab](https://github.com/eclab) for
+  identifying this in [Issue
+  37](https://github.com/DerekCook/CoreMidi4J/issues/37).
 
 
 ## [1.4] - 2020-02-09
