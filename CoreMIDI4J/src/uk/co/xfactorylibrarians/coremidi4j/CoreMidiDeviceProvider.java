@@ -438,8 +438,6 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
 
   private static void watchForChanges() {
 
-    currentDevices.set(snapshotCurrentEnvironment());  // Establish a baseline for our first comparison.
-
     // Keep running as long as we are needed. As soon as there are no listeners left, changeScanner will
     // be set to null. Even if a new listener is then added and a new thread is started up before we wake
     // from our sleep, the comparison below will fail, and we will exit.
@@ -513,6 +511,8 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
 
         // If the dynamic library is not loadable, set up our own daemon thread provide notifications.
         if (!isLibraryLoaded() && changeScanner.get() == null) {
+
+          currentDevices.set(snapshotCurrentEnvironment());  // Establish a baseline for our first comparison.
 
           Thread scanner = new Thread(new Runnable() {
             @Override
