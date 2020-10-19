@@ -15,6 +15,17 @@ This change log follows the conventions of
   normal `0xF0`. Thanks to [@eclab](https://github.com/eclab) for
   identifying this in [Issue
   37](https://github.com/DerekCook/CoreMidi4J/issues/37).
+- Synchronization is used to protect against non-thread-safe behavior
+  by
+  [`MidiSystem.getMidiDeviceInfo()`](https://docs.oracle.com/javase/7/docs/api/javax/sound/midi/MidiSystem.html?is-external=true#getMidiDeviceInfo())
+  when using
+  [`CoreMidiDeviceProvider.addNotificationListener()`](https://deepsymmetry.org/coremidi4j/apidocs/uk/co/xfactorylibrarians/coremidi4j/CoreMidiDeviceProvider.html#addNotificationListener(uk.co.xfactorylibrarians.coremidi4j.CoreMidiNotification))
+  on non-Mac platforms. (To be protected you must always use
+  [`CoreMidiDeviceProvider.getMidiDeviceInfo()`](https://deepsymmetry.org/coremidi4j/apidocs/uk/co/xfactorylibrarians/coremidi4j/CoreMidiDeviceProvider.html#getMidiDeviceInfo())
+  instead of the one provided by `javax.sound.midi.MidiSystem`.)
+  Thanks to [Mailüfterl s.r.o.](https://github.com/mailuefterl-sro)
+  for identifying this in [Issue
+  38](https://github.com/DerekCook/CoreMidi4J/issues/38).
 
 
 ## [1.4] - 2020-02-09
