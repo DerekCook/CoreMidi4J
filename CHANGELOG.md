@@ -6,6 +6,11 @@ This change log follows the conventions of
 
 ## [Unreleased][unreleased]
 
+Nothing so far.
+
+
+## [1.5] - 2020-10-24
+
 ### Fixed
 
 - It is now possible to send long SysEx payloads split across multiple
@@ -26,6 +31,7 @@ This change log follows the conventions of
   Thanks to [Mailüfterl s.r.o.](https://github.com/mailuefterl-sro)
   for identifying this in [Issue
   38](https://github.com/DerekCook/CoreMidi4J/issues/38).
+
 
 
 ## [1.4] - 2020-02-09
@@ -56,6 +62,7 @@ This change log follows the conventions of
   whenever code is pushed to the master branch on GitHub.
 
 
+
 ## [1.3] - 2020-01-03
 
 ### Fixed
@@ -65,6 +72,7 @@ This change log follows the conventions of
   [@jeremybernstein](https://github.com/jeremybernstein).
 - A mistake in the sample code in the project Read Me, thanks to
   [@git-moss](https://github.com/git-moss).
+
 
 ## [1.2] - 2019-09-05
 
@@ -78,6 +86,7 @@ This change log follows the conventions of
   application, devices other than the IAC Driver were showing up as
   `<Unknown device>`. We now use a slightly more complex but reliable
   mechanism, so device names should always be available.
+
 
 ## [1.1] - 2017-09-16
 
@@ -129,6 +138,7 @@ This change log follows the conventions of
 
 - Dependencies and build tools were updated to their latest releases.
 
+
 ## [0.9] - 2016-08-23
 
 ### Added
@@ -137,6 +147,7 @@ This change log follows the conventions of
   `CoreMidiDeviceProvider` so that client software can determine the
   version of CoreMIDI4J which is in use. (If this method is not found,
   then the version is unknown, but must be 0.8 or earlier.)
+
 
 ## [0.8] - 2016-07-03
 
@@ -150,6 +161,7 @@ This change log follows the conventions of
 ### Changed
 
 - Dependencies and build tools were updated to their latest releases.
+
 
 ## [0.7] - 2016-04-20
 
@@ -176,6 +188,7 @@ This change log follows the conventions of
   CoreMidi4J as a Java extension, and recommend that you remove any
   older version you have placed in the Extensions directory.
 
+
 ## [0.5] - 2016-03-19
 
 ### Fixed
@@ -184,12 +197,14 @@ This change log follows the conventions of
   showing up with null values for their names, descriptions and
   vendors.
 
+
 ## [0.4] - 2016-01-18
 
 ### Fixed
 
 - MIDI Timestamps are now properly translated between Java and
   CoreMidi. This may be the only MIDI SPI which achieves this.
+
 
 ## [0.3] - 2016-01-09
 
@@ -227,7 +242,8 @@ This change log follows the conventions of
 - Initial Public Release
 
 
-[unreleased]: https://github.com/DerekCook/CoreMidi4J/compare/V1.4...HEAD
+[unreleased]: https://github.com/DerekCook/CoreMidi4J/compare/V1.5...HEAD
+[1.5]: https://github.com/DerekCook/CoreMidi4J/compare/V1.4...V1.5
 [1.4]: https://github.com/DerekCook/CoreMidi4J/compare/V1.3...V1.4
 [1.3]: https://github.com/DerekCook/CoreMidi4J/compare/V1.2...V1.3
 [1.2]: https://github.com/DerekCook/CoreMidi4J/compare/V1.1...V1.2
