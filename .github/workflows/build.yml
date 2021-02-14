@@ -33,15 +33,15 @@ jobs:
         PROJECT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
         RELEASE_TAG="V$PROJECT_VERSION"
         HUMAN_VERSION=${PROJECT_VERSION/SNAPSHOT/Preview}
-        echo "::set-env name=release_tag::$RELEASE_TAG"
-        echo "::set-env name=release_name::Version $PROJECT_VERSION"
-        echo "::set-env name=artifact_name::coremidi4j-$HUMAN_VERSION.jar"
-        echo "::set-env name=built_name::coremidi4j-$PROJECT_VERSION.jar"
+        echo "release_tag=$RELEASE_TAG"
+        echo "release_name=Version $PROJECT_VERSION"
+        echo "artifact_name=coremidi4j-$HUMAN_VERSION.jar"
+        echo "built_name=coremidi4j-$PROJECT_VERSION.jar"
         if [[ release_tag =~ .*-SNAPSHOT ]]
         then
-          echo "::set-env name=release_snapshot::true"
+          echo "release_snapshot=true"
         else
-          echo "::set-env name=release_snapshot::false"
+          echo "release_snapshot=false"
         fi
 
     - name: Cache Maven dependencies
