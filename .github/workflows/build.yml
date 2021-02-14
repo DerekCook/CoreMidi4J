@@ -63,10 +63,10 @@ jobs:
       uses: Xotl/cool-github-releases@v1
       with:
         mode: update
-        tag_name: ${{ env.release_tag }}
-        release_name: ${{ env.release_name }}
+        tag_name: ${{ release_tag }}
+        release_name: ${{ release_name }}
         isPrerelease: true
-        replace_assets: ${{ env.release_snapshot }}
-        assets: ${{ env.artifact_name }}
+        replace_assets: ${{ release_snapshot }}
+        assets: ${{ artifact_name }}
         github_token: ${{ github.token }}
         initial_mrkdwn: ${{ env.initial_description }}
