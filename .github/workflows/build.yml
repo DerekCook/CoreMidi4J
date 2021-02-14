@@ -33,10 +33,10 @@ jobs:
         PROJECT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
         RELEASE_TAG="V$PROJECT_VERSION"
         HUMAN_VERSION=${PROJECT_VERSION/SNAPSHOT/Preview}
-        echo "release_tag=$RELEASE_TAG"
-        echo "release_name=Version $PROJECT_VERSION"
-        echo "artifact_name=coremidi4j-$HUMAN_VERSION.jar"
-        echo "built_name=coremidi4j-$PROJECT_VERSION.jar"
+        echo "release_tag=$RELEASE_TAG" >> $GITHUB_ENV
+        echo "release_name=Version $PROJECT_VERSION" >> $GITHUB_ENV
+        echo "artifact_name=coremidi4j-$HUMAN_VERSION.jar" >> $GITHUB_ENV
+        echo "built_name=coremidi4j-$PROJECT_VERSION.jar" >> $GITHUB_ENV
         if [[ release_tag =~ .*-SNAPSHOT ]]
         then
           echo "release_snapshot=true"
