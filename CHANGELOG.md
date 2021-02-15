@@ -6,7 +6,10 @@ This change log follows the conventions of
 
 ## [Unreleased][unreleased]
 
-Nothing so far.
+## Added
+
+- Rebuilt the native library using the latest Xcode to support use on
+  Apple Silicon (M1) Macs.
 
 
 ## [1.5] - 2020-10-24
