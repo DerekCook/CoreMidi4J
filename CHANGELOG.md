@@ -6,10 +6,15 @@ This change log follows the conventions of
 
 ## [Unreleased][unreleased]
 
+Nothing so far.
+
+
+## [1.6] - 2021-02-20
+
 ## Added
 
 - Rebuilt the native library using the latest Xcode to support use on
-  Apple Silicon (M1) Macs.
+  Apple Silicon (M1, arm64) Macs.
 
 
 ## [1.5] - 2020-10-24
@@ -245,7 +250,8 @@ This change log follows the conventions of
 - Initial Public Release
 
 
-[unreleased]: https://github.com/DerekCook/CoreMidi4J/compare/V1.5...HEAD
+[unreleased]: https://github.com/DerekCook/CoreMidi4J/compare/V1.6...HEAD
+[1.6]: https://github.com/DerekCook/CoreMidi4J/compare/V1.5...V1.6
 [1.5]: https://github.com/DerekCook/CoreMidi4J/compare/V1.4...V1.5
 [1.4]: https://github.com/DerekCook/CoreMidi4J/compare/V1.3...V1.4
 [1.3]: https://github.com/DerekCook/CoreMidi4J/compare/V1.2...V1.3
