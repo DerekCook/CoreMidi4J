@@ -5,11 +5,11 @@
  * Company:      x.factory Librarians
  *
  * @author Derek Cook, James Elliott
- * 
+ *
  * CoreMIDI4J is an open source Service Provider Interface for supporting external MIDI devices on MAC OS X
- * 
+ *
  * CREDITS - This library uses principles established by OSXMIDI4J, but converted so it operates at the JNI level with no additional libraries required
- * 
+ *
  */
 
 package uk.co.xfactorylibrarians.coremidi4j;
@@ -49,6 +49,18 @@ public class CoreMidiSource implements MidiDevice {
   private long startTime;                         // The system time in microseconds when the port was opened
 
   /**
+   * Create a new virtual input device with the given name.
+   * @param name name of the MIDI device
+   * @return newly created CoreMidiSource with proper device info
+   * @throws MidiUnavailableException
+   */
+  public static CoreMidiSource createVirtualDevice(String name) throws MidiUnavailableException {
+    CoreMidiSource source = new CoreMidiSource(null);
+    source.open(name, true);
+    return source;
+  }
+
+  /**
    * Default constructor.
    *
    * @param info a CoreMidiDeviceInfo object providing details of the MIDI interface
@@ -67,7 +79,7 @@ public class CoreMidiSource implements MidiDevice {
    * Gets the MIDI Info object
    *
    * @return the MIDI Info object, which provides details about the interface
-   * 
+   *
    */
 
   @Override
@@ -79,11 +91,11 @@ public class CoreMidiSource implements MidiDevice {
 
   /**
    * Changes the MIDI Info object; can only be done by this package as a result of a MIDI environment change event.
-   * 
+   *
    * @param info The CoreMidiDeviceInfo to update
-   * 
+   *
    */
-  
+
   void updateDeviceInfo(CoreMidiDeviceInfo info) {
 
     this.info = info;
@@ -94,11 +106,20 @@ public class CoreMidiSource implements MidiDevice {
    * Opens the Core MIDI Device
    *
    * @throws MidiUnavailableException if the MIDI system cannot be used
-   * 
+   *
    */
-
   @Override
   public void open() throws MidiUnavailableException {
+    open("Core Midi Provider Input", false);
+  }
+
+  /**
+   * Opens the Core MIDI Device
+   *
+   * @throws MidiUnavailableException if the MIDI s ystem cannot be used
+   *
+   */
+  public void open(String name, boolean createVirtual) throws MidiUnavailableException {
 
     if (isOpen.compareAndSet(false, true)) {
 
@@ -107,7 +128,7 @@ public class CoreMidiSource implements MidiDevice {
         // Create the input port if not already created
         if (input.get() == null) {
 
-          input.set(CoreMidiDeviceProvider.getMIDIClient().inputPortCreate("Core Midi Provider Input"));
+          input.set(CoreMidiDeviceProvider.getMIDIClient().inputPortCreate(name, createVirtual));
 
         }
 
@@ -130,7 +151,7 @@ public class CoreMidiSource implements MidiDevice {
 
   /**
    * Closes the Core MIDI Device, which also closes all its transmitters
-   * 
+   *
    */
 
   @Override
@@ -189,9 +210,9 @@ public class CoreMidiSource implements MidiDevice {
    * Checks to see if the MIDI Device is open
    *
    * @return true if the device is open, otherwise false;
-   * 
+   *
    * @see javax.sound.midi.MidiDevice#isOpen()
-   * 
+   *
    */
 
   @Override
@@ -205,9 +226,9 @@ public class CoreMidiSource implements MidiDevice {
    * Obtains the time in microseconds that has elapsed since this MIDI Device was opened.
    *
    * @return the time in microseconds that has elapsed since this MIDI Device was opened.
-   * 
+   *
    * @see javax.sound.midi.MidiDevice#getMicrosecondPosition()
-   * 
+   *
    */
 
   @Override
@@ -222,9 +243,9 @@ public class CoreMidiSource implements MidiDevice {
    * Gets the maximum number of receivers that can be attached to this device.
    *
    * @return the maximum number of receivers that can be attached to this device. This is always 0 as a CoreMidiSource has no receivers
-   * 
+   *
    * @see javax.sound.midi.MidiDevice#getMaxReceivers()
-   * 
+   *
    */
 
   @Override
@@ -239,9 +260,9 @@ public class CoreMidiSource implements MidiDevice {
    * Gets the maximum number of transmitters that can be attached to this device.
    *
    * @return the maximum number of transmitters that can be attached to this device. -1 is returned to indicate that the number is unlimited
-   * 
+   *
    * @see javax.sound.midi.MidiDevice#getMaxTransmitters()
-   * 
+   *
    */
 
   @Override
@@ -256,9 +277,9 @@ public class CoreMidiSource implements MidiDevice {
    * Creates and returns a MIDI Receiver for use with this Device
    *
    * @return the created receiver
-   * 
+   *
    * @see javax.sound.midi.MidiDevice#getReceiver()
-   * 
+   *
    */
 
   @Override
@@ -272,9 +293,9 @@ public class CoreMidiSource implements MidiDevice {
    * Gets a list of receivers connected to the device
    *
    * @return an empty list - we do not maintain a list of receivers
-   * 
+   *
    * @see javax.sound.midi.MidiDevice#getReceivers()
-   * 
+   *
    */
 
   @Override
@@ -289,9 +310,9 @@ public class CoreMidiSource implements MidiDevice {
    * Gets a transmitter for this device (which is also added to the internal list)
    *
    * @return a transmitter for this device
-   * 
+   *
    * @see javax.sound.midi.MidiDevice#getTransmitter()
-   * 
+   *
    */
 
   @Override
@@ -324,9 +345,9 @@ public class CoreMidiSource implements MidiDevice {
    * Gets the list of transmitters registered with this MIDI device
    *
    * @return The list of transmitters created from this MIDI device that are still open
-   * 
+   *
    * @see javax.sound.midi.MidiDevice#getTransmitters()
-   * 
+   *
    */
 
   @Override
@@ -380,10 +401,10 @@ public class CoreMidiSource implements MidiDevice {
     switch( status & 0xF0 ) {
 
       case ShortMessage.NOTE_OFF:
-      case ShortMessage.NOTE_ON: 
+      case ShortMessage.NOTE_ON:
       case ShortMessage.POLY_PRESSURE:
       case ShortMessage.CONTROL_CHANGE:
-      case ShortMessage.PROGRAM_CHANGE: 
+      case ShortMessage.PROGRAM_CHANGE:
       case ShortMessage.CHANNEL_PRESSURE:
       case ShortMessage.PITCH_BEND:
         return true;
@@ -414,21 +435,21 @@ public class CoreMidiSource implements MidiDevice {
       case ShortMessage.END_OF_EXCLUSIVE:
 
         // System real-time messages
-      case ShortMessage.TIMING_CLOCK:  
+      case ShortMessage.TIMING_CLOCK:
       case 0xF9:  // Undefined
-      case ShortMessage.START:  
-      case ShortMessage.CONTINUE:  
-      case ShortMessage.STOP:  
+      case ShortMessage.START:
+      case ShortMessage.CONTINUE:
+      case ShortMessage.STOP:
       case 0xFD:  // Undefined
-      case ShortMessage.ACTIVE_SENSING:  
-      case ShortMessage.SYSTEM_RESET:  
+      case ShortMessage.ACTIVE_SENSING:
+      case ShortMessage.SYSTEM_RESET:
         return 0;
 
       case ShortMessage.MIDI_TIME_CODE:
-      case ShortMessage.SONG_SELECT:  
+      case ShortMessage.SONG_SELECT:
         return 1;
 
-      case ShortMessage.SONG_POSITION_POINTER:  
+      case ShortMessage.SONG_POSITION_POINTER:
         return 2;
 
       default:  // Fall through to next switch
@@ -438,15 +459,15 @@ public class CoreMidiSource implements MidiDevice {
     // channel voice and mode messages
     switch( status & 0xF0 ) {
 
-      case ShortMessage.NOTE_OFF: 
-      case ShortMessage.NOTE_ON:  
+      case ShortMessage.NOTE_OFF:
+      case ShortMessage.NOTE_ON:
       case ShortMessage.POLY_PRESSURE:
-      case ShortMessage.CONTROL_CHANGE:  
-      case ShortMessage.PITCH_BEND: 
+      case ShortMessage.CONTROL_CHANGE:
+      case ShortMessage.PITCH_BEND:
         return 2;
 
-      case ShortMessage.PROGRAM_CHANGE:  
-      case ShortMessage.CHANNEL_PRESSURE:  
+      case ShortMessage.PROGRAM_CHANGE:
+      case ShortMessage.CHANNEL_PRESSURE:
         return 1;
 
       default:
@@ -458,13 +479,13 @@ public class CoreMidiSource implements MidiDevice {
 
   /**
    * The message callback for receiving midi data from the JNI code
-   * 
+   *
    * @param coreTimestamp  The time in microseconds since boot at which the messages should take effect
    * @param packetlength   The length of the packet of messages
    * @param data           The data array that holds the messages
-   * 
+   *
    * @throws InvalidMidiDataException if the message contained values that could not be interpreted as valid MIDI
-   * 
+   *
    */
 
   public void messageCallback(long coreTimestamp, int packetlength, byte data[]) throws InvalidMidiDataException {
@@ -511,9 +532,9 @@ public class CoreMidiSource implements MidiDevice {
             // We have just received the first data byte of a message which needs two.
             firstDataByte = data[offset++];
             wasFirstByteReceived = true;
-            
+
           }
-          
+
         }
 
       } else {
@@ -586,9 +607,9 @@ public class CoreMidiSource implements MidiDevice {
    * detected in the most recent message gathered, indicating the end of the SYSEX.
    *
    * @return The constructed SYSEX message
-   * 
+   *
    * @throws InvalidMidiDataException if the data is not properly formed
-   * 
+   *
    */
 
   private SysexMessage constructSysexMessage() throws InvalidMidiDataException {
@@ -634,9 +655,9 @@ public class CoreMidiSource implements MidiDevice {
    * @param timestamp 		The message timestamp
    *
    * @return 							The number of bytes consumed from the packet by the SYSEX message
-   * 
+   *
    * @throws 							InvalidMidiDataException if the data is not properly formed
-   * 
+   *
    */
 
   private int processSysexData(int packetLength, byte sourceData[], int startOffset, long timestamp)
@@ -728,7 +749,7 @@ public class CoreMidiSource implements MidiDevice {
    *
    * @param message 		the message to send
    * @param timestamp 	the time stamp
-   * 
+   *
    */
 
   private void transmitMessage(final MidiMessage message, long timestamp) {
@@ -760,9 +781,9 @@ public class CoreMidiSource implements MidiDevice {
    * Formats the provided data into a HEX string, which is useful for debugging
    *
    * @param aByteArray The data to format
-   * 
+   *
    * @return The formatted HEX string
-   * 
+   *
    */
 
   private String getHexString(byte[] aByteArray) {
@@ -782,7 +803,7 @@ public class CoreMidiSource implements MidiDevice {
     return new String(sbuf).trim();
 
   }
-  
+
   //////////////////////////////
   ///// JNI Interfaces
   //////////////////////////////
@@ -810,7 +831,7 @@ public class CoreMidiSource implements MidiDevice {
    * Obtains the current system time in microseconds.
    *
    * @return The current system time in microseconds.
-   * 
+   *
    */
 
   private native long getMicroSecondTime();
