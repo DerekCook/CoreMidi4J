@@ -417,7 +417,7 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
 
     Set<List<String>> results = new HashSet<>();
 
-    for (MidiDevice.Info info : MidiSystem.getMidiDeviceInfo()) {
+    for (MidiDevice.Info info : getSystemMidiDeviceInfo()) {
 
       List<String> summary = new LinkedList<>();
       summary.add(info.getName());
@@ -485,6 +485,13 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
    * <p>Adds a listener to be notified when the MIDI environment changes. If the current system
    * is not running macOS, then ensure that our watcher daemon thread is running in order to
    * be able to deliver these notifications, since we don't have CoreMIDI to initiate them.</p>
+   *
+   * <p>If you are using this capability on a non-macOS system, you must be sure to only call
+   * {@link #getMidiDeviceInfo()} on this class, and never call {@link MidiSystem#getMidiDeviceInfo()}
+   * directly, because the latter is not thread-safe, and you can run into exceptions trying to
+   * get information about MIDI devices if your call happens to occur at the same time that our
+   * watcher daemon thread is gathering information. The version provided by this class uses
+   * synchronization to avoid such conflicts.</p>
    *
    * <p>Instances of {@link CoreMidiDeviceProvider} register themselves when they are constructed,
    * so they can keep their lists of working CoreMIDI-backed devices up to date. We only keep the
@@ -684,23 +691,40 @@ public class CoreMidiDeviceProvider extends MidiDeviceProvider implements CoreMi
   }
 
   /**
-   * Obtains an array of information objects representing the set of all working MIDI devices available on the system.
-   * This is a replacement for javax.sound.midi.MidiSystem.getMidiDeviceInfo(), and only returns fully-functional
-   * MIDI devices. If you call it on a non-Mac system, it simply delegates to the javax.sound.midi implementation.
+   * Call the JDK's raw MIDI device information collection method, while holding a lock to make sure that
+   * this is never happening on more than one thread, which evidently can cause problems on some operating
+   * systems.
+   *
+   * @return an array of <code>MidiDevice.Info</code> objects, one
+   * for each installed MIDI device.  If no such devices are installed,
+   * an array of length 0 is returned.
+   */
+  private static synchronized MidiDevice.Info[] getSystemMidiDeviceInfo() {
+    return MidiSystem.getMidiDeviceInfo();
+  }
+
+  /**
+   * <p>Obtains an array of information objects representing the set of all working MIDI devices available on the system.
+   * This is a replacement for {@link MidiSystem#getMidiDeviceInfo()}, and only returns fully-functional
+   * MIDI devices. If you call it on a non-Mac system, it simply delegates to the {@code javax.sound.midi} implementation.
    * On a Mac, it calls that function, but filters out the broken devices, returning only the replacement versions
    * that CoreMidi4J provides. So by using this method rather than the standard one, you can give your users a
-   * menu of MIDI devices which are guaranteed to properly support MIDI System Exclusive messages.
+   * menu of MIDI devices which are guaranteed to properly support MIDI System Exclusive messages.</p>
    *
-   * A returned information object can then be used to obtain the corresponding device object,
-   * by invoking javax.sound.midi.MidiSystem.getMidiDevice().
+   * <p>A returned information object can then be used to obtain the corresponding device object,
+   * by invoking {@link MidiSystem#getMidiDevice(MidiDevice.Info)}.</p>
    *
-   * @return an array of MidiDevice.Info objects, one for each installed and fully-functional MIDI device.
+   * <p>As mentioned in {@link #addNotificationListener(CoreMidiNotification)}, if you use that method, you must
+   * only ever call this version of {@code getMidiDeviceInfo()}, never {@link MidiSystem#getMidiDeviceInfo()},
+   * due to thread-safety issues in the latter.</p>
+   *
+   * @return an array of {@link MidiDevice.Info} objects, one for each installed and fully-functional MIDI device.
    *         If no such devices are installed, an array of length 0 is returned.
    */
 
   public static MidiDevice.Info[] getMidiDeviceInfo() {
 
-    MidiDevice.Info[] allInfo = MidiSystem.getMidiDeviceInfo();
+    MidiDevice.Info[] allInfo = getSystemMidiDeviceInfo();
 
     try {
 

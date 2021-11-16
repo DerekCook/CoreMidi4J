@@ -102,6 +102,28 @@ CoreMidi4J, and use its implementation of `getMidiDeviceInfo()`
 wherever you would otherwise have used the standard one, and your
 users will always only see working MIDI devices.
 
+### Watching for MIDI Device Changes
+
+If you would like to be able to automatically update your user
+interface when the user connects, disconnects, or powers on/off a MIDI
+device, you can call
+[`addNotificationListener(listener)`](https://deepsymmetry.org/coremidi4j/apidocs/uk/co/xfactorylibrarians/coremidi4j/CoreMidiDeviceProvider.html#addNotificationListener(uk.co.xfactorylibrarians.coremidi4j.CoreMidiNotification))
+(also provided by the `CoreMidiDeviceProvider` class). This will call
+register a listener method to be called whenever such changes to the
+MIDI environment occur.
+
+> NOTE: If you use `addNotificationListener` on a non-macOS system, it
+> needs to periodically scan the MIDI environment on a background
+> thread. We have learned that the version of `getMidiDeviceInfo` in
+> `javax.sound.MidiSystem` is not thread-safe, and if more than one
+> thread uses it simultaneously, it will return invalid devices which
+> throw exceptions when they are used. Because of that, you should
+> only use the version of `getMidiDeviceInfo` provided by
+> `CoreMidiDeviceProvider`, which uses synchronization to avoid this
+> problem. Even if you are not using `addNotificationListener`, our
+> version of the method is safer if you are using multiple threads for
+> your own purposes.
+
 For more details, you can consult the CoreMidi4J [API
 documentation](https://deepsymmetry.org/coremidi4j/apidocs/) or even
 the source code, or simply keep reading.
