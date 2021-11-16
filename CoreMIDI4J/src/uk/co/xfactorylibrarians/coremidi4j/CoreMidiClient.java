@@ -5,11 +5,11 @@
  * Company:      x.factory Librarians
  *
  * @author Derek Cook
- * 
+ *
  * CoreMIDI4J is an open source Service Provider Interface for supporting external MIDI devices on MAC OS X
- * 
+ *
  * CREDITS - This library uses principles established by OSXMIDI4J, but converted so it operates at the JNI level with no additional libraries required
- * 
+ *
  */
 
 package uk.co.xfactorylibrarians.coremidi4j;
@@ -26,11 +26,11 @@ public class CoreMidiClient {
 
   /**
    * Constructor for class
-   * 
-   * @param name 	The name of the client		
-   * 
+   *
+   * @param name 	The name of the client
+   *
    * @throws 			CoreMidiException if the client cannot be initialized
-   * 
+   *
    */
 
   public CoreMidiClient(String name) throws CoreMidiException {
@@ -41,30 +41,32 @@ public class CoreMidiClient {
 
   /**
    * Creates a new CoreMidiInputPort
-   * 
+   *
    * @param name	The name of the port
-   * 
+   *
+   * @param createVirtual	If true, create a virtual input port
+   *
    * @return			A new CoreMidiInputPort
-   * 
+   *
    * @throws 			CoreMidiException if the port cannot be created
-   * 
+   *
    */
 
-  public CoreMidiInputPort inputPortCreate(final String name) throws CoreMidiException {
+  public CoreMidiInputPort inputPortCreate(final String name, final boolean createVirtual) throws CoreMidiException {
 
-    return new CoreMidiInputPort(midiClientReference,name);
+    return new CoreMidiInputPort(midiClientReference,name,createVirtual);
 
   }
 
   /**
    * Creates a new CoreMidiOutputPort
-   * 
+   *
    * @param name	The name of the port
-   * 
+   *
    * @return			A new CoreMidiOutputPort
-   * 
+   *
    * @throws 			CoreMidiException if the port cannot be created
-   * 
+   *
    */
 
   public CoreMidiOutputPort outputPortCreate(final String name) throws CoreMidiException {
@@ -75,9 +77,9 @@ public class CoreMidiClient {
 
   /**
    * The message callback for receiving notifications about changes in the MIDI environment from the JNI code
-   * 
+   *
    * @throws CoreMidiException if a problem occurs passing along the notification
-   * 
+   *
    */
 
   public void notifyCallback() throws CoreMidiException  {
@@ -115,11 +117,11 @@ public class CoreMidiClient {
 
   /**
    * Creates the MIDI Client
-   * 
+   *
    * @param clientName 					The name of the client
-   * 
+   *
    * @return										A reference to the MIDI client
-   * 
+   *
    * @throws CoreMidiException	if the client cannot be created
    *
    */
@@ -128,11 +130,11 @@ public class CoreMidiClient {
 
   /**
    * Disposes of a CoreMIDI Client
-   * 
+   *
    * @param clientReference		The reference of the client to dispose of
-   * 
+   *
    * @throws 									CoreMidiException if there is a problem disposing of the client
-   * 
+   *
    */
 
   private native void disposeClient(int clientReference) throws CoreMidiException;
