@@ -34,6 +34,20 @@ leading to a new release.
 [Feedback](https://github.com/DerekCook/CoreMidi4J/issues) on any new
 problems or issues is always welcome.
 
+## Using with Java 24 and Above
+
+If you plan to use CoreMIDI4J on Java 24 and above please be aware of 
+[JEP 472: Prepare to Restrict the Use of JNI](https://openjdk.org/jeps/472)
+which is described further in [Quality Outreach Heads-up - JDK 24: Prepares Restricted Native Access](https://inside.java/2024/12/09/quality-heads-up/).
+
+This JEP requires the use of a command line option when launching your 
+Java application to disable a warning that native methods are being called. 
+At present this is currently a warning, but future Java versions will not permit
+access to native methods without this command line option.
+
+As CoreMIDI4J needs to call CoreMIDI services via Java Native Interface (JNI) 
+then native access will always be required by CoreMID4J.
+
 ## Installation
 
 The recommended approach for use as a library is to
